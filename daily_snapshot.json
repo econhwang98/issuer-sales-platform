@@ -1,6 +1,6 @@
 {
   "as_of_date": "2026-07-06",
-  "policy_version": "v1.3-static-mvp-option-c-api-expanded",
+  "policy_version": "v1.5-full-listed-universe-pages-light",
   "service": {
     "name": "발행사 선제 영업 플랫폼",
     "subtitle": "공개정보 기반 자금수요 레이더",
@@ -14,7 +14,7 @@
     "text": "Final = 45% × Pure Financial Rule + 40% × AI Base + 15% × News Trigger"
   },
   "pipeline_status": {
-    "last_run_kst": "2026-07-06 13:01:26",
+    "last_run_kst": "2026-07-06 13:16:20",
     "next_run_kst": "2026-07-07 08:00:00",
     "scheduled_run": "매일 08:00 KST / GitHub Actions cron 0 23 * * * UTC",
     "source_status": {
@@ -26,6 +26,9 @@
       "credit_rating": "manual_file_needed",
       "llm_annotation": "transparent_proxy_static_mvp"
     },
+    "universe_count": 5,
+    "universe_mode": "opendart_auto_expand_full_listed",
+    "page_detail_limit": 300,
     "missing_fields": [],
     "notice": "공개정보 기반 자동 스냅샷입니다. 투자/영업 실행 전 원문 공시와 담당자 검토가 필요합니다."
   },
