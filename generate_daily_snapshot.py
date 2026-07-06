@@ -24,7 +24,9 @@ import json
 import os
 import re
 import time
+import zipfile
 import xml.etree.ElementTree as ET
+from io import BytesIO
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -202,9 +204,104 @@ def now_kst() -> datetime:
     return datetime.now(KST)
 
 
-def load_universe() -> List[Dict[str, str]]:
+def _load_seed_universe() -> List[Dict[str, str]]:
+    """Load the manually curated universe.csv if present.
+
+    The initial MVP shipped with only a handful of rows for testing.
+    This helper keeps those rows as priority seeds, then load_universe() can
+    optionally expand the coverage from OpenDART corpCode.xml.
+    """
+    if not UNIVERSE_PATH.exists():
+        return []
     with UNIVERSE_PATH.open("r", encoding="utf-8-sig") as f:
         return list(csv.DictReader(f))
+
+
+def _fetch_opendart_listed_companies() -> List[Dict[str, str]]:
+    """Fetch listed-company corp codes from OpenDART corpCode.xml.
+
+    OpenDART returns a ZIP that contains CORPCODE.xml. Rows with stock_code
+    are listed companies. This avoids manually maintaining thousands of
+    corp_code values in universe.csv.
+    """
+    if requests is None:
+        return []
+    key = os.getenv("OPENDART_API_KEY", "").strip()
+    if not key:
+        return []
+    url = "https://opendart.fss.or.kr/api/corpCode.xml"
+    r = requests.get(url, params={"crtfc_key": key}, timeout=30)
+    r.raise_for_status()
+    with zipfile.ZipFile(BytesIO(r.content)) as zf:
+        xml_name = zf.namelist()[0]
+        root = ET.fromstring(zf.read(xml_name))
+    rows: List[Dict[str, str]] = []
+    for item in root.findall(".//list"):
+        corp_name = (item.findtext("corp_name") or "").strip()
+        corp_code = (item.findtext("corp_code") or "").strip()
+        stock_code = (item.findtext("stock_code") or "").strip()
+        if not corp_name or not corp_code or not stock_code:
+            continue
+        rows.append({
+            "corp_name": corp_name,
+            "corp_code": corp_code,
+            "ticker": stock_code,
+            "industry": "",
+            "keywords": corp_name,
+        })
+    return rows
+
+
+def load_universe() -> List[Dict[str, str]]:
+    """Return target issuers for daily scoring.
+
+    Default behavior for the deployed MVP:
+    - Keep universe.csv companies first as priority seeds.
+    - If OPENDART_API_KEY exists, auto-expand using OpenDART listed companies.
+    - Run all OpenDART listed companies by default.
+
+    Environment variables:
+    - AUTO_EXPAND_DART_UNIVERSE: default "1". Set "0" to use universe.csv only.
+    - MAX_ISSUERS: default "0" = no cap / all listed companies. Set a positive integer to cap.
+    """
+    seeds = _load_seed_universe()
+    auto_expand = os.getenv("AUTO_EXPAND_DART_UNIVERSE", "1").strip() != "0"
+    max_issuers = int(os.getenv("MAX_ISSUERS", "0"))  # 0 means no cap / all listed companies
+
+    merged: List[Dict[str, str]] = []
+    seen = set()
+
+    def add(row: Dict[str, str]) -> None:
+        key = (row.get("corp_code") or row.get("ticker") or row.get("corp_name") or "").strip()
+        if not key or key in seen:
+            return
+        seen.add(key)
+        row = dict(row)
+        row.setdefault("ticker", "")
+        row.setdefault("industry", "")
+        row.setdefault("keywords", row.get("corp_name", ""))
+        merged.append(row)
+
+    for row in seeds:
+        add(row)
+
+    if auto_expand and os.getenv("OPENDART_API_KEY"):
+        # Preserve manual industry/keyword annotations for seed companies where available.
+        seed_by_code = {r.get("corp_code", ""): r for r in seeds if r.get("corp_code")}
+        seed_by_ticker = {r.get("ticker", ""): r for r in seeds if r.get("ticker")}
+        try:
+            for row in _fetch_opendart_listed_companies():
+                enriched = dict(row)
+                manual = seed_by_code.get(row.get("corp_code", "")) or seed_by_ticker.get(row.get("ticker", ""))
+                if manual:
+                    enriched["industry"] = manual.get("industry", "") or enriched.get("industry", "")
+                    enriched["keywords"] = manual.get("keywords", "") or enriched.get("keywords", "")
+                add(enriched)
+        except Exception as exc:
+            # Fall back to manual universe.csv. Source status is surfaced separately after scoring.
+            print(f"WARN: OpenDART universe auto-expand failed: {type(exc).__name__}: {exc}")
+
+    return merged if max_issuers <= 0 else merged[:max_issuers]
 
 
 def save_raw(name: str, obj: Any) -> None:
@@ -414,16 +511,21 @@ def build_news_queries(row: Dict[str, str]) -> List[str]:
     corp = row.get("corp_name", "").strip()
     industry = row.get("industry", "").strip()
     base_keywords = row.get("keywords", "").strip()
+    # Full-universe mode must keep the query count controlled.
+    # Default 3 queries/issuer: company base, company financing event, company liquidity/rating event.
+    # Increase MAX_NEWS_QUERIES_PER_ISSUER only after confirming daily quota/runtime.
+    max_queries = int(os.getenv("MAX_NEWS_QUERIES_PER_ISSUER", "3"))
     queries = []
-    if base_keywords:
-        queries.append(base_keywords)
     if corp:
-        queries.append(corp)
-        for term in NAVER_EVENT_QUERIES[:8]:
-            queries.append(f"{corp} {term}")
+        queries.extend([
+            corp,
+            f"{corp} 유상증자 전환사채 회사채 차입",
+            f"{corp} 유동성 신용등급 적자 자본잠식",
+        ])
+    elif base_keywords:
+        queries.append(base_keywords)
     if industry:
-        for term in INDUSTRY_QUERIES[:3]:
-            queries.append(f"{industry} {term}")
+        queries.append(f"{industry} 업황 둔화 원가 상승 수요 부진")
     # de-duplicate while preserving order, cap to protect API quota.
     out = []
     seen = set()
@@ -431,7 +533,7 @@ def build_news_queries(row: Dict[str, str]) -> List[str]:
         if q and q not in seen:
             seen.add(q)
             out.append(q)
-    return out[:8]
+    return out[:max_queries]
 
 
 def collect_naver_news(row: Dict[str, str]) -> List[Dict[str, Any]]:
@@ -439,14 +541,14 @@ def collect_naver_news(row: Dict[str, str]) -> List[Dict[str, Any]]:
     seen_links = set()
     for q in build_news_queries(row):
         try:
-            for item in naver_news_search(q, display=10):
+            for item in naver_news_search(q, display=int(os.getenv("NAVER_NEWS_DISPLAY", "5"))):
                 link = item.get("originallink") or item.get("link") or item.get("title")
                 if link in seen_links:
                     continue
                 seen_links.add(link)
                 item["query"] = q
                 items.append(item)
-            time.sleep(0.12)
+            time.sleep(float(os.getenv("API_SLEEP_SECONDS", "0.03")))
         except Exception as exc:
             items.append({"title": f"NAVER API error for query={q}: {type(exc).__name__}", "description": "", "error": True})
             break
@@ -699,7 +801,7 @@ def build_snapshot() -> Dict[str, Any]:
     next_run = (t + timedelta(days=1)).replace(hour=8, minute=0, second=0, microsecond=0)
     return {
         "as_of_date": t.strftime("%Y-%m-%d"),
-        "policy_version": "v1.3-static-mvp-option-c-api-expanded",
+        "policy_version": "v1.4-full-listed-universe",
         "service": {
             "name": "발행사 선제 영업 플랫폼",
             "subtitle": "공개정보 기반 자금수요 레이더",
@@ -717,6 +819,8 @@ def build_snapshot() -> Dict[str, Any]:
             "next_run_kst": next_run.strftime("%Y-%m-%d %H:%M:%S"),
             "scheduled_run": "매일 08:00 KST / GitHub Actions cron 0 23 * * * UTC",
             "source_status": source_status_global,
+        "universe_count": len(rows),
+        "universe_mode": "opendart_auto_expand" if os.getenv("AUTO_EXPAND_DART_UNIVERSE", "1").strip() != "0" and os.getenv("OPENDART_API_KEY") else "manual_csv",
             "missing_fields": [],
             "notice": "공개정보 기반 자동 스냅샷입니다. 투자/영업 실행 전 원문 공시와 담당자 검토가 필요합니다.",
         },
