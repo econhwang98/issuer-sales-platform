@@ -795,13 +795,26 @@ def build_snapshot() -> Dict[str, Any]:
         })
 
     issuers = sorted(issuers, key=lambda x: x["final_score"], reverse=True)
+    page_detail_limit = int(os.getenv("PAGE_DETAIL_LIMIT", "300"))
     for rank, issuer in enumerate(issuers, 1):
         issuer["rank"] = rank
+        # GitHub Pages 안정성을 위해 전체 상장사는 모두 표시하되,
+        # 상세 뉴스/룰 브레이크다운은 상위 PAGE_DETAIL_LIMIT개만 보관합니다.
+        # 이 값은 Repository Secret/Variable이 아니라 workflow env로 조정해도 됩니다.
+        if page_detail_limit > 0 and rank > page_detail_limit:
+            issuer["news"] = [{
+                "title": f"전체 상장사 스크리닝 대상입니다. 상세 뉴스/공시 근거는 상위 {page_detail_limit}개 우선순위 기업 중심으로 저장됩니다.",
+                "source": "full_universe_summary",
+                "sentiment": "mixed",
+                "severity": int(issuer.get("news_trigger_score", 0) or 0),
+            }]
+            issuer["rule_breakdown"] = []
+            issuer["rationale"] = "전체 상장사 스크리닝 결과 요약입니다. 실행 전 원문 공시와 담당자 검토가 필요합니다."
 
     next_run = (t + timedelta(days=1)).replace(hour=8, minute=0, second=0, microsecond=0)
     return {
         "as_of_date": t.strftime("%Y-%m-%d"),
-        "policy_version": "v1.4-full-listed-universe",
+        "policy_version": "v1.5-full-listed-universe-pages-light",
         "service": {
             "name": "발행사 선제 영업 플랫폼",
             "subtitle": "공개정보 기반 자금수요 레이더",
@@ -820,7 +833,8 @@ def build_snapshot() -> Dict[str, Any]:
             "scheduled_run": "매일 08:00 KST / GitHub Actions cron 0 23 * * * UTC",
             "source_status": source_status_global,
         "universe_count": len(rows),
-        "universe_mode": "opendart_auto_expand" if os.getenv("AUTO_EXPAND_DART_UNIVERSE", "1").strip() != "0" and os.getenv("OPENDART_API_KEY") else "manual_csv",
+        "universe_mode": "opendart_auto_expand_full_listed" if os.getenv("AUTO_EXPAND_DART_UNIVERSE", "1").strip() != "0" and os.getenv("OPENDART_API_KEY") else "manual_csv",
+            "page_detail_limit": page_detail_limit,
             "missing_fields": [],
             "notice": "공개정보 기반 자동 스냅샷입니다. 투자/영업 실행 전 원문 공시와 담당자 검토가 필요합니다.",
         },
