@@ -2,8 +2,8 @@ name: 발행사 선제 영업 플랫폼 일일 스냅샷 업데이트
 
 on:
   schedule:
-    # 07:00 KST = 22:00 UTC previous day
-    - cron: "0 22 * * *"
+    # 매일 08:00 KST = 전일 23:00 UTC
+    - cron: "0 23 * * *"
   workflow_dispatch:
 
 permissions:
@@ -29,6 +29,8 @@ jobs:
           OPENDART_API_KEY: ${{ secrets.OPENDART_API_KEY }}
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+          KRX_KIND_RSS_URL: ${{ secrets.KRX_KIND_RSS_URL }}
+          FSC_SERVICE_KEY: ${{ secrets.FSC_SERVICE_KEY }}
         run: python scripts/generate_daily_snapshot.py
 
       - name: Commit updated snapshot

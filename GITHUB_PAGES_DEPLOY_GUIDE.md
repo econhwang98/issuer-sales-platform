@@ -1,114 +1,119 @@
-"""발행사 선제 영업 플랫폼 scoring engine for static MVP.
+# 발행사 선제 영업 플랫폼 GitHub Pages 배포 가이드
 
-Option C confirmed:
-Final Funding Score = 45% Pure Financial Rule + 40% AI Base + 15% News Trigger.
-News is excluded from Pure Financial Rule and handled separately.
-Quick ratio threshold is confirmed as 100% 미만, not 10% 미만.
-"""
-from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+이 패키지는 `index.html`을 고정 페이지로 배포하고, GitHub Actions가 매일 `daily_snapshot.json`만 갱신하는 구조입니다.
 
+## 0. 준비물
 
-def clip(value: float, low: float = 0.0, high: float = 100.0) -> float:
-    return max(low, min(high, value))
+- GitHub 계정
+- GitHub CLI (`gh`)
+- Git
+- API Key 3개
+  - `OPENDART_API_KEY`
+  - `NAVER_CLIENT_ID`
+  - `NAVER_CLIENT_SECRET`
 
+## 1. 원클릭 배포
 
-@dataclass
-class FinancialMetrics:
-    debt_to_equity_pct: Optional[float] = None
-    current_ratio_pct: Optional[float] = None
-    quick_ratio_pct: Optional[float] = None
-    debt_dependence_pct: Optional[float] = None
-    interest_coverage: Optional[float] = None
-    operating_cash_flow: Optional[float] = None
-    investing_cash_flow: Optional[float] = None
-    net_cash_change: Optional[float] = None
+압축을 풀고 폴더 루트에서 아래를 실행합니다.
 
+```bash
+./deploy/publish_github_pages.sh issuer-sales-platform public main
+```
 
-@dataclass
-class RuleScoreResult:
-    score: float
-    raw_points: int
-    available_max_points: int
-    breakdown: List[Dict[str, Any]]
-    missing_fields: List[str] = field(default_factory=list)
+스크립트가 수행하는 작업은 다음과 같습니다.
 
+1. GitHub CLI 로그인 확인
+2. Git repository 초기화
+3. 새 GitHub repository 생성
+4. 파일 전체 push
+5. GitHub Actions Secrets 등록
+6. GitHub Pages를 `main:/` 기준으로 활성화
+7. 첫 `daily_snapshot.json` 갱신 workflow 실행
 
-def compute_pure_financial_rule_score(m: FinancialMetrics) -> RuleScoreResult:
-    breakdown: List[Dict[str, Any]] = []
-    missing: List[str] = []
-    raw = 0
-    available_max = 0
+배포 후 기본 URL은 보통 아래 형태입니다.
 
-    def add(factor: str, points: int, value: Any, available: bool = True):
-        nonlocal raw, available_max
-        if not available:
-            missing.append(factor)
-            breakdown.append({"factor": factor, "value": None, "points": 0, "status": "not_available"})
-            return
-        raw += points
-        available_max += 100
-        breakdown.append({"factor": factor, "value": value, "points": points, "status": "applied"})
+```text
+https://<github_user>.github.io/issuer-sales-platform/
+```
 
-    if m.debt_to_equity_pct is None: add("부채비율", 0, None, False)
-    elif m.debt_to_equity_pct >= 200: add("부채비율", 100, m.debt_to_equity_pct)
-    elif m.debt_to_equity_pct >= 150: add("부채비율", 75, m.debt_to_equity_pct)
-    elif m.debt_to_equity_pct >= 100: add("부채비율", 50, m.debt_to_equity_pct)
-    else: add("부채비율", 0, m.debt_to_equity_pct)
+## 2. 수동 배포 명령어
 
-    if m.current_ratio_pct is None: add("유동비율", 0, None, False)
-    elif m.current_ratio_pct < 100: add("유동비율", 100, m.current_ratio_pct)
-    elif m.current_ratio_pct < 150: add("유동비율", 75, m.current_ratio_pct)
-    elif m.current_ratio_pct < 200: add("유동비율", 50, m.current_ratio_pct)
-    else: add("유동비율", 0, m.current_ratio_pct)
+자동 스크립트 대신 직접 하려면 아래 순서로 진행합니다.
 
-    # Confirmed by user: threshold is 100% 미만.
-    if m.quick_ratio_pct is None: add("당좌비율", 0, None, False)
-    elif m.quick_ratio_pct < 100: add("당좌비율", 100, m.quick_ratio_pct)
-    elif m.quick_ratio_pct < 150: add("당좌비율", 75, m.quick_ratio_pct)
-    elif m.quick_ratio_pct < 200: add("당좌비율", 50, m.quick_ratio_pct)
-    else: add("당좌비율", 0, m.quick_ratio_pct)
+```bash
+gh auth login
 
-    if m.debt_dependence_pct is None: add("차입금의존도", 0, None, False)
-    elif m.debt_dependence_pct >= 60: add("차입금의존도", 100, m.debt_dependence_pct)
-    elif m.debt_dependence_pct >= 30: add("차입금의존도", 50, m.debt_dependence_pct)
-    else: add("차입금의존도", 0, m.debt_dependence_pct)
+git init
+git add .
+git commit -m "Initial 발행사 선제 영업 플랫폼 정적 MVP"
+git branch -M main
 
-    if m.interest_coverage is None: add("이자보상배율", 0, None, False)
-    elif m.interest_coverage < 1: add("이자보상배율", 100, m.interest_coverage)
-    elif m.interest_coverage < 1.5: add("이자보상배율", 50, m.interest_coverage)
-    else: add("이자보상배율", 0, m.interest_coverage)
+gh repo create <github_user>/issuer-sales-platform --public --source=. --remote=origin --push
 
-    if m.operating_cash_flow is None: add("영업활동현금흐름", 0, None, False)
-    else: add("영업활동현금흐름", 100 if m.operating_cash_flow < 0 else 0, m.operating_cash_flow)
+gh secret set OPENDART_API_KEY --repo <github_user>/issuer-sales-platform
+gh secret set NAVER_CLIENT_ID --repo <github_user>/issuer-sales-platform
+gh secret set NAVER_CLIENT_SECRET --repo <github_user>/issuer-sales-platform
 
-    if m.operating_cash_flow is None or m.investing_cash_flow is None: add("OCF 양수 & ICF 음수", 0, None, False)
-    else: add("OCF 양수 & ICF 음수", 100 if (m.operating_cash_flow > 0 and m.investing_cash_flow < 0) else 0, {"ocf": m.operating_cash_flow, "icf": m.investing_cash_flow})
+gh api --method POST repos/<github_user>/issuer-sales-platform/pages \
+  -H "Accept: application/vnd.github+json" \
+  -f "source[branch]=main" \
+  -f "source[path]=/"
 
-    if m.net_cash_change is None: add("현금 순감소", 0, None, False)
-    else: add("현금 순감소", 100 if m.net_cash_change < 0 else 0, m.net_cash_change)
+gh workflow run update-daily-snapshot.yml --repo <github_user>/issuer-sales-platform
+```
 
-    score = round((raw / available_max * 100) if available_max else 0, 1)
-    return RuleScoreResult(score=score, raw_points=raw, available_max_points=available_max, breakdown=breakdown, missing_fields=missing)
+이미 Pages가 만들어져 있다면 POST 대신 PUT으로 변경합니다.
 
+```bash
+gh api --method PUT repos/<github_user>/issuer-sales-platform/pages \
+  -H "Accept: application/vnd.github+json" \
+  -f "source[branch]=main" \
+  -f "source[path]=/"
+```
 
-def compute_sentiment_pressure(corp_positive: int, corp_negative: int, industry_positive: int, industry_negative: int) -> float:
-    return clip(50 + 12 * (corp_negative - corp_positive) + 8 * (industry_negative - industry_positive))
+## 3. 배포 상태 확인
 
+```bash
+./deploy/check_github_pages.sh <github_user>/issuer-sales-platform
+```
 
-def compute_news_trigger_score(event_severity: Optional[int], corp_positive: int, corp_negative: int, industry_positive: int, industry_negative: int) -> float:
-    event = event_severity or 0
-    pressure = compute_sentiment_pressure(corp_positive, corp_negative, industry_positive, industry_negative)
-    return round(max(event, pressure), 1)
+또는 직접 확인합니다.
 
+```bash
+gh api repos/<github_user>/issuer-sales-platform/pages --jq '.html_url, .status, .source'
+gh secret list --repo <github_user>/issuer-sales-platform
+gh run list --repo <github_user>/issuer-sales-platform --limit 5
+```
 
-def compute_final_funding_score(pure_fin_rule_score: float, ai_base_score: float, news_trigger_score: float) -> float:
-    return round(0.45 * pure_fin_rule_score + 0.40 * ai_base_score + 0.15 * news_trigger_score, 1)
+## 4. 매일 자동 업데이트
 
+`.github/workflows/update-daily-snapshot.yml`가 매일 07:00 KST에 실행됩니다.
 
-def priority_bucket(score: float) -> str:
-    if score >= 70: return "Priority A"
-    if score >= 55: return "Watchlist B"
-    if score >= 40: return "Monitor C"
-    return "Low Priority"
+실행 흐름:
+
+```text
+GitHub Actions schedule
+→ pip install -r requirements.txt
+→ python scripts/generate_daily_snapshot.py
+→ daily_snapshot.json 생성
+→ 자동 commit
+→ GitHub Pages가 같은 URL에서 최신 JSON 표시
+```
+
+## 5. 사용자 공유 URL
+
+사용자에게는 GitHub Pages URL 하나만 공유하면 됩니다.
+
+```text
+https://<github_user>.github.io/issuer-sales-platform/
+```
+
+매일 새 페이지를 만들거나 새 링크를 공유할 필요 없습니다.
+
+## 6. 보안 주의
+
+- API Key는 GitHub Secrets에만 저장합니다.
+- `index.html` 또는 `daily_snapshot.json`에 API Key를 넣지 않습니다.
+- Public repository로 운영해도 Secrets 값은 페이지 방문자에게 노출되지 않습니다.
+- 단, Actions 로그에 API 응답 원문을 과도하게 출력하지 않도록 유지해야 합니다.
+

@@ -1,0 +1,272 @@
+{
+  "as_of_date": "2026-07-06",
+  "policy_version": "v1.3-static-mvp-option-c-api-expanded",
+  "service": {
+    "name": "발행사 선제 영업 플랫폼",
+    "subtitle": "공개정보 기반 자금수요 레이더",
+    "description": "DART 재무/이벤트 공시, 뉴스, 선택형 KIND RSS를 기반으로 향후 자금조달 필요성이 높은 발행사를 선제 탐지합니다."
+  },
+  "formula": {
+    "label": "Final Funding Score",
+    "rule_weight": 0.45,
+    "ai_weight": 0.4,
+    "news_weight": 0.15,
+    "text": "Final = 45% × Pure Financial Rule + 40% × AI Base + 15% × News Trigger"
+  },
+  "pipeline_status": {
+    "last_run_kst": "2026-07-06 10:48:13",
+    "next_run_kst": "2026-07-07 08:00:00",
+    "scheduled_run": "매일 08:00 KST / GitHub Actions cron 0 23 * * * UTC",
+    "source_status": {
+      "dart_financial": "api_key_missing",
+      "dart_disclosure": "api_key_missing",
+      "news": "api_key_missing",
+      "kind_rss": "not_configured",
+      "fsc_profile": "reserved_hook_not_enabled",
+      "credit_rating": "manual_file_needed",
+      "llm_annotation": "transparent_proxy_static_mvp"
+    },
+    "missing_fields": [],
+    "notice": "공개정보 기반 자동 스냅샷입니다. 투자/영업 실행 전 원문 공시와 담당자 검토가 필요합니다."
+  },
+  "kpis": {
+    "screened_universe": 5,
+    "priority_a": 1,
+    "news_trigger_count": 5,
+    "needs_review": 5
+  },
+  "filters": {
+    "industries": [
+      "전체",
+      "건설",
+      "바이오",
+      "소재",
+      "전자부품"
+    ],
+    "risk_levels": [
+      "전체",
+      "Low",
+      "Mid",
+      "High"
+    ],
+    "priority_levels": [
+      "전체",
+      "Priority A",
+      "Watchlist B",
+      "Monitor C",
+      "Low Priority"
+    ]
+  },
+  "issuers": [
+    {
+      "rank": 1,
+      "corp_name": "신세계건설",
+      "corp_code": "00217947",
+      "ticker": "034300",
+      "industry": "건설",
+      "priority": "Priority A",
+      "risk_level": "Mid",
+      "final_score": 76.5,
+      "pure_financial_rule_score": 78.0,
+      "ai_base_score": 69.1,
+      "news_trigger_score": 92.0,
+      "recommended_structure": "CP + 담보부 라인 / CB·BW 검토",
+      "suggested_terms": "6~12M · 담보/코버넌트 포함",
+      "rationale": "DART 재무/이벤트 공시, 네이버 뉴스, 선택형 KIND RSS를 분리 수집한 뒤 Option C 산식으로 산출했습니다. 실행 전 원문 공시와 담당자 검토가 필요합니다.",
+      "key_factors": [
+        "DART 재무 Rule",
+        "DART 이벤트 공시",
+        "뉴스 Trigger 분리",
+        "Risk Gate 별도 적용"
+      ],
+      "news": [
+        {
+          "title": "테스트 모드 또는 관련 뉴스/공시 미검출",
+          "source": "sample",
+          "sentiment": "mixed",
+          "severity": 92
+        }
+      ],
+      "source_status": {
+        "dart_financial": "api_key_missing",
+        "dart_disclosure": "api_key_missing",
+        "news": "api_key_missing",
+        "kind_rss": "not_configured",
+        "rating": "manual_file_needed"
+      },
+      "missing_fields": [
+        "live_news_api",
+        "parsed_dart_metrics"
+      ],
+      "rule_breakdown": []
+    },
+    {
+      "rank": 2,
+      "corp_name": "서진시스템",
+      "corp_code": "00838005",
+      "ticker": "178320",
+      "industry": "전자부품",
+      "priority": "Watchlist B",
+      "risk_level": "Mid",
+      "final_score": 67.1,
+      "pure_financial_rule_score": 66.0,
+      "ai_base_score": 60.5,
+      "news_trigger_score": 88.0,
+      "recommended_structure": "회사채/CP 시장 모니터링",
+      "suggested_terms": "시장성 조달 조건 확인",
+      "rationale": "DART 재무/이벤트 공시, 네이버 뉴스, 선택형 KIND RSS를 분리 수집한 뒤 Option C 산식으로 산출했습니다. 실행 전 원문 공시와 담당자 검토가 필요합니다.",
+      "key_factors": [
+        "DART 재무 Rule",
+        "DART 이벤트 공시",
+        "뉴스 Trigger 분리",
+        "Risk Gate 별도 적용"
+      ],
+      "news": [
+        {
+          "title": "테스트 모드 또는 관련 뉴스/공시 미검출",
+          "source": "sample",
+          "sentiment": "mixed",
+          "severity": 88
+        }
+      ],
+      "source_status": {
+        "dart_financial": "api_key_missing",
+        "dart_disclosure": "api_key_missing",
+        "news": "api_key_missing",
+        "kind_rss": "not_configured",
+        "rating": "manual_file_needed"
+      },
+      "missing_fields": [
+        "live_news_api",
+        "parsed_dart_metrics"
+      ],
+      "rule_breakdown": []
+    },
+    {
+      "rank": 3,
+      "corp_name": "코오롱인더스트리",
+      "corp_code": "00795135",
+      "ticker": "120110",
+      "industry": "소재",
+      "priority": "Watchlist B",
+      "risk_level": "Mid",
+      "final_score": 58.7,
+      "pure_financial_rule_score": 61.0,
+      "ai_base_score": 53.0,
+      "news_trigger_score": 67.0,
+      "recommended_structure": "회사채/CP 시장 모니터링",
+      "suggested_terms": "시장성 조달 조건 확인",
+      "rationale": "DART 재무/이벤트 공시, 네이버 뉴스, 선택형 KIND RSS를 분리 수집한 뒤 Option C 산식으로 산출했습니다. 실행 전 원문 공시와 담당자 검토가 필요합니다.",
+      "key_factors": [
+        "DART 재무 Rule",
+        "DART 이벤트 공시",
+        "뉴스 Trigger 분리",
+        "Risk Gate 별도 적용"
+      ],
+      "news": [
+        {
+          "title": "테스트 모드 또는 관련 뉴스/공시 미검출",
+          "source": "sample",
+          "sentiment": "mixed",
+          "severity": 67
+        }
+      ],
+      "source_status": {
+        "dart_financial": "api_key_missing",
+        "dart_disclosure": "api_key_missing",
+        "news": "api_key_missing",
+        "kind_rss": "not_configured",
+        "rating": "manual_file_needed"
+      },
+      "missing_fields": [
+        "live_news_api",
+        "parsed_dart_metrics"
+      ],
+      "rule_breakdown": []
+    },
+    {
+      "rank": 4,
+      "corp_name": "롯데케미칼",
+      "corp_code": "00105271",
+      "ticker": "011170",
+      "industry": "소재",
+      "priority": "Watchlist B",
+      "risk_level": "Mid",
+      "final_score": 56.8,
+      "pure_financial_rule_score": 58.0,
+      "ai_base_score": 51.3,
+      "news_trigger_score": 68.0,
+      "recommended_structure": "회사채/CP 시장 모니터링",
+      "suggested_terms": "시장성 조달 조건 확인",
+      "rationale": "DART 재무/이벤트 공시, 네이버 뉴스, 선택형 KIND RSS를 분리 수집한 뒤 Option C 산식으로 산출했습니다. 실행 전 원문 공시와 담당자 검토가 필요합니다.",
+      "key_factors": [
+        "DART 재무 Rule",
+        "DART 이벤트 공시",
+        "뉴스 Trigger 분리",
+        "Risk Gate 별도 적용"
+      ],
+      "news": [
+        {
+          "title": "테스트 모드 또는 관련 뉴스/공시 미검출",
+          "source": "sample",
+          "sentiment": "mixed",
+          "severity": 68
+        }
+      ],
+      "source_status": {
+        "dart_financial": "api_key_missing",
+        "dart_disclosure": "api_key_missing",
+        "news": "api_key_missing",
+        "kind_rss": "not_configured",
+        "rating": "manual_file_needed"
+      },
+      "missing_fields": [
+        "live_news_api",
+        "parsed_dart_metrics"
+      ],
+      "rule_breakdown": []
+    },
+    {
+      "rank": 5,
+      "corp_name": "HLB",
+      "corp_code": "00358995",
+      "ticker": "028300",
+      "industry": "바이오",
+      "priority": "Monitor C",
+      "risk_level": "Low",
+      "final_score": 52.6,
+      "pure_financial_rule_score": 54.0,
+      "ai_base_score": 47.5,
+      "news_trigger_score": 62.0,
+      "recommended_structure": "Credit Loan / 운영자금 라인",
+      "suggested_terms": "1Y · 변동금리 + 약정",
+      "rationale": "DART 재무/이벤트 공시, 네이버 뉴스, 선택형 KIND RSS를 분리 수집한 뒤 Option C 산식으로 산출했습니다. 실행 전 원문 공시와 담당자 검토가 필요합니다.",
+      "key_factors": [
+        "DART 재무 Rule",
+        "DART 이벤트 공시",
+        "뉴스 Trigger 분리",
+        "Risk Gate 별도 적용"
+      ],
+      "news": [
+        {
+          "title": "테스트 모드 또는 관련 뉴스/공시 미검출",
+          "source": "sample",
+          "sentiment": "mixed",
+          "severity": 62
+        }
+      ],
+      "source_status": {
+        "dart_financial": "api_key_missing",
+        "dart_disclosure": "api_key_missing",
+        "news": "api_key_missing",
+        "kind_rss": "not_configured",
+        "rating": "manual_file_needed"
+      },
+      "missing_fields": [
+        "live_news_api",
+        "parsed_dart_metrics"
+      ],
+      "rule_breakdown": []
+    }
+  ]
+}
