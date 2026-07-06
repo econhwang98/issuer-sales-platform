@@ -1,0 +1,54 @@
+name: 발행사 선제 영업 플랫폼 일일 스냅샷 업데이트
+
+on:
+  schedule:
+    # 08:00 KST = 23:00 UTC
+    - cron: "0 23 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-daily-snapshot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install requests feedparser
+
+      - name: Generate daily snapshot
+        env:
+          OPENDART_API_KEY: ${{ secrets.OPENDART_API_KEY }}
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+          KRX_KIND_RSS_URL: ${{ secrets.KRX_KIND_RSS_URL }}
+          FSC_SERVICE_KEY: ${{ secrets.FSC_SERVICE_KEY }}
+        run: |
+          if [ -f scripts/generate_daily_snapshot.py ]; then
+            python scripts/generate_daily_snapshot.py
+          elif [ -f generate_daily_snapshot.py ]; then
+            python generate_daily_snapshot.py
+          else
+            echo "generate_daily_snapshot.py not found"
+            exit 1
+          fi
+
+      - name: Commit updated daily snapshot
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add daily_snapshot.json
+          git diff --cached --quiet || git commit -m "Update daily snapshot"
+          git push
