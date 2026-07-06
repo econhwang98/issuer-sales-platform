@@ -285,21 +285,31 @@ def load_universe() -> List[Dict[str, str]]:
     for row in seeds:
         add(row)
 
-    if auto_expand and os.getenv("OPENDART_API_KEY"):
+    # Strict full-listed-universe mode: do not silently fall back to the 5-row MVP CSV.
+    # If OpenDART expansion is unavailable, fail the workflow with a clear message so the
+    # page does not misleadingly show only the seed companies.
+    if auto_expand:
+        if not os.getenv("OPENDART_API_KEY"):
+            raise RuntimeError(
+                "OPENDART_API_KEY GitHub Secret is missing. "
+                "전체 상장사 모드에서는 DART corpCode.xml 확장이 필수입니다."
+            )
         # Preserve manual industry/keyword annotations for seed companies where available.
         seed_by_code = {r.get("corp_code", ""): r for r in seeds if r.get("corp_code")}
         seed_by_ticker = {r.get("ticker", ""): r for r in seeds if r.get("ticker")}
-        try:
-            for row in _fetch_opendart_listed_companies():
-                enriched = dict(row)
-                manual = seed_by_code.get(row.get("corp_code", "")) or seed_by_ticker.get(row.get("ticker", ""))
-                if manual:
-                    enriched["industry"] = manual.get("industry", "") or enriched.get("industry", "")
-                    enriched["keywords"] = manual.get("keywords", "") or enriched.get("keywords", "")
-                add(enriched)
-        except Exception as exc:
-            # Fall back to manual universe.csv. Source status is surfaced separately after scoring.
-            print(f"WARN: OpenDART universe auto-expand failed: {type(exc).__name__}: {exc}")
+        dart_rows = _fetch_opendart_listed_companies()
+        if len(dart_rows) < 1000:
+            raise RuntimeError(
+                f"OpenDART listed universe expansion returned only {len(dart_rows)} rows. "
+                "OPENDART_API_KEY 값/권한 또는 corpCode.xml 응답을 확인하세요."
+            )
+        for row in dart_rows:
+            enriched = dict(row)
+            manual = seed_by_code.get(row.get("corp_code", "")) or seed_by_ticker.get(row.get("ticker", ""))
+            if manual:
+                enriched["industry"] = manual.get("industry", "") or enriched.get("industry", "")
+                enriched["keywords"] = manual.get("keywords", "") or enriched.get("keywords", "")
+            add(enriched)
 
     return merged if max_issuers <= 0 else merged[:max_issuers]
 
@@ -814,7 +824,7 @@ def build_snapshot() -> Dict[str, Any]:
     next_run = (t + timedelta(days=1)).replace(hour=8, minute=0, second=0, microsecond=0)
     return {
         "as_of_date": t.strftime("%Y-%m-%d"),
-        "policy_version": "v1.5-full-listed-universe-pages-light",
+        "policy_version": "v1.6-strict-full-listed-universe-debug",
         "service": {
             "name": "발행사 선제 영업 플랫폼",
             "subtitle": "공개정보 기반 자금수요 레이더",
@@ -833,7 +843,7 @@ def build_snapshot() -> Dict[str, Any]:
             "scheduled_run": "매일 08:00 KST / GitHub Actions cron 0 23 * * * UTC",
             "source_status": source_status_global,
         "universe_count": len(rows),
-        "universe_mode": "opendart_auto_expand_full_listed" if os.getenv("AUTO_EXPAND_DART_UNIVERSE", "1").strip() != "0" and os.getenv("OPENDART_API_KEY") else "manual_csv",
+        "universe_mode": "opendart_strict_full_listed" if os.getenv("AUTO_EXPAND_DART_UNIVERSE", "1").strip() != "0" else "manual_csv",
             "page_detail_limit": page_detail_limit,
             "missing_fields": [],
             "notice": "공개정보 기반 자동 스냅샷입니다. 투자/영업 실행 전 원문 공시와 담당자 검토가 필요합니다.",
