@@ -3,187 +3,181 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>발행사 선제 영업 플랫폼 | 공개정보 기반 자금수요 레이더</title>
+  <title>발행사 선제 영업 플랫폼</title>
   <style>
     :root{
-      --bg:#f4f7fb;--panel:#fff;--ink:#101828;--muted:#667085;--line:#dfe7f1;--blue:#1358e8;--navy:#0b1736;--sky:#eaf2ff;--green:#17a56b;--orange:#f79009;--red:#d92d20;--shadow:0 14px 35px rgba(16,24,40,.08)
+      --bg:#f5f7fb;--panel:#fff;--ink:#101828;--muted:#667085;--line:#d9e2ef;--navy:#0b1736;--blue:#155eef;--sky:#eef5ff;--green:#079455;--orange:#dc6803;--red:#d92d20;--purple:#6941c6;--shadow:0 14px 35px rgba(16,24,40,.08)
     }
     *{box-sizing:border-box} body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",Arial,sans-serif;color:var(--ink)}
-    .app{display:grid;grid-template-columns:270px 1fr;min-height:100vh}.sidebar{background:var(--navy);color:#e8eefb;padding:24px 18px;display:flex;flex-direction:column;gap:18px}.brand{display:flex;gap:12px;align-items:center;margin-bottom:18px}.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#2f6bff,#87b7ff);display:grid;place-items:center;font-weight:900;color:#fff}.brand b{font-size:20px}.brand span{display:block;font-size:12px;color:#aebada;margin-top:3px}.nav-item{padding:11px 12px;border-radius:12px;color:#cbd6ee;font-size:14px;cursor:pointer;border:0;background:transparent;text-align:left;width:100%;font:inherit}.nav-item:hover{background:rgba(255,255,255,.08);color:white}.nav-item.active{background:#19356d;color:white}.side-action{cursor:pointer;border:0;width:100%;text-align:left;font:inherit}.side-action:hover{background:rgba(255,255,255,.11)}.side-section{border-top:1px solid rgba(255,255,255,.12);padding-top:16px}.side-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#9aa9cb;margin-bottom:10px}.history,.status-chip{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);margin-bottom:8px;font-size:13px;color:#d8e3f9;line-height:1.45}.main{padding:24px 28px 34px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.title h1{margin:0;font-size:26px;letter-spacing:-.04em}.title p{margin:6px 0 0;color:var(--muted);font-size:14px}.user-pill{display:flex;gap:10px;align-items:center;background:white;border:1px solid var(--line);padding:9px 13px;border-radius:999px;box-shadow:var(--shadow);font-size:13px}.grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(4,1fr);margin-bottom:16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}.kpi{padding:18px}.kpi .label{font-size:12px;color:var(--muted)}.kpi .num{font-size:26px;font-weight:900;margin-top:8px}.kpi .sub{font-size:12px;margin-top:5px;color:var(--muted)}.search-panel{padding:18px;margin-bottom:16px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.section-head h2{font-size:17px;margin:0}.tag{font-size:12px;background:var(--sky);color:var(--blue);padding:6px 10px;border-radius:999px;font-weight:800;white-space:nowrap}.form{display:grid;grid-template-columns:1.1fr .8fr .8fr auto;gap:10px}.input{border:1px solid var(--line);background:#fbfdff;border-radius:13px;padding:12px 13px;font-size:13px;color:#344054;min-width:0}.btn{border:none;border-radius:13px;padding:12px 18px;background:var(--blue);color:white;font-weight:900;cursor:pointer}.content{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(360px,.85fr);gap:16px}.list{padding:14px}.issuer-card{border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;background:#fff;cursor:pointer;transition:.15s}.issuer-card:hover,.issuer-card.active{border-color:#8bb2ff;box-shadow:0 10px 24px rgba(19,88,232,.12)}.issuer-head{display:flex;justify-content:space-between;gap:12px}.issuer-name{font-weight:900;font-size:17px}.issuer-meta{font-size:12px;color:var(--muted);margin-top:4px}.score{font-size:28px;font-weight:900;color:var(--blue);text-align:right}.score small{display:block;font-size:11px;color:var(--muted);font-weight:600}.bars{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.bar{background:#f3f6fb;border-radius:10px;padding:9px}.bar span{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}.bar b{font-size:15px}.badges{display:flex;flex-wrap:wrap;gap:7px}.badge{font-size:11px;padding:5px 8px;border-radius:999px;background:#eef4ff;color:#175cd3;font-weight:800}.badge.red{background:#ffefed;color:var(--red)}.badge.orange{background:#fff4e5;color:#b54708}.badge.green{background:#e9f8f1;color:#067647}.summary{font-size:13px;color:#344054;line-height:1.5;margin-top:10px}.detail{padding:18px;position:sticky;top:16px;align-self:start}.detail h2{font-size:19px;margin:0 0 5px}.detail .meta{color:var(--muted);font-size:13px}.formula{background:#0b1736;color:#d8e3f9;border-radius:16px;padding:14px;font-size:12px;margin:14px 0;line-height:1.6}.split{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{padding:12px;border:1px solid var(--line);border-radius:14px;background:#fbfdff}.mini .m-title{font-size:12px;color:var(--muted)}.mini .m-value{font-size:18px;font-weight:900;margin-top:6px}.timeline{margin-top:14px}.step{display:flex;gap:10px;margin-bottom:12px}.dot{width:28px;height:28px;flex:0 0 28px;border-radius:9px;background:var(--sky);color:var(--blue);display:grid;place-items:center;font-weight:900;font-size:12px}.step b{font-size:13px}.step p{margin:3px 0 0;color:var(--muted);font-size:12px;line-height:1.45}.news{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}.news b{font-size:13px}.news p{margin:5px 0 0;color:#475467;font-size:12px;line-height:1.45}.arch{margin-top:16px;padding:18px}.arch-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.arch-node{background:#fbfdff;border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}.arch-node b{font-size:13px}.arch-node p{font-size:11px;color:var(--muted);line-height:1.4;margin:5px 0 0}.monitor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.monitor-box{border:1px solid var(--line);border-radius:14px;background:#fbfdff;padding:12px}.monitor-box b{font-size:13px}.monitor-box p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.45}.status-row{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding:10px 0;font-size:13px}.status-row:first-child{border-top:0}.status-row span{color:var(--muted)}.bottom-nav{display:none}.mobile-summary{display:none}.empty{padding:24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:18px}.pill-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--green)}.pill-dot.warn{background:var(--orange)}.pill-dot.bad{background:var(--red)}
-    @media(max-width:900px){.app{display:block}.sidebar{display:none}.main{padding:16px 14px 82px}.topbar{display:block}.title h1{font-size:22px}.user-pill{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.form{grid-template-columns:1fr 1fr}.form .btn{grid-column:1/-1}.content{display:block}.detail{position:static;margin-top:14px}.issuer-head{align-items:flex-start}.score{font-size:24px}.bars{grid-template-columns:1fr 1fr 1fr}.split{grid-template-columns:1fr}.arch-grid{grid-template-columns:1fr}.bottom-nav{display:flex;position:fixed;left:12px;right:12px;bottom:12px;background:#0b1736;color:#d8e3f9;border-radius:22px;padding:10px;justify-content:space-around;box-shadow:0 16px 40px rgba(0,0,0,.25)}.bottom-nav button{font-size:11px;text-align:center;background:transparent;border:0;color:#d8e3f9;font:inherit}.monitor-grid{grid-template-columns:1fr}.mobile-summary{display:block;background:#101828;color:#fff;border-radius:18px;padding:14px;margin-bottom:14px}.mobile-summary b{font-size:18px}.mobile-summary p{font-size:12px;color:#d0d5dd;line-height:1.45}.kpi .num{font-size:22px}.section-head{align-items:flex-start}.tag{font-size:11px}.card{border-radius:18px}}
+    .app{display:grid;grid-template-columns:258px minmax(0,1fr);min-height:100vh}.sidebar{background:var(--navy);color:#e8eefb;padding:24px 18px;display:flex;flex-direction:column;gap:18px}.brand{display:flex;gap:12px;align-items:center;margin-bottom:10px}.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#2f6bff,#87b7ff);display:grid;place-items:center;font-weight:900;color:#fff}.brand b{font-size:18px;letter-spacing:-.04em}.brand span{display:block;font-size:12px;color:#aebada;margin-top:3px;line-height:1.35}.nav-item{padding:11px 12px;border-radius:12px;color:#cbd6ee;font-size:14px;cursor:pointer;border:0;background:transparent;text-align:left;width:100%;font:inherit}.nav-item:hover{background:rgba(255,255,255,.08);color:white}.nav-item.active{background:#19356d;color:white}.side-section{border-top:1px solid rgba(255,255,255,.12);padding-top:16px}.side-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#9aa9cb;margin-bottom:10px}.history,.status-chip{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);margin-bottom:8px;font-size:13px;color:#d8e3f9;line-height:1.45}.side-action{cursor:pointer;border:0;width:100%;text-align:left;font:inherit}.side-action:hover{background:rgba(255,255,255,.11)}
+    .main{padding:24px 28px 34px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:18px}.title h1{margin:0;font-size:26px;letter-spacing:-.04em}.title p{margin:6px 0 0;color:var(--muted);font-size:14px;line-height:1.45}.user-pill{display:flex;gap:10px;align-items:center;background:white;border:1px solid var(--line);padding:9px 13px;border-radius:999px;box-shadow:var(--shadow);font-size:13px;white-space:nowrap}.grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(4,1fr);margin-bottom:16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}.kpi{padding:18px}.kpi .label{font-size:12px;color:var(--muted)}.kpi .num{font-size:26px;font-weight:900;margin-top:8px}.kpi .sub{font-size:12px;margin-top:5px;color:var(--muted);line-height:1.4}.search-panel{padding:18px;margin-bottom:16px}.section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}.section-head h2{font-size:17px;margin:0}.section-head p{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.45}.tag{font-size:12px;background:var(--sky);color:var(--blue);padding:6px 10px;border-radius:999px;font-weight:800;white-space:nowrap}.form{display:grid;grid-template-columns:1.05fr .95fr .9fr .9fr .8fr auto;gap:10px}.input{border:1px solid var(--line);background:#fbfdff;border-radius:13px;padding:11px 12px;font-size:13px;color:#344054;min-width:0}.btn{border:none;border-radius:13px;padding:11px 16px;background:var(--blue);color:white;font-weight:900;cursor:pointer}.btn.secondary{background:#eef4ff;color:#175cd3}.help-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.help-box{border:1px solid var(--line);background:#fbfdff;border-radius:14px;padding:11px}.help-box b{font-size:12px}.help-box p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.45}.content{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(365px,.9fr);gap:16px}.list{padding:14px}.list-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px}.list-top h2{font-size:17px;margin:0}.list-top p{font-size:12px;color:var(--muted);margin:4px 0 0}.issuer-card{border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:11px;background:#fff;cursor:pointer;transition:.15s}.issuer-card:hover,.issuer-card.active{border-color:#8bb2ff;box-shadow:0 10px 24px rgba(19,88,232,.12)}.issuer-head{display:flex;justify-content:space-between;gap:12px}.issuer-name{font-weight:900;font-size:16px}.issuer-meta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.45}.score{font-size:25px;font-weight:900;color:var(--blue);text-align:right}.score small{display:block;font-size:11px;color:var(--muted);font-weight:600}.badges{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.badge{font-size:11px;padding:5px 8px;border-radius:999px;background:#eef4ff;color:#175cd3;font-weight:800;line-height:1}.badge.red{background:#ffefed;color:var(--red)}.badge.orange{background:#fff4e5;color:#b54708}.badge.green{background:#e9f8f1;color:#067647}.badge.purple{background:#f4f3ff;color:#5925dc}.summary{font-size:13px;color:#344054;line-height:1.5;margin:10px 0 0}.detail{padding:18px;position:sticky;top:16px;align-self:start}.detail h2{font-size:19px;margin:0 0 5px}.detail .meta{color:var(--muted);font-size:13px;line-height:1.45}.detail-hero{margin:14px 0;padding:15px;border-radius:16px;background:#f8fbff;border:1px solid var(--line)}.detail-hero .big{font-size:32px;font-weight:900;color:var(--blue)}.detail-hero .caption{font-size:12px;color:var(--muted);line-height:1.45}.split{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{padding:12px;border:1px solid var(--line);border-radius:14px;background:#fbfdff}.mini .m-title{font-size:12px;color:var(--muted)}.mini .m-value{font-size:16px;font-weight:900;margin-top:6px;line-height:1.35}.report-section{border-top:1px solid var(--line);padding-top:13px;margin-top:13px}.report-section h3{font-size:14px;margin:0 0 8px}.bullets{margin:0;padding-left:18px;color:#344054;font-size:13px;line-height:1.6}.news{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:9px}.news b{font-size:13px}.news p{margin:5px 0 0;color:#475467;font-size:12px;line-height:1.45}.empty{padding:24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:18px}.pager{display:flex;justify-content:center;align-items:center;gap:6px;margin:16px 0 2px;flex-wrap:wrap}.page-btn{border:1px solid var(--line);background:#fff;color:#344054;border-radius:10px;padding:8px 11px;cursor:pointer;font-size:12px}.page-btn.active{background:var(--blue);border-color:var(--blue);color:white;font-weight:900}.page-btn:disabled{opacity:.4;cursor:not-allowed}.mobile-summary{display:none}.bottom-nav{display:none}.count-chip{font-size:12px;background:#f2f4f7;color:#344054;padding:7px 10px;border-radius:999px;white-space:nowrap}.small-note{font-size:12px;color:var(--muted);line-height:1.45;margin-top:8px}
+    @media(max-width:1100px){.form{grid-template-columns:1fr 1fr 1fr}.form .btn{grid-column:auto}.help-row{grid-template-columns:1fr 1fr}.content{grid-template-columns:1fr}.detail{position:static}}
+    @media(max-width:800px){.app{display:block}.sidebar{display:none}.main{padding:16px 14px 82px}.topbar{display:block}.title h1{font-size:22px}.user-pill{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.form{grid-template-columns:1fr 1fr}.form .btn{grid-column:1/-1}.help-row{grid-template-columns:1fr}.issuer-head{align-items:flex-start}.score{font-size:23px}.split{grid-template-columns:1fr}.mobile-summary{display:block;background:#101828;color:#fff;border-radius:18px;padding:14px;margin-bottom:14px}.mobile-summary b{font-size:18px}.mobile-summary p{font-size:12px;color:#d0d5dd;line-height:1.45}.bottom-nav{display:flex;position:fixed;left:12px;right:12px;bottom:12px;background:#0b1736;color:#d8e3f9;border-radius:22px;padding:10px;justify-content:space-around;box-shadow:0 16px 40px rgba(0,0,0,.25);z-index:5}.bottom-nav button{font-size:11px;text-align:center;background:transparent;border:0;color:#d8e3f9;font:inherit}.kpi .num{font-size:22px}.card{border-radius:18px}}
   </style>
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
       <div class="brand"><div class="logo">先</div><div><b>발행사 선제 영업 플랫폼</b><span>공개정보 기반 자금수요 레이더</span></div></div>
-      <button class="nav-item active" data-target="dashboardSection">대시보드</button><button class="nav-item" data-target="searchSection">발행사 검색</button><button class="nav-item" data-target="newsSection">뉴스 Trigger</button><button class="nav-item" data-target="riskSection">Risk Gate</button><button class="nav-item" data-target="apiSection">API Monitor</button>
-      <div class="side-section"><div class="side-title">Recent Searches</div><button class="history side-action" data-preset="construction70">건설 / Funding ≥ 70</button><button class="history side-action" data-preset="capex">CAPEX 뉴스</button><button class="history side-action" data-preset="liquidity">유동비율 100% 미만</button><button class="history side-action" data-preset="ratingDown">신용등급 하향 뉴스</button></div>
-      <div class="side-section"><div class="side-title">일일 스냅샷</div><div class="status-chip" id="sideStatus">loading...</div></div>
-      <div class="side-section"><div class="side-title">Policy</div><div class="history">Option C<br/>45% Rule · 40% AI · 15% News<br/>당좌비율 100% 미만 확정</div></div>
+      <button class="nav-item active" data-target="dashboardSection">요약 대시보드</button>
+      <button class="nav-item" data-target="searchSection">조건 검색</button>
+      <button class="nav-item" data-target="listSection">추천 발행사</button>
+      <div class="side-section"><div class="side-title">빠른 검색</div>
+        <button class="history side-action" data-preset="priorityA">즉시 검토 후보</button>
+        <button class="history side-action" data-preset="fundingEvent">자금조달 공시</button>
+        <button class="history side-action" data-preset="riskMid">Risk Mid 이상</button>
+        <button class="history side-action" data-preset="unclassified">업종 미분류</button>
+      </div>
+      <div class="side-section"><div class="side-title">업데이트</div><div class="status-chip" id="sideStatus">loading...</div></div>
     </aside>
     <main class="main">
       <div class="mobile-summary"><b>발행사 선제 영업 플랫폼</b><p id="mobileSummary">daily_snapshot.json을 불러오는 중입니다.</p></div>
-      <div class="topbar"><div class="title"><h1 id="pageTitle">발행사 선제 영업 플랫폼</h1><p id="pageSub">DART · NEWS · 재무제표 · 주석 · 신용등급 기반 자금수요 레이더</p></div><div class="user-pill" id="userPill">공개정보 스냅샷</div></div>
+      <div class="topbar"><div class="title"><h1>발행사 선제 영업 플랫폼</h1><p id="pageSub">공개정보 기반으로 자금수요 가능성이 높은 발행사를 선별합니다.</p></div><div class="user-pill" id="userPill">공개정보 스냅샷</div></div>
+
       <section class="grid kpis" id="dashboardSection"><div id="kpiGrid" class="grid kpis" style="display:contents"></div></section>
-      <section class="card search-panel" id="searchSection"><div class="section-head"><h2>조건 검색</h2><span class="tag" id="formulaTag">Final = 45% Rule + 40% AI + 15% News</span></div><div class="form"><select class="input" id="industryFilter"></select><select class="input" id="priorityFilter"></select><select class="input" id="riskFilter"></select><input class="input" id="keywordFilter" placeholder="기업명/키워드 검색"><button class="btn" id="resetBtn">Reset</button></div></section>
-      <section class="content" id="listSection">
-        <div class="card list"><div class="section-head"><h2>추천 발행사 Top List</h2><span class="tag" id="resultCount">0건</span></div><div id="issuerList"></div></div>
-        <aside class="card detail" id="detailPanel"></aside>
+
+      <section class="card search-panel" id="searchSection">
+        <div class="section-head"><div><h2>조건 검색</h2><p>업종·우선순위·Trigger·Risk 기준으로 영업 후보를 좁혀볼 수 있습니다.</p></div><span class="tag" id="asOfTag">기준일</span></div>
+        <div class="form">
+          <select class="input" id="industryFilter" aria-label="업종"></select>
+          <select class="input" id="scoreBandFilter" aria-label="우선순위"></select>
+          <select class="input" id="triggerFilter" aria-label="Trigger"></select>
+          <select class="input" id="riskFilter" aria-label="Risk"></select>
+          <input class="input" id="keywordFilter" placeholder="회사명·종목코드·키워드" />
+          <button class="btn secondary" id="resetBtn">초기화</button>
+        </div>
+        <div class="help-row" id="filterDefinitions"></div>
+        <div class="small-note">업종은 수기 입력값을 우선 적용하고, 없으면 회사명·최근 공시 제목 키워드로 추정합니다. 미분류 기업은 ‘기타/미분류’로 별도 확인 가능합니다.</div>
       </section>
-      <section class="card arch" id="newsSection"><div class="section-head"><h2>뉴스 Trigger 모니터</h2><span class="tag">뉴스는 별도 점수 · 최종 15% 반영</span></div><div class="monitor-grid" id="newsMonitor"></div></section>
-      <section class="card arch" id="riskSection"><div class="section-head"><h2>Risk Gate</h2><span class="tag">점수 반영 아님 · 구조 추천/차단 필터</span></div><div class="monitor-grid" id="riskMonitor"></div></section>
-      <section class="card arch" id="apiSection"><div class="section-head"><h2>API Monitor</h2><span class="tag">Raw · Cache · Source Status · Missing Fields</span></div><div id="apiMonitor"></div></section>
-      <section class="card arch" id="pipelineSection"><div class="section-head"><h2>정적 MVP 파이프라인</h2><span class="tag">고정 HTML · 일일 JSON</span></div><div class="arch-grid"><div class="arch-node"><b>DART</b><p>corpCode / 재무제표 / 주석 Raw 저장</p></div><div class="arch-node"><b>NEWS</b><p>Naver API / Dedup / Sentiment</p></div><div class="arch-node"><b>Score</b><p>Rule · AI · Trigger</p></div><div class="arch-node"><b>Snapshot</b><p>daily_snapshot.json 생성</p></div><div class="arch-node"><b>Page</b><p>고정 URL에서 최신 JSON 조회</p></div></div></section>
+
+      <section class="content">
+        <div class="card list" id="listSection">
+          <div class="list-top"><div><h2>추천 발행사</h2><p>카드를 클릭하면 우측 상세 리포트가 자동으로 연결됩니다.</p></div><span class="count-chip" id="resultCount">0건</span></div>
+          <div id="issuerList"></div>
+          <div class="pager" id="pager"></div>
+        </div>
+        <aside class="card detail" id="detailPanel"><div class="empty">발행사를 선택하면 상세 리포트가 표시됩니다.</div></aside>
+      </section>
     </main>
   </div>
-  <nav class="bottom-nav"><div>Home</div><div>Search</div><div>Trigger</div><div>Risk</div><div>API</div></nav>
-
+  <nav class="bottom-nav"><button data-target="dashboardSection">요약</button><button data-target="searchSection">검색</button><button data-target="listSection">목록</button></nav>
 <script>
-const fallbackSnapshot = {"as_of_date": "2026-07-06", "policy_version": "v1.1-static-mvp-option-c", "service": {"name": "발행사 선제 영업 플랫폼", "subtitle": "공개정보 기반 자금수요 레이더", "description": "DART, 뉴스, 재무데이터를 기반으로 향후 자금조달 필요성이 높은 발행사를 선제 탐지합니다."}, "formula": {"label": "Final Funding Score", "rule_weight": 0.45, "ai_weight": 0.4, "news_weight": 0.15, "text": "Final = 45% × Pure Financial Rule + 40% × AI Base + 15% × News Trigger"}, "pipeline_status": {"last_run_kst": "2026-07-06 07:58:12", "next_run_kst": "2026-07-07 07:00:00", "source_status": {"dart": "cached_ok", "news": "live_ok", "credit_rating": "manual_file_ok", "llm_annotation": "sample_placeholder"}, "missing_fields": ["일부 비상장/외감 기업의 최신 주석 데이터", "일부 산업키워드 alias 검증"], "notice": "공개정보 기반 자동 스냅샷입니다. 투자/영업 실행 전 원문 공시와 담당자 검토가 필요합니다."}, "kpis": {"screened_universe": 428, "priority_a": 17, "news_trigger_count": 32, "needs_review": 9}, "filters": {"industries": ["전체", "건설", "소재", "전자부품", "소비재", "바이오", "IT서비스"], "risk_levels": ["전체", "Low", "Mid", "High"], "priority_levels": ["전체", "Priority A", "Watchlist B", "Monitor C"]}, "issuers": [{"rank": 1, "corp_name": "신세계건설", "corp_code": "00217947", "ticker": "034300", "industry": "건설", "priority": "Priority A", "risk_level": "Mid", "final_score": 82.1, "pure_financial_rule_score": 78.0, "ai_base_score": 84.0, "news_trigger_score": 92.0, "recommended_structure": "CP + 담보부 라인", "suggested_terms": "9M · 6.40% 내외", "rationale": "단기 유동성 부담과 건설 업황 뉴스가 동시에 포착되었습니다. CP 단독보다 담보·만기·약정을 포함한 구조화 검토가 적합합니다.", "key_factors": ["부채비율 상승", "유동비율 100% 미만 가능성", "PF/건설 업황 부담", "부정 뉴스 우위"], "news": [{"title": "건설업 자금조달 환경 악화 관련 업황 뉴스", "source": "news_api", "sentiment": "negative", "severity": 80}, {"title": "리파이낸싱·만기부담 키워드 포착", "source": "news_api", "sentiment": "negative", "severity": 90}], "source_status": {"dart": "cached_ok", "news": "live_ok", "rating": "manual_file_ok"}, "missing_fields": []}, {"rank": 2, "corp_name": "서진시스템", "corp_code": "00838005", "ticker": "178320", "industry": "전자부품", "priority": "Priority A", "risk_level": "Low", "final_score": 74.2, "pure_financial_rule_score": 66.0, "ai_base_score": 79.0, "news_trigger_score": 88.0, "recommended_structure": "Credit Loan / 운영자금 라인", "suggested_terms": "1Y · 변동금리 + 약정", "rationale": "성장 투자와 증설 이벤트가 강한 뉴스 트리거로 반영되었습니다. 재무부담은 있으나 사업 기반과 수주잔고 확인 후 영업 접근 여지가 있습니다.", "key_factors": ["CAPEX 확대", "수주/증설 뉴스", "현금흐름 변동성", "Risk Low"], "news": [{"title": "ESS/전자부품 증설 및 투자 관련 이벤트", "source": "news_api", "sentiment": "positive_capex", "severity": 90}], "source_status": {"dart": "live_ok", "news": "live_ok", "rating": "manual_file_ok"}, "missing_fields": ["상세 담보 가능자산 확인"]}, {"rank": 3, "corp_name": "코오롱인더스트리", "corp_code": "00795135", "ticker": "120110", "industry": "소재", "priority": "Watchlist B", "risk_level": "Mid", "final_score": 63.3, "pure_financial_rule_score": 61.0, "ai_base_score": 65.0, "news_trigger_score": 67.0, "recommended_structure": "만기/금리 모니터링 후 제안", "suggested_terms": "Review after next filing", "rationale": "업황과 스프레드 관련 뉴스 압력이 있으나 명시적 조달 이벤트는 아직 약합니다. 다음 공시 업데이트 후 재평가 대상입니다.", "key_factors": ["업황 둔화", "원재료/스프레드 부담", "명시적 자금조달 이벤트 약함"], "news": [{"title": "화학/소재 업황 둔화 및 스프레드 축소 관련 뉴스", "source": "news_api", "sentiment": "negative", "severity": 60}], "source_status": {"dart": "cached_ok", "news": "live_ok", "rating": "manual_file_ok"}, "missing_fields": []}, {"rank": 4, "corp_name": "롯데케미칼", "corp_code": "00105271", "ticker": "011170", "industry": "소재", "priority": "Watchlist B", "risk_level": "Mid", "final_score": 61.8, "pure_financial_rule_score": 58.0, "ai_base_score": 64.0, "news_trigger_score": 68.0, "recommended_structure": "회사채/CP 시장 모니터링", "suggested_terms": "시장성 조달 조건 확인", "rationale": "석화 업황과 투자 부담 이슈가 존재하나 대형사 특성상 시장성 조달 접근성이 높습니다. 스프레드와 신용등급 전망을 함께 확인해야 합니다.", "key_factors": ["석화 업황", "대규모 투자", "시장성 조달 가능성"], "news": [{"title": "석유화학 업황 부담 및 투자 조정 뉴스", "source": "news_api", "sentiment": "negative", "severity": 65}], "source_status": {"dart": "live_ok", "news": "live_ok", "rating": "manual_file_ok"}, "missing_fields": []}, {"rank": 5, "corp_name": "HLB", "corp_code": "00358995", "ticker": "028300", "industry": "바이오", "priority": "Monitor C", "risk_level": "High", "final_score": 53.5, "pure_financial_rule_score": 54.0, "ai_base_score": 50.0, "news_trigger_score": 62.0, "recommended_structure": "Other / Manual Review", "suggested_terms": "투자심의 전 별도 검토", "rationale": "뉴스 트리거는 존재하나 바이오 특성상 임상/인허가 이벤트 리스크가 높아 자동 추천보다 수동 검토가 우선입니다.", "key_factors": ["바이오 이벤트 리스크", "현금 소진 가능성", "Risk High"], "news": [{"title": "임상/인허가 및 자금조달 관련 키워드 포착", "source": "news_api", "sentiment": "mixed", "severity": 60}], "source_status": {"dart": "cached_ok", "news": "live_ok", "rating": "missing"}, "missing_fields": ["유효 신용등급", "세부 임상 이벤트 검증"]}]};
-let state = { snapshot:null, selectedIndex:0, filtered:[] };
 const money = new Intl.NumberFormat('ko-KR');
-function badgeClass(value){ if(value === 'Priority A' || value === 'High') return 'red'; if(value === 'Watchlist B' || value === 'Mid') return 'orange'; if(value === 'Low') return 'green'; return ''; }
-function sourceDot(status){ if(!status || status.includes('missing')) return 'bad'; if(status.includes('cached') || status.includes('sample')) return 'warn'; return ''; }
+const state = { snapshot:null, filtered:[], selectedIndex:0, page:1, pageSize:10 };
+const els = {};
+function $(id){ return document.getElementById(id); }
+function badgeClass(v){ if(String(v).includes('High')||String(v).includes('A.')||String(v).includes('Priority A')||String(v).includes('자금조달')) return 'red'; if(String(v).includes('Mid')||String(v).includes('B.')||String(v).includes('투자')) return 'orange'; if(String(v).includes('Low')||String(v).includes('D.')) return 'green'; if(String(v).includes('뉴스')) return 'purple'; return ''; }
 async function loadSnapshot(){
   try{
-    const res = await fetch('./daily_snapshot.json?ts=' + Date.now(), {cache:'no-store'});
-    if(!res.ok) throw new Error('snapshot fetch failed');
+    const res = await fetch('daily_snapshot.json?ts=' + Date.now(), {cache:'no-store'});
+    if(!res.ok) throw new Error('daily_snapshot.json HTTP '+res.status);
     return await res.json();
   }catch(e){
-    console.warn('Using embedded fallback snapshot:', e.message);
-    return fallbackSnapshot;
+    return {
+      as_of_date:'sample', policy_version:'sample', service:{description:'daily_snapshot.json을 불러오지 못했습니다.'},
+      pipeline_status:{universe_count:0,last_run_kst:'-',next_run_kst:'-',notice:String(e)},
+      kpis:{screened_universe:0,priority_a:0,news_trigger_count:0,needs_review:0},
+      filters:{industries:['전체'],risk_levels:['전체','Low','Mid','High'],score_bands:['전체'],trigger_types:['전체'],definitions:[]}, issuers:[]
+    };
   }
 }
-function initFilters(snapshot){
-  const industries = snapshot.filters?.industries || ['전체'];
-  const priorities = snapshot.filters?.priority_levels || ['전체'];
-  const risks = snapshot.filters?.risk_levels || ['전체'];
-  industryFilter.innerHTML = industries.map(x=>`<option>${x}</option>`).join('');
-  priorityFilter.innerHTML = priorities.map(x=>`<option>${x}</option>`).join('');
-  riskFilter.innerHTML = risks.map(x=>`<option>${x}</option>`).join('');
+function init(){
+  ['industryFilter','scoreBandFilter','triggerFilter','riskFilter','keywordFilter','resetBtn','kpiGrid','issuerList','resultCount','pager','detailPanel','filterDefinitions','sideStatus','userPill','pageSub','mobileSummary','asOfTag'].forEach(id=>els[id]=$(id));
 }
-function renderHeader(snapshot){
-  pageTitle.textContent = snapshot.service?.subtitle || '발행사 선제 영업 대상 기업 추천 플랫폼';
-  pageSub.textContent = snapshot.service?.description || '';
-  formulaTag.textContent = snapshot.formula?.text || 'Final = 45% Rule + 40% AI + 15% News';
-  userPill.textContent = `as of ${snapshot.as_of_date} · ${snapshot.policy_version}`;
-  mobileSummary.textContent = `기준일 ${snapshot.as_of_date}. 고정 HTML이 daily_snapshot.json의 최신 데이터를 조회합니다.`;
-  const status = snapshot.pipeline_status || {};
-  sideStatus.innerHTML = `<b>as of ${snapshot.as_of_date}</b><br/>Last: ${status.last_run_kst || '-'}<br/>Next: ${status.next_run_kst || '-'}<br/><span style="color:#aebada">${status.notice || ''}</span>`;
+function optionize(arr){ return (arr&&arr.length?arr:['전체']).map(x=>`<option value="${String(x).replace(/"/g,'&quot;')}">${x}</option>`).join(''); }
+function renderHeader(s){
+  els.pageSub.textContent = s.service?.description || '공개정보 기반으로 자금수요 가능성이 높은 발행사를 선별합니다.';
+  els.userPill.textContent = `기준일 ${s.as_of_date || '-'} · ${s.policy_version || '-'}`;
+  els.asOfTag.textContent = `기준일 ${s.as_of_date || '-'}`;
+  els.mobileSummary.textContent = `기준일 ${s.as_of_date || '-'}. 전체 상장사 중 우선 검토 후보를 보여줍니다.`;
+  const ps = s.pipeline_status || {};
+  els.sideStatus.innerHTML = `<b>${s.as_of_date || '-'}</b><br/>마지막 업데이트: ${ps.last_run_kst || '-'}<br/>다음 업데이트: ${ps.next_run_kst || '-'}<br/>전체 대상: ${money.format(ps.universe_count || s.kpis?.screened_universe || 0)}개`;
 }
-function renderKpis(snapshot){
-  const k = snapshot.kpis || {};
-  const items = [
-    ['Screened Universe', k.screened_universe ?? 0, 'DART corp_code 기준'],
-    ['Priority A', k.priority_a ?? 0, 'Funding Score ≥ 70'],
-    ['News Trigger', k.news_trigger_count ?? 0, '최근 3개월 이벤트 감지'],
-    ['Needs Review', k.needs_review ?? 0, '누락/신뢰도 이슈']
+function renderKpis(s){
+  const k=s.kpis||{}, ps=s.pipeline_status||{};
+  const items=[
+    ['전체 대상 기업', k.screened_universe ?? ps.universe_count ?? 0, 'OpenDART 상장사 기준'],
+    ['즉시 검토 후보', k.priority_a ?? 0, '우선순위 A 구간'],
+    ['Trigger 감지', k.news_trigger_count ?? 0, '공시·뉴스 이벤트 감지'],
+    ['검토 필요', k.needs_review ?? 0, '누락/보완 필요 항목']
   ];
-  kpiGrid.innerHTML = items.map(([label,num,sub])=>`<div class="card kpi"><div class="label">${label}</div><div class="num">${money.format(num)}</div><div class="sub">${sub}</div></div>`).join('');
+  els.kpiGrid.innerHTML=items.map(([l,n,sub])=>`<div class="card kpi"><div class="label">${l}</div><div class="num">${money.format(n)}</div><div class="sub">${sub}</div></div>`).join('');
 }
-function filterIssuers(){
-  const s = state.snapshot;
-  let arr = [...(s.issuers || [])];
-  const ind = industryFilter.value, pri = priorityFilter.value, risk = riskFilter.value, kw = keywordFilter.value.trim().toLowerCase();
-  if(ind && ind !== '전체') arr = arr.filter(x=>x.industry === ind);
-  if(pri && pri !== '전체') arr = arr.filter(x=>x.priority === pri);
-  if(risk && risk !== '전체') arr = arr.filter(x=>x.risk_level === risk);
-  if(kw) arr = arr.filter(x => [x.corp_name, x.ticker, x.industry, x.rationale, ...(x.key_factors||[]), ...((x.news||[]).map(n=>n.title||''))].join(' ').toLowerCase().includes(kw));
-  if(state.minScore) arr = arr.filter(x => Number(x.final_score||0) >= state.minScore);
-  state.filtered = arr.sort((a,b)=>b.final_score-a.final_score);
-  if(!state.filtered[state.selectedIndex]) state.selectedIndex = 0;
-  renderIssuerList();
-  renderDetail(state.filtered[state.selectedIndex]);
+function initFilters(s){
+  const f=s.filters||{};
+  els.industryFilter.innerHTML = optionize(f.industries || ['전체']);
+  els.scoreBandFilter.innerHTML = optionize(f.score_bands || ['전체','A. 즉시 검토','B. 우선 관찰','C. 모니터링','D. 낮음']);
+  els.triggerFilter.innerHTML = optionize(f.trigger_types || ['전체','자금조달 공시','투자/차입 이벤트','뉴스 Trigger','기초 모니터링']);
+  els.riskFilter.innerHTML = optionize(f.risk_levels || ['전체','Low','Mid','High']);
+  const defs = f.definitions || [
+    {field:'업종', meaning:'수기값 우선, 없으면 회사명·공시 키워드 기준 추정'},
+    {field:'우선순위', meaning:'공시·뉴스·재무 신호를 종합한 영업 검토 단계'},
+    {field:'Trigger', meaning:'최근 자금수요 신호가 어디에서 감지됐는지'},
+    {field:'Risk', meaning:'거래 구조 검토 시 별도 확인이 필요한 위험 수준'}
+  ];
+  els.filterDefinitions.innerHTML = defs.slice(0,4).map(d=>`<div class="help-box"><b>${d.field}</b><p>${d.meaning}</p></div>`).join('');
 }
-function renderIssuerList(){
-  resultCount.textContent = `${state.filtered.length}건`;
-  if(!state.filtered.length){ issuerList.innerHTML = `<div class="empty">조건에 맞는 발행사가 없습니다.</div>`; return; }
-  issuerList.innerHTML = state.filtered.map((x,i)=>`
-    <article class="issuer-card ${i===state.selectedIndex?'active':''}" data-index="${i}">
-      <div class="issuer-head"><div><div class="issuer-name">${x.rank}. ${x.corp_name}</div><div class="issuer-meta">${x.corp_code} · ${x.ticker || '-'} · ${x.industry}</div></div><div class="score">${x.final_score}<small>Final</small></div></div>
-      <div class="bars"><div class="bar"><span>Pure Rule</span><b>${x.pure_financial_rule_score}</b></div><div class="bar"><span>AI Base</span><b>${x.ai_base_score}</b></div><div class="bar"><span>News Trigger</span><b>${x.news_trigger_score}</b></div></div>
-      <div class="badges"><span class="badge ${badgeClass(x.priority)}">${x.priority}</span><span class="badge ${badgeClass(x.risk_level)}">Risk ${x.risk_level}</span><span class="badge">${x.recommended_structure}</span></div>
-      <p class="summary">${x.rationale}</p>
-    </article>`).join('');
-  issuerList.querySelectorAll('.issuer-card').forEach(card=>card.addEventListener('click',()=>{state.selectedIndex=Number(card.dataset.index);renderIssuerList();renderDetail(state.filtered[state.selectedIndex]);}));
+function textBlob(x){ return [x.corp_name,x.ticker,x.corp_code,x.industry,x.industry_source,x.priority,x.score_band,x.trigger_type,x.risk_level,x.recommended_structure,x.rationale,...(x.key_factors||[]),...((x.news||[]).map(n=>`${n.title} ${n.source}`))].join(' ').toLowerCase(); }
+function applyFilters(){
+  const ind=els.industryFilter.value, band=els.scoreBandFilter.value, trig=els.triggerFilter.value, risk=els.riskFilter.value, kw=els.keywordFilter.value.trim().toLowerCase();
+  let arr=[...(state.snapshot.issuers||[])];
+  if(ind && ind!=='전체') arr=arr.filter(x=>x.industry===ind);
+  if(band && band!=='전체') arr=arr.filter(x=>(x.score_band||'')===band);
+  if(trig && trig!=='전체') arr=arr.filter(x=>(x.trigger_type||'')===trig);
+  if(risk && risk!=='전체') arr=arr.filter(x=>x.risk_level===risk);
+  if(kw) arr=arr.filter(x=>textBlob(x).includes(kw));
+  arr.sort((a,b)=>(b.final_score||0)-(a.final_score||0));
+  state.filtered=arr; state.page=1; state.selectedIndex=0; renderList(); renderDetail(state.filtered[0]);
+}
+function currentPageItems(){ const start=(state.page-1)*state.pageSize; return state.filtered.slice(start,start+state.pageSize); }
+function renderList(){
+  const total=state.filtered.length, pages=Math.max(1,Math.ceil(total/state.pageSize)); if(state.page>pages) state.page=pages;
+  els.resultCount.textContent = `${money.format(total)}건 · ${state.page}/${pages}페이지`;
+  const items=currentPageItems();
+  if(!items.length){ els.issuerList.innerHTML='<div class="empty">조건에 맞는 발행사가 없습니다.</div>'; els.pager.innerHTML=''; return; }
+  const globalStart=(state.page-1)*state.pageSize;
+  els.issuerList.innerHTML=items.map((x,i)=>{
+    const globalIndex=globalStart+i;
+    return `<article class="issuer-card ${globalIndex===state.selectedIndex?'active':''}" data-index="${globalIndex}">
+      <div class="issuer-head"><div><div class="issuer-name">${x.rank||globalIndex+1}. ${x.corp_name}</div><div class="issuer-meta">${x.ticker||'-'} · ${x.industry||'기타/미분류'} <span style="color:#98a2b3">(${x.industry_source||'분류 정보 없음'})</span></div></div><div class="score">${Math.round(x.final_score||0)}<small>우선순위</small></div></div>
+      <div class="badges"><span class="badge ${badgeClass(x.score_band)}">${x.score_band||x.priority||'-'}</span><span class="badge ${badgeClass(x.trigger_type)}">${x.trigger_type||'기초 모니터링'}</span><span class="badge ${badgeClass(x.risk_level)}">Risk ${x.risk_level||'-'}</span><span class="badge">${x.recommended_structure||'구조 검토'}</span></div>
+      <p class="summary">${x.rationale||'공개정보 기반 자동 선별 후보입니다. 실행 전 원문 공시 확인이 필요합니다.'}</p>
+    </article>`;
+  }).join('');
+  els.issuerList.querySelectorAll('.issuer-card').forEach(card=>card.addEventListener('click',()=>{state.selectedIndex=Number(card.dataset.index); renderList(); renderDetail(state.filtered[state.selectedIndex]);}));
+  renderPager(pages);
+}
+function renderPager(pages){
+  const buttons=[];
+  buttons.push(`<button class="page-btn" data-page="prev" ${state.page===1?'disabled':''}>이전</button>`);
+  const span=2; let start=Math.max(1,state.page-span), end=Math.min(pages,state.page+span);
+  if(start>1){buttons.push(`<button class="page-btn" data-page="1">1</button>`); if(start>2) buttons.push(`<span class="page-btn" style="border:0;background:transparent">…</span>`);}
+  for(let p=start;p<=end;p++) buttons.push(`<button class="page-btn ${p===state.page?'active':''}" data-page="${p}">${p}</button>`);
+  if(end<pages){ if(end<pages-1) buttons.push(`<span class="page-btn" style="border:0;background:transparent">…</span>`); buttons.push(`<button class="page-btn" data-page="${pages}">${pages}</button>`);}
+  buttons.push(`<button class="page-btn" data-page="next" ${state.page===pages?'disabled':''}>다음</button>`);
+  els.pager.innerHTML=buttons.join('');
+  els.pager.querySelectorAll('button[data-page]').forEach(btn=>btn.addEventListener('click',()=>{
+    const val=btn.dataset.page; if(val==='prev') state.page=Math.max(1,state.page-1); else if(val==='next') state.page=Math.min(pages,state.page+1); else state.page=Number(val);
+    const first=(state.page-1)*state.pageSize; if(state.selectedIndex<first || state.selectedIndex>=first+state.pageSize){ state.selectedIndex=first; renderDetail(state.filtered[state.selectedIndex]); }
+    renderList(); document.getElementById('listSection').scrollIntoView({behavior:'smooth',block:'start'});
+  }));
 }
 function renderDetail(x){
-  if(!x){ detailPanel.innerHTML = `<div class="empty">선택된 발행사가 없습니다.</div>`; return; }
-  const f = state.snapshot.formula || {rule_weight:.45, ai_weight:.4, news_weight:.15};
-  const status = x.source_status || {};
-  const sources = Object.entries(status).map(([k,v])=>`<span class="badge"><span class="pill-dot ${sourceDot(v)}"></span>${k}: ${v}</span>`).join('');
-  const missing = (x.missing_fields||[]).length ? x.missing_fields.map(m=>`<span class="badge orange">${m}</span>`).join('') : '<span class="badge green">missing fields 없음</span>';
-  const news = (x.news||[]).map(n=>`<div class="news"><b>${n.title}</b><p>${n.sentiment} · severity ${n.severity} · ${n.source}</p></div>`).join('') || '<div class="news"><b>뉴스 없음</b><p>최근 트리거 뉴스가 감지되지 않았습니다.</p></div>';
-  detailPanel.innerHTML = `
-    <h2>상세 리포트 · ${x.corp_name}</h2><div class="meta">Reference date ${state.snapshot.as_of_date} · ${state.snapshot.policy_version}</div>
-    <div class="formula">Final Funding Score = ${f.rule_weight} × Pure Rule ${x.pure_financial_rule_score}<br/>+ ${f.ai_weight} × AI Base ${x.ai_base_score} + ${f.news_weight} × News Trigger ${x.news_trigger_score}<br/><b style="color:white">= ${x.final_score} / 100</b></div>
-    <div class="split"><div class="mini"><div class="m-title">추천 구조</div><div class="m-value">${x.recommended_structure}</div></div><div class="mini"><div class="m-title">제안 만기/금리</div><div class="m-value">${x.suggested_terms}</div></div></div>
-    <div class="timeline"><div class="step"><div class="dot">1</div><div><b>NEWS Trigger</b><p>${x.news_trigger_score}점. 뉴스는 별도 Trigger로 산출 후 최종점수에 15%만 반영.</p></div></div><div class="step"><div class="dot">2</div><div><b>Pure Financial Rule</b><p>${x.pure_financial_rule_score}점. 부채비율, 유동비율, 당좌비율 100% 미만 등 순수 재무항목 기준.</p></div></div><div class="step"><div class="dot">3</div><div><b>Risk Gate</b><p>Risk ${x.risk_level}. Risk는 점수에 섞지 않고 구조 추천/차단 필터로 활용.</p></div></div><div class="step"><div class="dot">4</div><div><b>Action</b><p>${x.rationale}</p></div></div></div>
-    <div class="news"><b>Key Factors</b><p>${(x.key_factors||[]).join(' · ')}</p></div>
-    ${news}
-    <div class="news"><b>Source Status</b><div class="badges" style="margin-top:8px">${sources}</div><div class="badges" style="margin-top:8px">${missing}</div></div>`;
+  if(!x){ els.detailPanel.innerHTML='<div class="empty">선택된 발행사가 없습니다.</div>'; return; }
+  const news=(x.news||[]).slice(0,4).map(n=>`<div class="news"><b>${n.title||'제목 없음'}</b><p>${n.source||'-'} · ${n.sentiment||'-'}${n.url?` · <a href="${n.url}" target="_blank" rel="noopener">원문</a>`:''}</p></div>`).join('') || '<div class="news"><b>주요 이벤트 없음</b><p>최근 자금수요 관련 이벤트가 감지되지 않았습니다.</p></div>';
+  const factors=(x.key_factors||[]).slice(0,6);
+  els.detailPanel.innerHTML=`<h2>${x.corp_name} 상세 리포트</h2><div class="meta">${x.ticker||'-'} · ${x.industry||'기타/미분류'} · 분류: ${x.industry_source||'-'}</div>
+    <div class="detail-hero"><div class="big">${Math.round(x.final_score||0)}</div><div class="caption">공개정보 기반 영업 우선순위 점수입니다. 산식은 화면에 노출하지 않으며, 실제 영업/투자 실행 전 원문 확인이 필요합니다.</div></div>
+    <div class="split"><div class="mini"><div class="m-title">우선순위</div><div class="m-value">${x.score_band||x.priority||'-'}</div></div><div class="mini"><div class="m-title">감지 Trigger</div><div class="m-value">${x.trigger_type||'기초 모니터링'}</div></div><div class="mini"><div class="m-title">Risk</div><div class="m-value">${x.risk_level||'-'}</div></div><div class="mini"><div class="m-title">검토 구조</div><div class="m-value">${x.recommended_structure||'-'}</div></div></div>
+    <div class="report-section"><h3>영업 코멘트</h3><p class="summary">${x.rationale||'공개정보 기반 자동 선별 후보입니다.'}</p></div>
+    <div class="report-section"><h3>주요 근거</h3><ul class="bullets">${factors.length?factors.map(f=>`<li>${f}</li>`).join(''):'<li>자동 수집 근거 없음. 원문 확인 필요.</li>'}</ul></div>
+    <div class="report-section"><h3>최근 공시/뉴스</h3>${news}</div>
+    <div class="report-section"><h3>보완 필요 항목</h3><div class="badges">${(x.missing_fields||[]).length?(x.missing_fields||[]).map(m=>`<span class="badge orange">${m}</span>`).join(''):'<span class="badge green">특이 누락 없음</span>'}</div></div>`;
 }
-
-function setupNavigation(){
-  const buttons = document.querySelectorAll('[data-target]');
-  buttons.forEach(btn=>btn.addEventListener('click',()=>{
-    const target = document.getElementById(btn.dataset.target);
-    if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
-    document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
-    if(btn.classList.contains('nav-item')) btn.classList.add('active');
-  }));
-}
-function setupRecentSearches(){
-  document.querySelectorAll('[data-preset]').forEach(btn=>btn.addEventListener('click',()=>{
-    industryFilter.value = '전체'; priorityFilter.value = '전체'; riskFilter.value = '전체'; keywordFilter.value = '';
-    state.minScore = 0;
-    const p = btn.dataset.preset;
-    if(p === 'construction70'){ industryFilter.value = '건설'; state.minScore = 70; }
-    if(p === 'capex'){ keywordFilter.value = 'CAPEX'; }
-    if(p === 'liquidity'){ keywordFilter.value = '유동비율'; }
-    if(p === 'ratingDown'){ keywordFilter.value = '신용등급 하향'; }
-    state.selectedIndex = 0;
-    filterIssuers();
-    document.getElementById('listSection')?.scrollIntoView({behavior:'smooth', block:'start'});
-  }));
-}
-function renderNewsMonitor(){
-  if(!newsMonitor) return;
-  const issuers = [...(state.snapshot.issuers||[])].sort((a,b)=>b.news_trigger_score-a.news_trigger_score).slice(0,6);
-  newsMonitor.innerHTML = issuers.map(x=>{
-    const n = (x.news||[])[0] || {title:'뉴스 없음', sentiment:'-', severity:0, source:'-'};
-    return `<div class="monitor-box"><b>${x.corp_name} · ${x.news_trigger_score}점</b><p>${n.title}</p><div class="badges" style="margin-top:8px"><span class="badge ${badgeClass(n.sentiment==='negative'?'High':'Mid')}">${n.sentiment}</span><span class="badge">severity ${n.severity}</span></div></div>`;
-  }).join('') || '<div class="empty">뉴스 Trigger 데이터가 없습니다.</div>';
-}
-function renderRiskMonitor(){
-  if(!riskMonitor) return;
-  const buckets = ['High','Mid','Low'].map(level=>{
-    const arr = (state.snapshot.issuers||[]).filter(x=>x.risk_level===level);
-    const top = arr.slice(0,3).map(x=>x.corp_name).join(' · ') || '해당 없음';
-    return `<div class="monitor-box"><b>Risk ${level} · ${arr.length}건</b><p>${top}</p><p>${level==='High'?'투자심의 전 별도 검토/보수적 구조 우선':level==='Mid'?'담보·만기·재무약정 확인 필요':'표준 구조 검토 가능'}</p></div>`;
-  });
-  riskMonitor.innerHTML = buckets.join('');
-}
-function renderApiMonitor(){
-  if(!apiMonitor) return;
-  const ps = state.snapshot.pipeline_status || {};
-  const ss = ps.source_status || {};
-  const rows = Object.entries(ss).map(([k,v])=>`<div class="status-row"><b>${k}</b><span><span class="pill-dot ${sourceDot(v)}"></span>${v}</span></div>`).join('');
-  const missing = (ps.missing_fields||[]).length ? ps.missing_fields.join(' · ') : '전역 missing fields 없음';
-  apiMonitor.innerHTML = `<div class="monitor-box"><b>일일 업데이트 상태</b><p>Last run: ${ps.last_run_kst || '-'}<br/>Next run: ${ps.next_run_kst || '-'}</p></div><div class="monitor-box" style="margin-top:10px"><b>Source Status</b>${rows || '<p>상태 정보 없음</p>'}</div><div class="monitor-box" style="margin-top:10px"><b>Missing Fields</b><p>${missing}</p><p>${ps.notice || ''}</p></div>`;
-}
-
-async function main(){
-  state.snapshot = await loadSnapshot();
-  setupNavigation();
-  renderHeader(state.snapshot); renderKpis(state.snapshot); initFilters(state.snapshot);
-  [industryFilter,priorityFilter,riskFilter,keywordFilter].forEach(el=>el.addEventListener('input', filterIssuers));
-  resetBtn.addEventListener('click',()=>{industryFilter.value='전체'; priorityFilter.value='전체'; riskFilter.value='전체'; keywordFilter.value=''; state.minScore=0; state.selectedIndex=0; filterIssuers();});
-  filterIssuers();
-  setupRecentSearches();
-  renderNewsMonitor(); renderRiskMonitor(); renderApiMonitor();
-}
+function setupNavigation(){ document.querySelectorAll('[data-target]').forEach(btn=>btn.addEventListener('click',()=>{ const target=$(btn.dataset.target); if(target) target.scrollIntoView({behavior:'smooth',block:'start'}); document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); if(btn.classList.contains('nav-item')) btn.classList.add('active'); })); }
+function setupPresets(){ document.querySelectorAll('[data-preset]').forEach(btn=>btn.addEventListener('click',()=>{ resetFilters(false); const p=btn.dataset.preset; if(p==='priorityA') els.scoreBandFilter.value='A. 즉시 검토'; if(p==='fundingEvent') els.triggerFilter.value='자금조달 공시'; if(p==='riskMid') els.riskFilter.value='Mid'; if(p==='unclassified') els.industryFilter.value='기타/미분류'; applyFilters(); document.getElementById('listSection').scrollIntoView({behavior:'smooth',block:'start'}); })); }
+function resetFilters(andApply=true){ els.industryFilter.value='전체'; els.scoreBandFilter.value='전체'; els.triggerFilter.value='전체'; els.riskFilter.value='전체'; els.keywordFilter.value=''; if(andApply) applyFilters(); }
+async function main(){ init(); state.snapshot=await loadSnapshot(); renderHeader(state.snapshot); renderKpis(state.snapshot); initFilters(state.snapshot); setupNavigation(); setupPresets(); ['industryFilter','scoreBandFilter','triggerFilter','riskFilter','keywordFilter'].forEach(id=>els[id].addEventListener('input',applyFilters)); els.resetBtn.addEventListener('click',()=>resetFilters(true)); applyFilters(); }
 main();
 </script>
 </body>
