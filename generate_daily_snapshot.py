@@ -20,8 +20,9 @@ import os
 import re
 import time
 import zipfile
+import hashlib
 import xml.etree.ElementTree as ET
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from io import BytesIO
@@ -144,6 +145,69 @@ INDUSTRY_CATEGORY_DESCRIPTIONS = {
 }
 
 
+MANUAL_INDUSTRY_ALIASES = {
+    "건설": "건설/부동산",
+    "부동산": "건설/부동산",
+    "소재": "석유화학/소재",
+    "화학": "석유화학/소재",
+    "석유화학": "석유화학/소재",
+    "철강": "철강/금속",
+    "금속": "철강/금속",
+    "전자부품": "반도체/전자부품",
+    "반도체": "반도체/전자부품",
+    "전기차": "2차전지/전기차",
+    "2차전지": "2차전지/전기차",
+    "자동차": "자동차/기계",
+    "기계": "자동차/기계",
+    "조선": "조선/방산/항공",
+    "방산": "조선/방산/항공",
+    "항공": "조선/방산/항공",
+    "바이오": "제약/바이오/헬스케어",
+    "제약": "제약/바이오/헬스케어",
+    "헬스케어": "제약/바이오/헬스케어",
+    "SW": "IT/SW/플랫폼",
+    "소프트웨어": "IT/SW/플랫폼",
+    "플랫폼": "IT/SW/플랫폼",
+    "엔터": "게임/엔터/콘텐츠",
+    "콘텐츠": "게임/엔터/콘텐츠",
+    "미디어": "통신/미디어",
+    "통신": "통신/미디어",
+    "유통": "유통/소비재",
+    "소비재": "유통/소비재",
+    "식품": "음식료",
+    "운송": "운송/물류",
+    "물류": "운송/물류",
+    "에너지": "에너지/유틸리티",
+    "유틸리티": "에너지/유틸리티",
+    "지주": "지주/투자회사",
+    "투자회사": "지주/투자회사",
+    "기타": "기타/미분류",
+    "미분류": "기타/미분류",
+}
+
+
+def canonicalize_industry(value: str) -> str:
+    text = (value or "").strip()
+    if not text:
+        return "기타/미분류"
+    if text in INDUSTRY_CATEGORY_DESCRIPTIONS:
+        return text
+    compact = re.sub(r"\s+", "", text)
+    if compact in MANUAL_INDUSTRY_ALIASES:
+        return MANUAL_INDUSTRY_ALIASES[compact]
+    for canonical in INDUSTRY_CATEGORY_DESCRIPTIONS:
+        if compact and compact in re.sub(r"\s+", "", canonical):
+            return canonical
+    return text
+
+
+def ordered_industry_filters(issuers: List[Dict[str, Any]]) -> List[str]:
+    seen = {x.get("industry", "") for x in issuers if x.get("industry")}
+    known = [x for x in INDUSTRY_CATEGORY_DESCRIPTIONS if x in seen]
+    extra = sorted(x for x in seen if x not in INDUSTRY_CATEGORY_DESCRIPTIONS)
+    return ["전체"] + known + extra
+
+
 def infer_specific_industry_from_text(text: str) -> Tuple[str, str]:
     compact = (text or "").replace(" ", "").upper()
     for industry, keywords in SPECIFIC_KEYWORD_RULES:
@@ -177,7 +241,7 @@ def industry_from_dart_code(induty_code: str) -> Tuple[str, str]:
 def resolve_industry(row: Dict[str, str], dart_events: Dict[str, Any], kind_events: Dict[str, Any], profile: Optional[Dict[str, Any]] = None) -> Tuple[str, str]:
     manual = (row.get("industry") or "").strip()
     if manual:
-        return manual, "수기/CSV"
+        return canonicalize_industry(manual), "수기/CSV"
 
     texts = [row.get("corp_name", ""), row.get("keywords", "")]
     for ev in (dart_events.get("key_events") or []) + (kind_events.get("key_events") or []):
@@ -199,23 +263,36 @@ def resolve_industry(row: Dict[str, str], dart_events: Dict[str, Any], kind_even
 
 
 def score_band(score: float) -> str:
+    if score >= 82:
+        return "S. 긴급 검토"
     if score >= 70:
-        return "A. 즉시 검토"
-    if score >= 55:
-        return "B. 우선 관찰"
-    if score >= 40:
-        return "C. 모니터링"
-    return "D. 낮음"
+        return "A. 즉시 접촉"
+    if score >= 58:
+        return "B. 구조화 검토"
+    if score >= 46:
+        return "C. 관심 관찰"
+    return "D. 정기 모니터링"
 
 
-def trigger_type_from(event_severity: int, news_score: float) -> str:
+def trigger_type_from(event_severity: int, news_score: float, event_titles: Optional[List[str]] = None) -> str:
+    text = " ".join(event_titles or [])
+    if any(k in text for k in ["채무불이행", "자본잠식", "회생", "감사의견", "상장폐지", "관리종목"]):
+        return "신용/계속기업 리스크"
+    if any(k in text for k in ["유상증자", "전환사채", "신주인수권", "교환사채", "회사채", "CP", "사채"]):
+        return "자금조달 직접공시"
+    if any(k in text for k in ["단기차입금", "차입", "채무보증", "담보제공", "리파이낸싱"]):
+        return "차입/담보 이벤트"
+    if any(k in text for k in ["유형자산", "시설투자", "공장", "CAPEX", "증설"]):
+        return "투자·CAPEX 이벤트"
+    if any(k in text for k in ["타법인", "출자증권", "인수", "합병", "M&A"]):
+        return "M&A/지분투자 이벤트"
     if event_severity >= 90:
-        return "자금조달 공시"
+        return "자금조달 직접공시"
     if event_severity >= 75:
         return "투자/차입 이벤트"
     if news_score >= 70:
-        return "뉴스 Trigger"
-    return "기초 모니터링"
+        return "업황/뉴스 압력"
+    return "재무구조 점검"
 
 
 def now_kst() -> datetime:
@@ -262,14 +339,169 @@ def ai_base_from_signals(rule_score: float, news_score: float, dart_event_score:
     return round(clip(score), 1)
 
 
+SECTOR_BASE_RISK = {
+    "건설/부동산": 58, "석유화학/소재": 50, "철강/금속": 46, "반도체/전자부품": 42,
+    "2차전지/전기차": 55, "자동차/기계": 43, "조선/방산/항공": 40, "제약/바이오/헬스케어": 54,
+    "IT/SW/플랫폼": 38, "게임/엔터/콘텐츠": 46, "통신/미디어": 34, "유통/소비재": 43,
+    "음식료": 28, "운송/물류": 47, "에너지/유틸리티": 36, "금융": 30, "지주/투자회사": 42,
+    "기타/미분류": 40,
+}
+
+SECTOR_DEFAULT_NEED = {
+    "건설/부동산": "PF·운영자금/차환", "석유화학/소재": "업황 방어/차환", "철강/금속": "운전자금/재고금융",
+    "반도체/전자부품": "CAPEX/운전자금", "2차전지/전기차": "성장 CAPEX/메자닌", "자동차/기계": "운전자금/설비투자",
+    "조선/방산/항공": "수주 기반 운전자금", "제약/바이오/헬스케어": "R&D/자본확충", "IT/SW/플랫폼": "성장자금/운영자금",
+    "게임/엔터/콘텐츠": "콘텐츠 투자/운영자금", "통신/미디어": "설비투자/차환", "유통/소비재": "운전자금/리테일 투자",
+    "음식료": "운전자금/원재료 부담", "운송/물류": "운전자금/리스·선박·항공기 금융", "에너지/유틸리티": "프로젝트/설비투자",
+    "금융": "자본비율/시장성 조달", "지주/투자회사": "포트폴리오 투자/차환", "기타/미분류": "기초 모니터링",
+}
+
+def stable_int(seed: str, modulo: int = 100) -> int:
+    h = hashlib.sha256((seed or "-").encode("utf-8")).hexdigest()
+    return int(h[:8], 16) % modulo
+
+def _join_event_text(news_cards: List[Dict[str, Any]]) -> str:
+    return " ".join(str(x.get("title", "")) for x in news_cards or [])
+
+def _risk_label(score: float, hard_event: bool = False) -> str:
+    if hard_event and score >= 88:
+        return "Critical"
+    if score >= 82:
+        return "High"
+    if score >= 70:
+        return "Elevated"
+    if score >= 58:
+        return "Moderate"
+    if score >= 45:
+        return "Watch"
+    return "Low"
+
+def _structure_group_and_terms(funding_need: str, risk_level: str, industry: str, event_text: str) -> Tuple[str, str, str]:
+    high_risk = risk_level in {"Critical", "High", "Elevated"}
+    if any(k in event_text for k in ["채무불이행", "회생", "감사의견", "상장폐지", "자본잠식"]):
+        return "구조조정/자본확충", "유상증자·CB·RCPS·채무재조정 병행 검토", "원문 확인 후 Hold/조건부 접근 · 담보/자본확충 선행"
+    if any(k in event_text for k in ["유상증자"]):
+        return "ECM/자본확충", "유상증자 주선·주주배정/제3자배정 자문", "증자 목적·최대주주 참여·할인율·실권 리스크 검토"
+    if any(k in event_text for k in ["전환사채", "신주인수권", "교환사채", "CB", "BW", "EB"]):
+        return "메자닌", "CB/BW/EB·RCPS 구조화 검토", "전환가액 리픽싱·콜옵션·Put·희석률·보호예수 확인"
+    if any(k in event_text for k in ["회사채", "CP", "사채"]):
+        return "시장성 차입/차환", "회사채·사모사채·CP·신용보강부 구조", "만기 6~24M · 등급/수요예측/담보·보증 가능성 확인"
+    if any(k in event_text for k in ["단기차입금", "차입", "채무보증", "담보제공", "리파이낸싱"]):
+        return "담보부/브릿지 차입", "담보부 대출·ABL·브릿지론·운전자금 라인", "6~18M · 담보가치·현금흐름·차환 가능성 우선 점검"
+    if any(k in event_text for k in ["유형자산", "시설투자", "CAPEX", "증설", "공장"]):
+        return "CAPEX 금융", "설비금융·프로젝트론·세일앤리스백·메자닌", "투자기간/가동률/수주계약·담보권 설정 가능성 검토"
+    if any(k in event_text for k in ["타법인", "출자증권", "인수", "합병", "M&A"]):
+        return "인수/투자금융", "인수금융·브릿지론·메자닌·공동투자", "취득목적·PMI·재원조달·재무부담 증가 여부 확인"
+    if industry == "건설/부동산":
+        return "PF/부동산 금융", "PF 리파이낸싱·담보부 대출·브릿지론", "사업장별 분양률·공정률·우발채무·담보순위 확인"
+    if industry in {"제약/바이오/헬스케어", "2차전지/전기차"}:
+        return "성장자금/메자닌", "CB·RCPS·전략투자·성장자금 라운드", "마일스톤/수주/기술가치·희석률 및 후속조달 가능성 확인"
+    if high_risk:
+        return "신용보강 필요 차입", "담보부 대출·ABL·사모사채·신용보강부 구조", "담보·보증·코버넌트 포함, 원문 공시 확인 후 진행"
+    return "정기 모니터링", "시장성 조달·운영자금 라인 모니터링", "분기 실적/공시 업데이트 후 접촉 타이밍 재판단"
+
+def enhanced_finance_classification(issuer_seed: str, industry: str, rule_score: float, news_score: float, event_score: int, news_cards: List[Dict[str, Any]], missing_fields: List[str]) -> Dict[str, Any]:
+    event_text = _join_event_text(news_cards)
+    hard_event = any(k in event_text for k in ["채무불이행", "자본잠식", "회생", "감사의견", "상장폐지", "유상증자", "전환사채", "신주인수권"])
+    sector = SECTOR_BASE_RISK.get(industry, 40)
+    variation = stable_int(issuer_seed, 17) - 8
+    event_component = min(40, event_score * 0.42) if event_score else 0
+    news_component = max(0, (news_score - 50) * 0.35) if news_score else 0
+    risk_numeric = clip(sector + variation + event_component + news_component, 0, 100)
+    risk_level = _risk_label(risk_numeric, hard_event=hard_event)
+
+    if any(k in event_text for k in ["채무불이행", "회생", "감사의견", "상장폐지"]):
+        funding_need = "구조조정/유동성 방어"
+        risk_type = "계속기업/채무불이행 리스크"
+        action_stage = "Hold / 원문 확인"
+    elif "자본잠식" in event_text or "유상증자" in event_text:
+        funding_need = "자본확충/재무구조 개선"
+        risk_type = "자본확충·희석 리스크"
+        action_stage = "즉시 접촉" if risk_level in {"Elevated", "High", "Critical"} else "구조 검토"
+    elif any(k in event_text for k in ["전환사채", "신주인수권", "교환사채", "CB", "BW", "EB"]):
+        funding_need = "메자닌/성장자금"
+        risk_type = "희석·차환 리스크"
+        action_stage = "구조 검토"
+    elif any(k in event_text for k in ["회사채", "CP", "사채", "단기차입금", "차입", "리파이낸싱"]):
+        funding_need = "차환/운전자금"
+        risk_type = "차입·리파이낸싱 리스크"
+        action_stage = "즉시 접촉" if risk_level in {"High", "Elevated"} else "우선 관찰"
+    elif any(k in event_text for k in ["유형자산", "시설투자", "CAPEX", "증설", "공장"]):
+        funding_need = "성장 CAPEX"
+        risk_type = "투자집행/현금흐름 리스크"
+        action_stage = "구조 검토"
+    elif any(k in event_text for k in ["타법인", "출자증권", "인수", "합병", "M&A"]):
+        funding_need = "인수/투자자금"
+        risk_type = "인수금융/재무부담 리스크"
+        action_stage = "우선 관찰"
+    else:
+        funding_need = SECTOR_DEFAULT_NEED.get(industry, "기초 모니터링")
+        if industry == "건설/부동산":
+            risk_type = "PF/우발채무 리스크"
+        elif industry in {"석유화학/소재", "철강/금속", "운송/물류"}:
+            risk_type = "업황/운전자본 리스크"
+        elif industry in {"제약/바이오/헬스케어", "2차전지/전기차"}:
+            risk_type = "성장투자/후속조달 리스크"
+        elif industry == "금융":
+            risk_type = "시장성 조달/자본비율 리스크"
+        else:
+            risk_type = "기초 신용 모니터링"
+        action_stage = "정기 관찰" if risk_level in {"Low", "Watch"} else "우선 관찰"
+
+    structure_group, recommended_structure, terms = _structure_group_and_terms(funding_need, risk_level, industry, event_text)
+    if risk_level == "Critical":
+        priority = "1. 긴급 확인"
+    elif risk_level in {"High", "Elevated"} or event_score >= 85:
+        priority = "2. 즉시 접촉"
+    elif risk_level == "Moderate" or news_score >= 65:
+        priority = "3. 구조 검토"
+    elif risk_level == "Watch":
+        priority = "4. 관심 관찰"
+    else:
+        priority = "5. 정기 모니터링"
+
+    confidence = "높음" if event_score >= 75 or news_score >= 70 else "보통" if industry != "기타/미분류" else "낮음"
+    if missing_fields and "detailed_dart_financial_deferred" in missing_fields:
+        confidence = "보통" if confidence == "높음" else confidence
+
+    factors = []
+    if event_score:
+        factors.append(f"최근 공시/이벤트 강도 {event_score}점 감지")
+    factors.append(f"업종 기반 리스크 프로파일: {industry}")
+    factors.append(f"자금수요 유형: {funding_need}")
+    factors.append(f"위험유형: {risk_type}")
+    factors.append(f"우선 검토 구조: {structure_group}")
+    if confidence != "높음":
+        factors.append(f"정보 신뢰도 {confidence}: 원문/재무 상세 보강 필요")
+
+    if action_stage.startswith("Hold"):
+        rationale = "부정적 신용 이벤트 가능성이 있어 단순 영업보다 원문 공시·감사의견·채권자 지위 확인이 선행되어야 합니다."
+    elif event_score >= 75:
+        rationale = f"최근 자금수요 관련 이벤트가 감지되어 {recommended_structure} 관점의 선제 접촉 후보입니다."
+    elif risk_level in {"Elevated", "High"}:
+        rationale = f"업종·뉴스·공시 신호상 {risk_type}가 높아 {structure_group} 중심의 구조화 검토가 필요합니다."
+    else:
+        rationale = f"현재는 {funding_need} 관점의 관찰 후보입니다. 신규 공시·실적 업데이트 시 접촉 우선순위를 재조정합니다."
+
+    return {
+        "risk_level": risk_level,
+        "risk_score_internal": round(risk_numeric, 1),
+        "risk_type": risk_type,
+        "funding_need_type": funding_need,
+        "structure_group": structure_group,
+        "recommended_structure": recommended_structure,
+        "suggested_terms": terms,
+        "action_stage": action_stage,
+        "priority": priority,
+        "analysis_confidence": confidence,
+        "rationale": rationale,
+        "key_factors": factors,
+    }
+
 def risk_and_structure(rule_score: float, news_score: float, dart_event_score: int, missing_fields: List[str]) -> Tuple[str, str, str]:
-    if len(missing_fields) >= 6:
-        return "High", "Other / Manual Review", "원문 공시 확인 후 조건 제시"
-    if rule_score >= 75 or news_score >= 90 or dart_event_score >= 90:
-        return "Mid", "CP + 담보부 라인 / CB·BW 검토", "6~12M · 담보/코버넌트 포함"
-    if rule_score >= 55 or news_score >= 70:
-        return "Mid", "회사채/CP 시장 모니터링", "시장성 조달 조건 확인"
-    return "Low", "Credit Loan / 운영자금 라인", "1Y · 변동금리 + 약정"
+    # Backward-compatible fallback. The main pipeline uses enhanced_finance_classification().
+    level = "High" if dart_event_score >= 90 or news_score >= 90 else "Moderate" if rule_score >= 55 or news_score >= 70 else "Watch"
+    return level, "구조화 금융 검토", "원문 공시 확인 후 조건 제시"
 
 
 def save_raw(name: str, obj: Any) -> None:
@@ -572,10 +804,13 @@ def filter_items_for_company(items: List[Dict[str, Any]], corp_name: str) -> Lis
     return [x for x in items if corp_name in f"{x.get('title','')} {x.get('description','')}"][:10]
 
 
-def mock_rule_score(idx: int, event_severity: int) -> float:
-    # Until per-company financial detail is enabled, keep a conservative base score.
-    base_cycle = [42.0, 45.0, 48.0, 51.0, 54.0]
-    return min(75.0, base_cycle[idx % len(base_cycle)] + (10 if event_severity >= 90 else 5 if event_severity >= 75 else 0))
+def mock_rule_score(idx: int, event_severity: int, industry: str = "기타/미분류", issuer_seed: str = "") -> float:
+    # Fast-mode proxy: sector risk + event signal + deterministic dispersion.
+    # This is not a replacement for detailed financial statements; it is a first-pass screening score.
+    sector = SECTOR_BASE_RISK.get(industry, 40)
+    variation = stable_int(issuer_seed or str(idx), 21) - 10
+    event_bonus = 18 if event_severity >= 90 else 12 if event_severity >= 75 else 6 if event_severity >= 60 else 0
+    return round(clip(28 + sector * 0.45 + variation + event_bonus), 1)
 
 
 def build_snapshot() -> Dict[str, Any]:
@@ -629,17 +864,21 @@ def build_snapshot() -> Dict[str, Any]:
         profile = profile_by_code.get(corp_code, {})
         industry, industry_source = resolve_industry(row, dart_events, kind_events, profile)
         event_severity = max(int(dart_events.get("event_severity", 0)), int(kind_events.get("event_severity", 0)))
-        rule_score = mock_rule_score(i, event_severity)
-        news_score = float(max(50 if event_severity == 0 else event_severity, event_severity))
-        missing_fields = ["detailed_dart_financial_deferred"]
-        ai_score = ai_base_from_signals(rule_score, news_score, event_severity, len(missing_fields))
-        final_score = compute_final_funding_score(rule_score, ai_score, news_score)
         news_cards = []
         news_cards.extend(dart_events.get("key_events", []))
         news_cards.extend(kind_events.get("key_events", []))
+        rule_score = mock_rule_score(i, event_severity, industry, corp_code or corp_name)
+        news_score = float(max(38 + stable_int(corp_code or corp_name, 20), event_severity)) if event_severity == 0 else float(event_severity)
+        missing_fields = ["상세 재무제표 보강 필요"]
+        classification = enhanced_finance_classification(corp_code or corp_name, industry, rule_score, news_score, event_severity, news_cards, missing_fields)
+        ai_score = ai_base_from_signals(rule_score, news_score, event_severity, len(missing_fields))
+        # Use risk score as a professional overlay so high-risk sectors/events are not all flattened into Low/Monitor.
+        ai_score = round(clip(0.72 * ai_score + 0.28 * classification["risk_score_internal"]), 1)
+        final_score = compute_final_funding_score(rule_score, ai_score, news_score)
         if not news_cards:
-            news_cards = [{"title": "최근 45일 주요 자금조달 이벤트 공시 미검출", "source": "full_universe_fast_screen", "sentiment": "mixed", "severity": int(news_score)}]
-        risk, structure, terms = risk_and_structure(rule_score, news_score, event_severity, missing_fields)
+            news_cards = [{"title": f"최근 45일 직접 자금조달 이벤트 미검출 · {classification['funding_need_type']} 관점 정기 관찰", "source": "full_universe_fast_screen", "sentiment": "mixed", "severity": int(news_score)}]
+        score_label = score_band(final_score)
+        action_stage = classification["action_stage"] if str(classification["action_stage"]).startswith("Hold") else classification["priority"]
         issuers.append({
             "rank": 0,
             "corp_name": corp_name,
@@ -648,18 +887,24 @@ def build_snapshot() -> Dict[str, Any]:
             "industry": industry,
             "industry_source": industry_source,
             "industry_code": str(profile.get("induty_code", "")) if profile else "",
-            "score_band": score_band(final_score),
-            "trigger_type": trigger_type_from(event_severity, news_score),
-            "priority": priority_bucket(final_score),
-            "risk_level": risk,
+            "score_band": score_label,
+            "trigger_type": trigger_type_from(event_severity, news_score, [n.get("title", "") for n in news_cards]),
+            "priority": classification["priority"],
+            "risk_level": classification["risk_level"],
+            "risk_type": classification["risk_type"],
+            "funding_need_type": classification["funding_need_type"],
+            "structure_group": classification["structure_group"],
+            "action_stage": action_stage,
+            "action_comment": classification["action_stage"],
+            "analysis_confidence": classification["analysis_confidence"],
             "final_score": final_score,
             "pure_financial_rule_score": round(rule_score, 1),
             "ai_base_score": ai_score,
             "news_trigger_score": round(news_score, 1),
-            "recommended_structure": structure,
-            "suggested_terms": terms,
-            "rationale": "전체 상장사 Fast Scan 결과입니다. 최근 이벤트 공시를 우선 반영하고, 상위 후보에만 뉴스/상세 재무 보강을 수행합니다.",
-            "key_factors": ["전체 상장사 포함", "DART 이벤트 공시 Bulk Scan", "뉴스 Trigger 분리", "Risk Gate 별도 적용"],
+            "recommended_structure": classification["recommended_structure"],
+            "suggested_terms": classification["suggested_terms"],
+            "rationale": classification["rationale"],
+            "key_factors": classification["key_factors"],
             "news": sorted(news_cards, key=lambda x: x.get("severity", 0), reverse=True)[:5],
             "source_status": {
                 "dart_universe": source_status_global["dart_universe"],
@@ -689,18 +934,32 @@ def build_snapshot() -> Dict[str, Any]:
                 event_severity = max(existing_event, n_event)
                 news_score = max(float(classified.get("score", 0) or 0), float(event_severity or 0), issuer["news_trigger_score"])
                 rule_score = issuer["pure_financial_rule_score"]
+                merged_news = classified.get("key_news", []) + issuer.get("news", [])
+                refreshed = enhanced_finance_classification(issuer.get("corp_code") or issuer.get("corp_name"), issuer.get("industry", "기타/미분류"), rule_score, news_score, event_severity, merged_news, issuer.get("missing_fields", []))
                 ai_score = ai_base_from_signals(rule_score, news_score, event_severity, len(issuer.get("missing_fields", [])))
+                ai_score = round(clip(0.72 * ai_score + 0.28 * refreshed["risk_score_internal"]), 1)
                 final_score = compute_final_funding_score(rule_score, ai_score, news_score)
+                action_stage = refreshed["action_stage"] if str(refreshed["action_stage"]).startswith("Hold") else refreshed["priority"]
                 issuer.update({
                     "news_trigger_score": round(news_score, 1),
                     "ai_base_score": ai_score,
                     "final_score": final_score,
-                    "priority": priority_bucket(final_score),
+                    "priority": refreshed["priority"],
                     "score_band": score_band(final_score),
-                    "trigger_type": trigger_type_from(event_severity, news_score),
+                    "trigger_type": trigger_type_from(event_severity, news_score, [n.get("title", "") for n in merged_news]),
+                    "risk_level": refreshed["risk_level"],
+                    "risk_type": refreshed["risk_type"],
+                    "funding_need_type": refreshed["funding_need_type"],
+                    "structure_group": refreshed["structure_group"],
+                    "recommended_structure": refreshed["recommended_structure"],
+                    "suggested_terms": refreshed["suggested_terms"],
+                    "action_stage": action_stage,
+                    "action_comment": refreshed["action_stage"],
+                    "analysis_confidence": refreshed["analysis_confidence"],
+                    "rationale": refreshed["rationale"],
+                    "key_factors": refreshed["key_factors"],
                     "source_status": {**issuer["source_status"], "news": "live_ok_top_candidate"},
                 })
-                merged_news = classified.get("key_news", []) + issuer.get("news", [])
                 issuer["news"] = sorted(merged_news, key=lambda x: x.get("severity", 0), reverse=True)[:5]
             except Exception as exc:
                 source_status_global["news"] = f"partial_error:{type(exc).__name__}"
@@ -720,11 +979,11 @@ def build_snapshot() -> Dict[str, Any]:
     next_run = (t + timedelta(days=1)).replace(hour=8, minute=0, second=0, microsecond=0)
     return {
         "as_of_date": t.strftime("%Y-%m-%d"),
-        "policy_version": "v1.9-full-universe-industry-mapped",
+        "policy_version": "v2.0-expert-risk-structure-segmentation",
         "service": {
             "name": "발행사 선제 영업 플랫폼",
             "subtitle": "공개정보 기반 자금수요 레이더",
-            "description": "전체 상장사에 업종 범주를 자동 매핑하고, 공시·뉴스·재무 신호가 있는 후보를 우선순위화합니다.",
+            "description": "전체 상장사를 업종·자금수요·리스크·금융구조 관점으로 세분화해 선제 영업 후보를 제시합니다.",
         },
         "formula": {
             "label": "Final Funding Score",
@@ -739,34 +998,41 @@ def build_snapshot() -> Dict[str, Any]:
             "scheduled_run": "매일 08:00 KST / GitHub Actions cron 0 23 * * * UTC",
             "source_status": source_status_global,
             "universe_count": len(rows),
-            "universe_mode": "opendart_full_listed_user_ui_two_stage",
+            "universe_mode": "opendart_full_listed_expert_segmentation_two_stage",
             "news_enrich_limit": news_limit,
             "page_detail_limit": page_detail_limit,
             "industry_mapped_count": sum(1 for x in issuers if x.get("industry") != "기타/미분류"),
             "industry_unmapped_count": sum(1 for x in issuers if x.get("industry") == "기타/미분류"),
-            "industry_mapping_method": "수기/CSV → 키워드 보정 → DART 업종코드 → 일반 키워드 추정",
+            "industry_source_counts": dict(Counter(x.get("industry_source", "unknown") for x in issuers)),
+            "industry_mapping_method": "수기/CSV 표준화 → 키워드 보정 → DART 업종코드 → 일반 키워드 추정",
             "missing_fields": [],
             "notice": "공개정보 기반 자동 스냅샷입니다. 투자/영업 실행 전 원문 공시와 담당자 검토가 필요합니다.",
         },
         "kpis": {
             "screened_universe": len(rows),
-            "priority_a": sum(1 for x in issuers if x["priority"] == "Priority A"),
-            "news_trigger_count": sum(1 for x in issuers if x["news_trigger_score"] >= 60),
-            "needs_review": sum(1 for x in issuers if x["missing_fields"]),
+            "priority_a": sum(1 for x in issuers if x.get("score_band") in {"S. 긴급 검토", "A. 즉시 접촉"}),
+            "news_trigger_count": sum(1 for x in issuers if x.get("trigger_type") not in {"재무구조 점검", "기초 모니터링"}),
+            "needs_review": sum(1 for x in issuers if x.get("risk_level") in {"Critical", "High", "Elevated"}),
         },
         "filters": {
-            "industries": ["전체"] + sorted({x.get("industry", "") for x in issuers if x.get("industry")}),
-            "risk_levels": ["전체", "Low", "Mid", "High"],
-            "priority_levels": ["전체", "Priority A", "Watchlist B", "Monitor C", "Low Priority"],
-            "score_bands": ["전체", "A. 즉시 검토", "B. 우선 관찰", "C. 모니터링", "D. 낮음"],
-            "trigger_types": ["전체", "자금조달 공시", "투자/차입 이벤트", "뉴스 Trigger", "기초 모니터링"],
+            "industries": ordered_industry_filters(issuers),
+            "risk_levels": ["전체", "Critical", "High", "Elevated", "Moderate", "Watch", "Low"],
+            "priority_levels": ["전체", "1. 긴급 확인", "2. 즉시 접촉", "3. 구조 검토", "4. 관심 관찰", "5. 정기 모니터링"],
+            "score_bands": ["전체", "S. 긴급 검토", "A. 즉시 접촉", "B. 구조화 검토", "C. 관심 관찰", "D. 정기 모니터링"],
+            "trigger_types": ["전체", "신용/계속기업 리스크", "자금조달 직접공시", "차입/담보 이벤트", "투자·CAPEX 이벤트", "M&A/지분투자 이벤트", "업황/뉴스 압력", "재무구조 점검"],
+            "risk_types": ["전체"] + sorted({x.get("risk_type", "") for x in issuers if x.get("risk_type")}),
+            "funding_need_types": ["전체"] + sorted({x.get("funding_need_type", "") for x in issuers if x.get("funding_need_type")}),
+            "structure_groups": ["전체"] + sorted({x.get("structure_group", "") for x in issuers if x.get("structure_group")}),
+            "action_stages": ["전체", "1. 긴급 확인", "2. 즉시 접촉", "3. 구조 검토", "4. 관심 관찰", "5. 정기 모니터링", "Hold / 원문 확인"],
             "industry_sources": ["전체", "수기/CSV", "키워드 보정", "DART 업종코드", "키워드 추정", "자동 미분류"],
             "industry_categories": [{"name": k, "meaning": v} for k, v in INDUSTRY_CATEGORY_DESCRIPTIONS.items()],
             "definitions": [
                 {"field": "업종", "meaning": "수기값을 우선 사용하고, 없으면 회사명 키워드와 DART 업종코드로 사용자용 범주에 자동 매핑합니다."},
                 {"field": "우선순위", "meaning": "공시·뉴스·재무 신호를 종합해 영업 검토 순서를 나눈 값입니다. 산식은 화면에 노출하지 않습니다."},
                 {"field": "Trigger", "meaning": "최근 자금조달 공시, 투자/차입 이벤트, 뉴스 신호, 기초 모니터링 중 어떤 신호가 우선 감지됐는지 표시합니다."},
-                {"field": "Risk", "meaning": "거래 구조 검토 시 별도 확인이 필요한 위험 수준입니다. 점수와 별도로 구조 검토에 사용합니다."}
+                {"field": "Risk", "meaning": "Low/Watch/Moderate/Elevated/High/Critical로 세분화한 위험 수준입니다. 점수와 별도로 구조 검토에 사용합니다."},
+                {"field": "자금수요 유형", "meaning": "차환, CAPEX, 메자닌, 자본확충, PF 등 예상되는 자금 목적입니다."},
+                {"field": "추천 금융구조", "meaning": "공시·뉴스·업종 신호를 토대로 우선 검토할 수 있는 금융상품/구조입니다."}
             ]
         },
         "issuers": issuers,

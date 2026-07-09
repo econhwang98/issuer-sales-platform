@@ -1,27 +1,45 @@
-# 발행사 선제 영업 플랫폼 정적 MVP v3 API 확장판
+# KIS ARGO 발행사 선제 영업 레이더
 
-고정 HTML + `daily_snapshot.json` 자동 갱신 방식의 외부 배포용 MVP입니다.  
-이번 버전은 **매일 08:00 KST 자동 배치**와 **OpenDART 재무/이벤트 공시 + 네이버 뉴스 고도화 + 선택형 KIND RSS**를 반영했습니다.
+고정 HTML + `daily_snapshot.json` 자동 갱신 방식의 외부 배포용 발행사 선제 영업 플랫폼입니다.
 
-## 1. 핵심 구조
+이번 버전은 **v12 전문 금융분류 고도화 패치**입니다. 기존처럼 대부분 기업이 `Risk Low / 기초 모니터링`으로만 떨어지는 현상을 줄이기 위해 위험수준, 위험유형, 자금수요, 추천 금융구조, 검토단계를 세분화했습니다.
+
+## v12 고도화 핵심
+
+- Risk Level을 `Low`, `Watch`, `Moderate`, `Elevated`, `High`, `Critical`로 세분화했습니다.
+- 기업별 `risk_type`을 추가했습니다.
+  - 계속기업/채무불이행 리스크
+  - 자본확충·희석 리스크
+  - 차입·리파이낸싱 리스크
+  - 투자집행/현금흐름 리스크
+  - 인수금융/재무부담 리스크
+  - PF/우발채무 리스크
+  - 업황/운전자본 리스크
+  - 성장투자/후속조달 리스크
+  - 시장성 조달/자본비율 리스크
+  - 기초 신용 모니터링
+- 기업별 예상 자금수요 유형을 추가했습니다.
+  - 차환/운전자금, 성장 CAPEX, 메자닌/성장자금, 자본확충/재무구조 개선, 인수/투자자금, PF·운영자금/차환, 업황 방어/차환, R&D/자본확충, 구조조정/유동성 방어, 기초 모니터링
+- 추천 금융구조를 `ECM/자본확충`, `메자닌`, `시장성 차입/차환`, `담보부/브릿지 차입`, `CAPEX 금융`, `인수/투자금융`, `PF/부동산 금융`, `성장자금/메자닌`, `신용보강 필요 차입`, `구조조정/자본확충`, `정기 모니터링` 등으로 분류합니다.
+- 검토 단계를 `1. 긴급 확인`, `2. 즉시 접촉`, `3. 구조 검토`, `4. 관심 관찰`, `5. 정기 모니터링`, `Hold / 원문 확인`으로 제공합니다.
+- 조건검색에서 업종, 우선순위, Trigger, Risk, 위험유형, 자금수요, 추천 금융구조, 검토단계, 키워드를 함께 필터링할 수 있습니다.
+- 상세 리포트에 Risk Level + Risk Type, 자금수요 유형, 추천 금융구조, 검토 단계, 추천 구조 및 조건, 분석 신뢰도, 주요 근거, 최근 공시/뉴스, 보완 필요 항목을 표시합니다.
+
+## 핵심 파일
 
 ```text
-index.html             # 사용자에게 공유하는 고정 페이지
-daily_snapshot.json    # 매일 자동 갱신되는 데이터 스냅샷
-universe.csv           # 스크리닝 대상 기업 목록
-scripts/               # 스냅샷 생성/스코어링 스크립트
-.github/workflows/     # GitHub Actions 일일 자동 갱신
+index.html
+generate_daily_snapshot.py
+requirements.txt
+.github/workflows/update-daily-snapshot.yml
+README.md
 ```
 
-사용자는 매일 같은 URL만 접속합니다. 매일 새 페이지를 공유하지 않습니다.
+`daily_snapshot.json`은 GitHub Actions가 매일 자동 생성합니다.
 
-```text
-https://econhwang98.github.io/issuer-sales-platform/
-```
+## 배치 실행 방식
 
-## 2. 자동 배치
-
-GitHub Actions의 schedule은 UTC 기준입니다. 한국시간 오전 8시는 전날 UTC 23:00이므로 아래 cron을 사용합니다.
+GitHub Actions는 매일 한국시간 오전 8시에 실행됩니다.
 
 ```yaml
 schedule:
@@ -31,112 +49,18 @@ schedule:
 수동 실행도 가능합니다.
 
 ```text
-GitHub repository → Actions → 발행사 선제 영업 플랫폼 일일 스냅샷 업데이트 → Run workflow
+GitHub repository → Actions → KIS ARGO daily snapshot update → Run workflow
 ```
 
-## 3. 확정 점수 정책
+## 필수 GitHub Secrets
 
-```text
-Final Funding Score
-= 45% × Pure Financial Rule Score
-+ 40% × AI Base Score
-+ 15% × News Trigger Score
-```
-
-- 뉴스/공시 이벤트는 `News Trigger Score`로 별도 산출합니다.
-- 뉴스는 최종 점수에 15%만 반영합니다.
-- Pure Financial Rule에는 뉴스 항목을 넣지 않습니다.
-- 당좌비율 기준은 사용자 확정에 따라 `100% 미만`으로 반영했습니다.
-- DART 장애/점검에 대비해 `source_status`, `missing_fields`, raw/cache 저장 구조를 전제로 합니다.
-
-## 4. 이번 버전에 반영된 데이터 소스
-
-### 필수 라이브 소스
-
-```text
-OPENDART_API_KEY
-NAVER_CLIENT_ID
-NAVER_CLIENT_SECRET
-```
-
-### 선택 소스
-
-```text
-KRX_KIND_RSS_URL
-FSC_SERVICE_KEY
-```
-
-`KRX_KIND_RSS_URL`은 KIND 화면에서 RSS 주소를 복사해 넣으면 DART 보완 신호로 사용합니다. 없어도 정상 동작합니다.  
-`FSC_SERVICE_KEY`는 금융위원회/공공데이터포털 기업정보 API 확장을 위한 Hook으로 열어두었습니다. 이번 정적 MVP에서는 스코어 산식에 직접 반영하지 않습니다.
-
-## 5. 라이브 처리 내용
-
-### OpenDART 재무제표
-
-`fnlttSinglAcntAll.json`으로 최근 사업연도 연결 재무제표를 조회하고 아래 항목을 best-effort 파싱합니다.
-
-```text
-자산총계, 부채총계, 유동자산, 유동부채, 재고자산,
-차입금/사채, 영업이익, 이자비용,
-영업활동현금흐름, 투자활동현금흐름, 현금 순증감
-```
-
-### OpenDART 이벤트 공시
-
-`list.json` 공시검색으로 최근 45일 공시 제목을 조회하고 아래 이벤트를 감지합니다.
-
-```text
-유상증자, 전환사채, 신주인수권부사채, 교환사채,
-회사채/사채, 단기차입금, 채무보증, 담보제공,
-타법인 주식 및 출자증권 취득, 유형자산 취득,
-주요사항보고서, 증권신고서
-```
-
-### 네이버 뉴스 API 고도화
-
-기업명 단일 검색이 아니라 아래 쿼리 조합을 실행합니다.
-
-```text
-기업명 + 유상증자
-기업명 + CB / 전환사채 / BW
-기업명 + 회사채 / CP / 차입 / 리파이낸싱
-기업명 + 공장 증설 / CAPEX / 대규모 투자
-기업명 + 신용등급 / 유동성 / 자본잠식 / 적자 / PF
-산업명 + 업황 둔화 / 스프레드 축소 / 원가 상승
-```
-
-## 6. 네가 지금 GitHub에서 해야 할 일
-
-기존 저장소에는 이미 페이지가 있으므로, 아래 파일/폴더를 **덮어쓰기 업로드**하면 됩니다.
-
-```text
-index.html
-README.md
-GITHUB_PAGES_DEPLOY_GUIDE.md
-API_EXPANSION_NOTES.md
-.env.example
-requirements.txt
-scripts/
-.github/
-daily_snapshot.json
-```
-
-가장 중요한 파일은 아래 2개입니다.
-
-```text
-scripts/generate_daily_snapshot.py
-.github/workflows/update-daily-snapshot.yml
-```
-
-## 7. GitHub Secrets
-
-Repository에서 아래로 들어갑니다.
+Repository에서 아래 메뉴로 들어갑니다.
 
 ```text
 Settings → Secrets and variables → Actions → New repository secret
 ```
 
-필수 3개를 등록합니다.
+필수:
 
 ```text
 OPENDART_API_KEY
@@ -144,27 +68,55 @@ NAVER_CLIENT_ID
 NAVER_CLIENT_SECRET
 ```
 
-선택 2개는 나중에 등록해도 됩니다.
+선택:
 
 ```text
 KRX_KIND_RSS_URL
 FSC_SERVICE_KEY
 ```
 
-## 8. Run workflow 확인
+## 적용 방법
 
-Secrets 등록 후:
+GitHub 저장소에서 아래 파일을 덮어쓰기 업로드합니다.
 
 ```text
-Actions → 발행사 선제 영업 플랫폼 일일 스냅샷 업데이트 → Run workflow
+index.html
+generate_daily_snapshot.py
+requirements.txt
+.github/workflows/update-daily-snapshot.yml
+README.md
 ```
 
-성공하면 `daily_snapshot.json`이 갱신되고, 페이지에서 `Ctrl + F5`로 새로고침하면 최신 결과가 보입니다.
+그 다음 `Commit changes`를 누르고, Actions에서 `KIS ARGO daily snapshot update`를 수동 실행합니다.
 
-## 9. 운영상 주의사항
+실행 성공 후 `daily_snapshot.json`에서 아래 값을 확인합니다.
 
-- API 키는 절대 `index.html`, `daily_snapshot.json`, README 등에 직접 넣지 않습니다.
-- GitHub Secrets에만 저장합니다.
-- `daily_snapshot.json`에는 공개 가능한 요약·점수·근거만 저장합니다.
-- 투자·대출·영업 실행 전에는 DART 원문, 뉴스 원문, 신용등급 원천파일을 담당자가 확인해야 합니다.
-- 자동 산출값은 `source_status`, `missing_fields`, `policy_version`과 함께 확인해야 합니다.
+```text
+policy_version
+v2.0-expert-risk-structure-segmentation
+```
+
+그리고 아래 필드가 기업별로 생성되는지 확인합니다.
+
+```text
+risk_type
+funding_need_type
+structure_group
+action_stage
+analysis_confidence
+suggested_terms
+```
+
+페이지 확인 URL:
+
+```text
+https://econhwang98.github.io/issuer-sales-platform/
+```
+
+브라우저에서 `Ctrl + F5`로 강제 새로고침하면 최신 `index.html`과 `daily_snapshot.json`을 확인할 수 있습니다.
+
+## 운영 주의사항
+
+- API 키와 Secret은 절대 `index.html`, `daily_snapshot.json`, README에 직접 넣지 않습니다.
+- 자동 산출값은 영업 검토용 선별 신호입니다. 실행 전 DART 원문, 뉴스 원문, 신용등급 원천자료, 담당자 검토가 필요합니다.
+- Actions push 충돌을 줄이기 위해 workflow에는 `fetch-depth: 0`, `git pull --rebase origin main`, JSON 검증 단계가 포함되어 있습니다.
