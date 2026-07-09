@@ -398,7 +398,7 @@ def _structure_group_and_terms(funding_need: str, risk_level: str, industry: str
         return "성장자금/메자닌", "CB·RCPS·전략투자·성장자금 라운드", "마일스톤/수주/기술가치·희석률 및 후속조달 가능성 확인"
     if high_risk:
         return "신용보강 필요 차입", "담보부 대출·ABL·사모사채·신용보강부 구조", "담보·보증·코버넌트 포함, 원문 공시 확인 후 진행"
-    return "정기 모니터링", "시장성 조달·운영자금 라인 모니터링", "분기 실적/공시 업데이트 후 접촉 타이밍 재판단"
+    return "정기 모니터링", "시장성 조달·운영자금 라인 모니터링", "신규 자금조달 공시, 실적 발표, 신용 이벤트 발생 시 접촉 타이밍 재판단"
 
 def enhanced_finance_classification(issuer_seed: str, industry: str, rule_score: float, news_score: float, event_score: int, news_cards: List[Dict[str, Any]], missing_fields: List[str]) -> Dict[str, Any]:
     event_text = _join_event_text(news_cards)
@@ -481,7 +481,7 @@ def enhanced_finance_classification(issuer_seed: str, industry: str, rule_score:
     elif risk_level in {"Elevated", "High"}:
         rationale = f"업종·뉴스·공시 신호상 {risk_type}가 높아 {structure_group} 중심의 구조화 검토가 필요합니다."
     else:
-        rationale = f"현재는 {funding_need} 관점의 관찰 후보입니다. 신규 공시·실적 업데이트 시 접촉 우선순위를 재조정합니다."
+        rationale = f"현재는 {funding_need} 관점의 관찰 후보입니다. 신규 공시·실적 발표 시 접촉 우선순위를 재조정합니다."
 
     return {
         "risk_level": risk_level,
@@ -972,9 +972,14 @@ def build_snapshot() -> Dict[str, Any]:
     for rank, issuer in enumerate(issuers, 1):
         issuer["rank"] = rank
         if page_detail_limit > 0 and rank > page_detail_limit:
-            issuer["news"] = [{"title": f"전체 상장사 스크리닝 대상입니다. 상세 뉴스/공시 근거는 상위 {page_detail_limit}개 우선순위 기업 중심으로 저장됩니다.", "source": "full_universe_summary", "sentiment": "mixed", "severity": int(issuer.get("news_trigger_score", 0) or 0)}]
+            issuer["news"] = [{
+                "title": f"상세 뉴스/공시 원문 저장은 우선순위 상위 {page_detail_limit}개 기업에 집중됩니다. 이 기업은 전체 스크리닝 기반의 요약 모니터링 정보로 표시되며, 신규 공시·뉴스·실적 이벤트 발생 시 상세 검토 대상으로 전환될 수 있습니다.",
+                "source": "summary_screening",
+                "sentiment": "neutral",
+                "severity": int(issuer.get("news_trigger_score", 0) or 0),
+            }]
             issuer["rule_breakdown"] = []
-            issuer["rationale"] = "전체 상장사 Fast Scan 요약입니다. 실행 전 원문 공시와 담당자 검토가 필요합니다."
+            issuer["rationale"] = f"{issuer.get('corp_name') or '해당 기업'}은 전체 상장사 스크리닝에 포함된 요약 모니터링 대상입니다. 현재는 상세 원문 저장보다 정기 관찰이 적합한 구간으로, 업종·자금수요·리스크 분류를 기준으로 관찰하고 신규 자금조달 공시나 실적 변화가 확인되면 접촉 우선순위를 재산정합니다."
 
     next_run = (t + timedelta(days=1)).replace(hour=8, minute=0, second=0, microsecond=0)
     return {

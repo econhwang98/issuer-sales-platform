@@ -870,6 +870,23 @@
       return state.filtered.slice(start, start + state.pageSize);
     }
 
+    function isSummaryScreeningItem(item) {
+      const rationale = String(item?.rationale || "");
+      const news = item?.news || [];
+      return rationale.includes("Fast Scan") || news.some((n) => ["full_universe_summary", "summary_screening"].includes(n.source));
+    }
+
+    function summaryScreeningComment(item) {
+      const name = item?.corp_name || "해당 기업";
+      const funding = item?.funding_need_type || "자금수요";
+      const stage = item?.action_stage || "정기 모니터링";
+      return `${name}은 전체 상장사 스크리닝에 포함된 요약 모니터링 대상입니다. 현재는 상세 원문 저장보다 정기 관찰이 적합한 구간으로, ${funding} 관점에서 ${stage}하면서 신규 자금조달 공시·실적 변화·신용 이벤트가 확인되면 접촉 우선순위를 재산정합니다.`;
+    }
+
+    function summaryScreeningNewsTitle() {
+      return "상세 뉴스/공시 원문 저장은 우선순위 상위 기업에 집중됩니다. 이 기업은 전체 스크리닝 기반의 요약 모니터링 정보로 표시되며, 신규 이벤트 발생 시 상세 검토 대상으로 전환될 수 있습니다.";
+    }
+
     function renderList() {
       const total = state.filtered.length;
       const pages = Math.max(1, Math.ceil(total / state.pageSize));
@@ -886,6 +903,9 @@
       els.issuerList.innerHTML = items.map((item, idx) => {
         const globalIndex = start + idx;
         const sourceLabel = item.industry_raw && item.industry_raw !== item.industry ? `${item.industry_source || "-"} · ${item.industry_raw} → ${item.industry}` : (item.industry_source || "-");
+        const displaySummary = isSummaryScreeningItem(item)
+          ? summaryScreeningComment(item)
+          : (item.rationale || "공개정보 기반 자동 선별 후보입니다. 실행 전 원문 공시 확인이 필요합니다.");
         return `
           <button class="issuer-card ${globalIndex === state.selectedIndex ? "active" : ""}" data-index="${globalIndex}">
             <div class="issuer-top">
@@ -904,7 +924,7 @@
               <span class="badge ${badgeClass(item.structure_group)}">${escapeHtml(item.structure_group || "정기 모니터링")}</span>
               <span class="badge ${badgeClass(item.action_stage)}">${escapeHtml(item.action_stage || "-")}</span>
             </div>
-            <p class="summary">${escapeHtml(item.rationale || "공개정보 기반 자동 선별 후보입니다. 실행 전 원문 공시 확인이 필요합니다.")}</p>
+            <p class="summary">${escapeHtml(displaySummary)}</p>
           </button>
         `;
       }).join("");
@@ -959,10 +979,15 @@
       }
       const sourceLabel = item.industry_raw && item.industry_raw !== item.industry ? `${item.industry_raw} → ${item.industry}` : item.industry;
       const factors = (item.key_factors || []).slice(0, 6);
+      const summaryOnly = isSummaryScreeningItem(item);
+      const displayRationale = summaryOnly ? summaryScreeningComment(item) : (item.rationale || "공개정보 기반 자동 선별 후보입니다.");
+      const displaySuggestedTerms = summaryOnly
+        ? "신규 자금조달 공시, 실적 발표, 신용 이벤트 발생 시 접촉 타이밍 재판단"
+        : (item.suggested_terms || "재무비율, 만기 구조, 공시 원문 확인");
       const news = (item.news || []).slice(0, 4).map((n) => `
         <div class="news">
-          <b>${escapeHtml(n.title || "제목 없음")}</b>
-          <p>${escapeHtml(n.source || "-")} · ${escapeHtml(n.sentiment || "-")}${n.url ? ` · <a href="${escapeHtml(n.url)}" target="_blank" rel="noopener">원문</a>` : ""}</p>
+          <b>${escapeHtml(["full_universe_summary", "summary_screening"].includes(n.source) ? summaryScreeningNewsTitle() : (n.title || "제목 없음"))}</b>
+          <p>${escapeHtml(["full_universe_summary", "summary_screening"].includes(n.source) ? "요약 스크리닝" : (n.source || "-"))} · ${escapeHtml(["full_universe_summary", "summary_screening"].includes(n.source) ? "neutral" : (n.sentiment || "-"))}${n.url ? ` · <a href="${escapeHtml(n.url)}" target="_blank" rel="noopener">원문</a>` : ""}</p>
         </div>
       `).join("") || "<div class=\"news\"><b>주요 이벤트 없음</b><p>저장된 공시/뉴스 이벤트가 없습니다.</p></div>";
       const missing = item.missing_fields || [];
@@ -983,13 +1008,13 @@
         </div>
         <div class="report-section">
           <h3>영업 코멘트</h3>
-          <p class="summary">${escapeHtml(item.rationale || "공개정보 기반 자동 선별 후보입니다.")}</p>
+          <p class="summary">${escapeHtml(displayRationale)}</p>
         </div>
         <div class="report-section">
           <h3>추천 구조 및 조건</h3>
           <ul class="bullets">
             <li>${escapeHtml(item.recommended_structure || item.structure_group || "정기 모니터링")}</li>
-            <li>${escapeHtml(item.suggested_terms || "재무비율, 만기 구조, 공시 원문 확인")}</li>
+            <li>${escapeHtml(displaySuggestedTerms)}</li>
             <li>분석 신뢰도: ${escapeHtml(item.analysis_confidence || "Low")}${item.action_comment ? ` · 세부 액션: ${escapeHtml(item.action_comment)}` : ""}</li>
           </ul>
         </div>
