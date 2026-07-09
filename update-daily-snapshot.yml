@@ -1,4 +1,4 @@
-name: KIS ARGO daily snapshot update
+name: 발행사 자금 수요 레이더 daily snapshot update
 
 on:
   schedule:

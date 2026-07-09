@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>KIS ARGO | 발행사 선제 영업 레이더</title>
+  <title>발행사 자금 수요 레이더</title>
   <style>
     :root {
       --bg: #f4f6f9;
@@ -150,6 +150,17 @@
       background: #fbfdff;
       color: #344054;
       padding: 10px 11px;
+    }
+    .filter-field {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+    .filter-field label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.2;
     }
     .filter-grid .wide { grid-column: span 2; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
@@ -377,10 +388,10 @@
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <div class="logo">A</div>
+        <div class="logo">자</div>
         <div>
-          <strong>KIS ARGO</strong>
-          <span>발행사 선제 영업 레이더</span>
+          <strong>발행사 자금 수요 레이더</strong>
+          <span>상장사 자금수요 선제 탐지</span>
         </div>
       </div>
       <nav class="nav-stack">
@@ -405,13 +416,13 @@
 
     <main class="main">
       <div class="mobile-brief">
-        <strong>KIS ARGO</strong>
+        <strong>발행사 자금 수요 레이더</strong>
         <p id="mobileSummary">일일 스냅샷을 불러오는 중입니다.</p>
       </div>
 
       <header class="topbar">
         <div class="title">
-          <h1>KIS ARGO</h1>
+          <h1>발행사 자금 수요 레이더</h1>
           <p id="pageSub">공시, 뉴스, 업종 신호를 묶어 자금수요 가능성이 높은 발행사를 선제적으로 찾습니다.</p>
         </div>
         <div class="pill-row">
@@ -431,26 +442,62 @@
             </div>
           </div>
           <div class="filter-grid">
-            <select class="control" id="industryFilter" aria-label="업종"></select>
-            <select class="control" id="scoreBandFilter" aria-label="우선순위"></select>
-            <select class="control" id="triggerFilter" aria-label="감지 신호"></select>
-            <select class="control" id="riskFilter" aria-label="리스크"></select>
-            <select class="control" id="riskTypeFilter" aria-label="위험 유형"></select>
-            <select class="control" id="fundingNeedFilter" aria-label="자금수요 유형"></select>
-            <select class="control" id="structureFilter" aria-label="추천 금융구조"></select>
-            <select class="control" id="actionStageFilter" aria-label="검토 단계"></select>
-            <select class="control" id="sourceFilter" aria-label="업종 분류 근거"></select>
-            <select class="control" id="sortSelect" aria-label="정렬">
-              <option value="score">점수 높은 순</option>
-              <option value="name">회사명 순</option>
-              <option value="industry">업종 순</option>
-            </select>
-            <input class="control wide" id="keywordFilter" placeholder="회사명, 종목코드, 업종, 리스크, 구조, 공시 키워드" />
-            <select class="control" id="pageSizeSelect" aria-label="페이지당 표시">
-              <option value="10">10개씩</option>
-              <option value="20">20개씩</option>
-              <option value="50">50개씩</option>
-            </select>
+            <div class="filter-field">
+              <label for="industryFilter">업종</label>
+              <select class="control" id="industryFilter" aria-label="업종"></select>
+            </div>
+            <div class="filter-field">
+              <label for="scoreBandFilter">우선순위</label>
+              <select class="control" id="scoreBandFilter" aria-label="우선순위"></select>
+            </div>
+            <div class="filter-field">
+              <label for="triggerFilter">감지 신호</label>
+              <select class="control" id="triggerFilter" aria-label="감지 신호"></select>
+            </div>
+            <div class="filter-field">
+              <label for="riskFilter">Risk Level</label>
+              <select class="control" id="riskFilter" aria-label="리스크"></select>
+            </div>
+            <div class="filter-field">
+              <label for="riskTypeFilter">위험 유형</label>
+              <select class="control" id="riskTypeFilter" aria-label="위험 유형"></select>
+            </div>
+            <div class="filter-field">
+              <label for="fundingNeedFilter">자금수요 유형</label>
+              <select class="control" id="fundingNeedFilter" aria-label="자금수요 유형"></select>
+            </div>
+            <div class="filter-field">
+              <label for="structureFilter">추천 금융구조</label>
+              <select class="control" id="structureFilter" aria-label="추천 금융구조"></select>
+            </div>
+            <div class="filter-field">
+              <label for="actionStageFilter">검토 단계</label>
+              <select class="control" id="actionStageFilter" aria-label="검토 단계"></select>
+            </div>
+            <div class="filter-field">
+              <label for="sourceFilter">업종 분류 근거</label>
+              <select class="control" id="sourceFilter" aria-label="업종 분류 근거"></select>
+            </div>
+            <div class="filter-field">
+              <label for="sortSelect">정렬 기준</label>
+              <select class="control" id="sortSelect" aria-label="정렬">
+                <option value="score">점수 높은 순</option>
+                <option value="name">회사명 순</option>
+                <option value="industry">업종 순</option>
+              </select>
+            </div>
+            <div class="filter-field wide">
+              <label for="keywordFilter">키워드</label>
+              <input class="control" id="keywordFilter" placeholder="회사명, 종목코드, 업종, 리스크, 구조, 공시 키워드" />
+            </div>
+            <div class="filter-field">
+              <label for="pageSizeSelect">표시 개수</label>
+              <select class="control" id="pageSizeSelect" aria-label="페이지당 표시">
+                <option value="10">10개씩</option>
+                <option value="20">20개씩</option>
+                <option value="50">50개씩</option>
+              </select>
+            </div>
           </div>
           <div class="actions">
             <button class="btn ghost" id="resetBtn">초기화</button>
@@ -1003,7 +1050,7 @@
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `kis-argo-filtered-${state.snapshot.as_of_date || "snapshot"}.csv`;
+      anchor.download = `issuer-funding-demand-radar-${state.snapshot.as_of_date || "snapshot"}.csv`;
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();

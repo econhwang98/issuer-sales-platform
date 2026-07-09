@@ -1,4 +1,4 @@
-# KIS ARGO 발행사 선제 영업 레이더
+# 발행사 자금 수요 레이더
 
 고정 HTML + `daily_snapshot.json` 자동 갱신 방식의 외부 배포용 발행사 선제 영업 플랫폼입니다.
 
@@ -49,7 +49,7 @@ schedule:
 수동 실행도 가능합니다.
 
 ```text
-GitHub repository → Actions → KIS ARGO daily snapshot update → Run workflow
+GitHub repository → Actions → 발행사 자금 수요 레이더 daily snapshot update → Run workflow
 ```
 
 ## 필수 GitHub Secrets
@@ -87,7 +87,7 @@ requirements.txt
 README.md
 ```
 
-그 다음 `Commit changes`를 누르고, Actions에서 `KIS ARGO daily snapshot update`를 수동 실행합니다.
+그 다음 `Commit changes`를 누르고, Actions에서 `발행사 자금 수요 레이더 daily snapshot update`를 수동 실행합니다.
 
 실행 성공 후 `daily_snapshot.json`에서 아래 값을 확인합니다.
 
