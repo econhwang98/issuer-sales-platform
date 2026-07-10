@@ -227,6 +227,8 @@ RATING_AGENCY_ALIASES = {
 }
 LONG_RATING_TYPES = ["장기", "회사채", "무보증사채", "일반사채", "특수채", "issuer", "icr", "sb", "pfb", "기업신용등급"]
 SHORT_RATING_TYPES = ["단기", "기업어음", "cp", "단기사채", "stb", "abcp", "abstb"]
+LONG_RATING_ORDER = ["AAA", "AA+", "AA", "AA-", "A+", "A", "A-", "BBB+", "BBB", "BBB-", "BB+", "BB", "BB-", "B+", "B", "B-", "CCC+", "CCC", "CCC-", "CC", "C", "D"]
+SHORT_RATING_ORDER = ["A1", "A2+", "A2", "A2-", "A3+", "A3", "A3-", "B+", "B", "B-", "C", "D"]
 
 
 def normalize_company_key(value: str) -> str:
@@ -341,6 +343,37 @@ def latest_record(records: List[Dict[str, str]]) -> Optional[Dict[str, str]]:
     return sorted(records, key=lambda x: x.get("rating_date", ""), reverse=True)[0]
 
 
+def rating_rank(rating: str, order: List[str]) -> int:
+    clean = re.sub(r"\(sf\)", "", (rating or "").replace("*", "").replace("※", "").replace(" ", ""))
+    if clean in order:
+        return order.index(clean)
+    return len(order) + 100
+
+
+def outlook_rank(outlook: str) -> int:
+    text = (outlook or "").strip()
+    if text in {"긍정적", "Positive"}:
+        return 0
+    if text in {"안정적", "Stable", ""}:
+        return 1
+    if text in {"유동적", "Developing"}:
+        return 2
+    if text in {"부정적", "Negative"}:
+        return 3
+    return 1
+
+
+def worst_agency_rating(agency_rows: List[Dict[str, str]], rating_key: str, outlook_key: str, date_key: str, order: List[str]) -> Optional[Dict[str, str]]:
+    candidates = [x for x in agency_rows if x.get(rating_key) and x.get(rating_key) != "무등급"]
+    if not candidates:
+        return None
+    return sorted(
+        candidates,
+        key=lambda x: (rating_rank(x.get(rating_key, ""), order), outlook_rank(x.get(outlook_key, "")), x.get(date_key, "")),
+        reverse=True,
+    )[0]
+
+
 def credit_rating_for_issuer(row: Dict[str, str], index: Dict[str, List[Dict[str, str]]]) -> Dict[str, Any]:
     keys = [
         f"corp_code:{(row.get('corp_code') or '').strip()}",
@@ -372,14 +405,18 @@ def credit_rating_for_issuer(row: Dict[str, str], index: Dict[str, List[Dict[str
             "source_url": (long_record or short_record or {}).get("source_url", "") if (long_record or short_record) else "",
         })
 
-    long_values = [x["long_term_rating"] for x in agency_rows if x["long_term_rating"] != "무등급"]
-    short_values = [x["short_term_rating"] for x in agency_rows if x["short_term_rating"] != "무등급"]
+    long_summary = worst_agency_rating(agency_rows, "long_term_rating", "long_term_outlook", "long_term_date", LONG_RATING_ORDER)
+    short_summary = worst_agency_rating(agency_rows, "short_term_rating", "short_term_outlook", "short_term_date", SHORT_RATING_ORDER)
     all_dates = [x.get("long_term_date", "") for x in agency_rows] + [x.get("short_term_date", "") for x in agency_rows]
-    status = "유효등급" if long_values or short_values else "무등급"
+    status = "유효등급" if long_summary or short_summary else "무등급"
     return {
         "credit_rating_status": status,
-        "long_term_rating": " / ".join(long_values) if long_values else "무등급",
-        "short_term_rating": " / ".join(short_values) if short_values else "무등급",
+        "long_term_rating": long_summary.get("long_term_rating", "무등급") if long_summary else "무등급",
+        "long_term_outlook": long_summary.get("long_term_outlook", "") if long_summary else "",
+        "long_term_rating_agency": long_summary.get("agency", "") if long_summary else "",
+        "short_term_rating": short_summary.get("short_term_rating", "무등급") if short_summary else "무등급",
+        "short_term_outlook": short_summary.get("short_term_outlook", "") if short_summary else "",
+        "short_term_rating_agency": short_summary.get("agency", "") if short_summary else "",
         "credit_rating_agencies": agency_rows,
         "credit_rating_last_date": max([x for x in all_dates if x], default=""),
         "credit_rating_source": "credit_ratings.csv" if status == "유효등급" else "미매칭",

@@ -696,7 +696,8 @@
         item.priority, item.score_band, item.trigger_type, item.risk_level, item.risk_type,
         item.funding_need_type, item.structure_group, item.action_stage, item.action_comment,
         item.analysis_confidence, item.recommended_structure, item.suggested_terms,
-        item.credit_rating_status, item.long_term_rating, item.short_term_rating, item.credit_rating_last_date,
+        item.credit_rating_status, item.long_term_rating, item.long_term_outlook, item.long_term_rating_agency,
+        item.short_term_rating, item.short_term_outlook, item.short_term_rating_agency, item.credit_rating_last_date,
         ...creditRatingAgencies(item).map((x) => `${x.agency} ${x.long_term_rating} ${x.short_term_rating}`),
         item.rationale, ...(item.key_factors || []), ...((item.news || []).map((n) => `${n.title} ${n.source}`))
       ].join(" ").toLowerCase();
@@ -729,7 +730,11 @@
         ...item,
         credit_rating_status: status,
         long_term_rating: longRating,
+        long_term_outlook: item.long_term_outlook || "",
+        long_term_rating_agency: item.long_term_rating_agency || "",
         short_term_rating: shortRating,
+        short_term_outlook: item.short_term_outlook || "",
+        short_term_rating_agency: item.short_term_rating_agency || "",
         credit_rating_agencies: creditRatingAgencies(item),
         credit_rating_last_date: item.credit_rating_last_date || "",
         credit_rating_source: item.credit_rating_source || (status === "유효등급" ? "외부 매칭" : "미매칭")
@@ -985,7 +990,7 @@
               <span class="badge ${badgeClass(item.funding_need_type)}">${escapeHtml(item.funding_need_type || "기초 모니터링")}</span>
               <span class="badge ${badgeClass(item.structure_group)}">${escapeHtml(item.structure_group || "정기 모니터링")}</span>
               <span class="badge ${badgeClass(item.action_stage)}">${escapeHtml(item.action_stage || "-")}</span>
-              <span class="badge ${item.credit_rating_status === "유효등급" ? "purple" : "green"}">장기 ${escapeHtml(item.long_term_rating || "무등급")}</span>
+              <span class="badge ${item.credit_rating_status === "유효등급" ? "purple" : "green"}">장기 ${escapeHtml(item.long_term_rating || "무등급")}${item.long_term_outlook ? `(${escapeHtml(item.long_term_outlook)})` : ""}</span>
               <span class="badge ${item.credit_rating_status === "유효등급" ? "purple" : "green"}">단기 ${escapeHtml(item.short_term_rating || "무등급")}</span>
             </div>
             <p class="summary">${escapeHtml(displaySummary)}</p>
@@ -1075,8 +1080,8 @@
           <div class="mini"><div class="label">자금수요 유형</div><div class="value">${escapeHtml(item.funding_need_type || "기초 모니터링")}</div></div>
           <div class="mini"><div class="label">추천 금융구조</div><div class="value">${escapeHtml(item.structure_group || "-")}</div></div>
           <div class="mini"><div class="label">검토 단계</div><div class="value">${escapeHtml(item.action_stage || "-")}</div></div>
-          <div class="mini"><div class="label">장기 신용등급</div><div class="value">${escapeHtml(item.long_term_rating || "무등급")}</div></div>
-          <div class="mini"><div class="label">단기 신용등급</div><div class="value">${escapeHtml(item.short_term_rating || "무등급")}</div></div>
+          <div class="mini"><div class="label">장기 신용등급</div><div class="value">${escapeHtml(item.long_term_rating || "무등급")}${item.long_term_outlook ? `<br>${escapeHtml(item.long_term_outlook)}` : ""}${item.long_term_rating_agency ? `<br>${escapeHtml(item.long_term_rating_agency)}` : ""}</div></div>
+          <div class="mini"><div class="label">단기 신용등급</div><div class="value">${escapeHtml(item.short_term_rating || "무등급")}${item.short_term_rating_agency ? `<br>${escapeHtml(item.short_term_rating_agency)}` : ""}</div></div>
         </div>
         <div class="report-section">
           <h3>영업 코멘트</h3>
@@ -1147,7 +1152,7 @@
     }
 
     function exportCsv() {
-      const header = ["rank", "corp_name", "ticker", "corp_code", "industry", "industry_source", "score_band", "trigger_type", "risk_level", "risk_type", "funding_need_type", "structure_group", "action_stage", "credit_rating_status", "long_term_rating", "short_term_rating", "credit_rating_last_date", "analysis_confidence", "final_score", "recommended_structure"];
+      const header = ["rank", "corp_name", "ticker", "corp_code", "industry", "industry_source", "score_band", "trigger_type", "risk_level", "risk_type", "funding_need_type", "structure_group", "action_stage", "credit_rating_status", "long_term_rating", "long_term_outlook", "long_term_rating_agency", "short_term_rating", "short_term_rating_agency", "credit_rating_last_date", "analysis_confidence", "final_score", "recommended_structure"];
       const rows = state.filtered.map((item) => header.map((key) => {
         const value = item[key] ?? "";
         return `"${String(value).replace(/"/g, "\"\"")}"`;

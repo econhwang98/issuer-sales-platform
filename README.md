@@ -34,6 +34,7 @@ generate_daily_snapshot.py
 requirements.txt
 .github/workflows/update-daily-snapshot.yml
 README.md
+credit_ratings.csv
 credit_ratings_template.csv
 ```
 
@@ -79,7 +80,7 @@ FSC_SERVICE_KEY
 
 ## 신용평가사 등급 매칭
 
-3사 등급은 `credit_ratings.csv` 파일이 있으면 자동으로 매칭됩니다. ZIP에 포함된 `credit_ratings_template.csv`를 내려받아 내용을 채운 뒤 파일명을 `credit_ratings.csv`로 바꿔 저장소 루트에 업로드하면 됩니다.
+신용등급은 `credit_ratings.csv` 파일이 있으면 자동으로 매칭됩니다. 이번 패키지에는 NICE신용평가와 한국신용평가 유효등급 리스트를 변환한 `credit_ratings.csv`가 포함되어 있습니다. 새 기준일 자료로 갱신하려면 `credit_ratings_template.csv` 형식에 맞춰 다시 저장소 루트에 업로드하면 됩니다.
 
 필수 또는 권장 컬럼:
 
@@ -107,6 +108,18 @@ NICE신용평가
 
 장기/단기 등급을 한 줄에 같이 넣어도 되고, `rating`, `rating_type`, `rating_date` 형태의 행 단위 데이터도 인식합니다. 매칭 기준은 `corp_code`, `ticker`, 정규화한 `corp_name` 순서입니다.
 
+이번 변환 규칙:
+
+```text
+회사채(선순위)/채권 등급이 있으면 장기신용등급으로 그대로 반영
+회사채(후순위)는 1 notch 상향 후 장기신용등급으로 반영
+신종자본증권은 2 notch 상향 후 장기신용등급으로 반영
+선순위/채권이 없으면 후순위, 신종자본증권, Issuer Rating/기업신용등급 순으로 반영
+기업어음과 전자단기사채 등급이 모두 있으면 더 낮은 단기등급 반영
+NICE신용평가와 한국신용평가 등급이 불일치하면 대표등급은 더 낮은 등급 반영
+안정적/부정적/긍정적 전망은 장기등급과 함께 표시
+```
+
 공식 신평사 페이지의 공개 등급 정보는 각 사의 저작권·이용조건을 확인해야 합니다. 전체 커버리지와 재현성을 위해서는 공식 이용권한이 있는 데이터 또는 내부 관리 CSV를 `credit_ratings.csv`로 넣는 방식을 권장합니다.
 
 ## 적용 방법
@@ -119,6 +132,7 @@ generate_daily_snapshot.py
 requirements.txt
 .github/workflows/update-daily-snapshot.yml
 README.md
+credit_ratings.csv
 credit_ratings_template.csv
 ```
 
