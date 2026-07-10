@@ -22,8 +22,9 @@
   - 차환/운전자금, 성장 CAPEX, 메자닌/성장자금, 자본확충/재무구조 개선, 인수/투자자금, PF·운영자금/차환, 업황 방어/차환, R&D/자본확충, 구조조정/유동성 방어, 기초 모니터링
 - 추천 금융구조를 `ECM/자본확충`, `메자닌`, `시장성 차입/차환`, `담보부/브릿지 차입`, `CAPEX 금융`, `인수/투자금융`, `PF/부동산 금융`, `성장자금/메자닌`, `신용보강 필요 차입`, `구조조정/자본확충`, `정기 모니터링` 등으로 분류합니다.
 - 검토 단계를 `1. 긴급 확인`, `2. 즉시 접촉`, `3. 구조 검토`, `4. 관심 관찰`, `5. 정기 모니터링`, `Hold / 원문 확인`으로 제공합니다.
-- 조건검색에서 업종, 우선순위, Trigger, Risk, 위험유형, 자금수요, 추천 금융구조, 검토단계, 키워드를 함께 필터링할 수 있습니다.
-- 상세 리포트에 Risk Level + Risk Type, 자금수요 유형, 추천 금융구조, 검토 단계, 추천 구조 및 조건, 분석 신뢰도, 주요 근거, 최근 공시/뉴스, 보완 필요 항목을 표시합니다.
+- 한국신용평가, NICE신용평가, 한국기업평가 기준 장기·단기 신용등급을 기업별로 매칭합니다. 매칭값이 없으면 `무등급`으로 표시합니다.
+- 조건검색에서 업종, 우선순위, Trigger, Risk, 위험유형, 자금수요, 추천 금융구조, 검토단계, 신용등급, 키워드를 함께 필터링할 수 있습니다.
+- 상세 리포트에 Risk Level + Risk Type, 자금수요 유형, 추천 금융구조, 검토 단계, 장기·단기 신용등급, 신평사별 등급, 추천 구조 및 조건, 분석 신뢰도, 주요 근거, 최근 공시/뉴스, 보완 필요 항목을 표시합니다.
 
 ## 핵심 파일
 
@@ -33,6 +34,7 @@ generate_daily_snapshot.py
 requirements.txt
 .github/workflows/update-daily-snapshot.yml
 README.md
+credit_ratings_template.csv
 ```
 
 `daily_snapshot.json`은 GitHub Actions가 매일 자동 생성합니다.
@@ -75,6 +77,38 @@ KRX_KIND_RSS_URL
 FSC_SERVICE_KEY
 ```
 
+## 신용평가사 등급 매칭
+
+3사 등급은 `credit_ratings.csv` 파일이 있으면 자동으로 매칭됩니다. ZIP에 포함된 `credit_ratings_template.csv`를 내려받아 내용을 채운 뒤 파일명을 `credit_ratings.csv`로 바꿔 저장소 루트에 업로드하면 됩니다.
+
+필수 또는 권장 컬럼:
+
+```text
+corp_name
+ticker
+corp_code
+agency
+long_term_rating
+long_term_outlook
+long_term_date
+short_term_rating
+short_term_outlook
+short_term_date
+source_url
+```
+
+`agency`는 아래 값을 인식합니다.
+
+```text
+한국신용평가
+NICE신용평가
+한국기업평가
+```
+
+장기/단기 등급을 한 줄에 같이 넣어도 되고, `rating`, `rating_type`, `rating_date` 형태의 행 단위 데이터도 인식합니다. 매칭 기준은 `corp_code`, `ticker`, 정규화한 `corp_name` 순서입니다.
+
+공식 신평사 페이지의 공개 등급 정보는 각 사의 저작권·이용조건을 확인해야 합니다. 전체 커버리지와 재현성을 위해서는 공식 이용권한이 있는 데이터 또는 내부 관리 CSV를 `credit_ratings.csv`로 넣는 방식을 권장합니다.
+
 ## 적용 방법
 
 GitHub 저장소에서 아래 파일을 덮어쓰기 업로드합니다.
@@ -85,6 +119,7 @@ generate_daily_snapshot.py
 requirements.txt
 .github/workflows/update-daily-snapshot.yml
 README.md
+credit_ratings_template.csv
 ```
 
 그 다음 `Commit changes`를 누르고, Actions에서 `발행사 자금 수요 레이더 daily snapshot update`를 수동 실행합니다.
@@ -105,6 +140,10 @@ structure_group
 action_stage
 analysis_confidence
 suggested_terms
+credit_rating_status
+long_term_rating
+short_term_rating
+credit_rating_agencies
 ```
 
 페이지 확인 URL:

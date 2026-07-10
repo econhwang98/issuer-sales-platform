@@ -208,6 +208,184 @@ def ordered_industry_filters(issuers: List[Dict[str, Any]]) -> List[str]:
     return ["전체"] + known + extra
 
 
+RATING_CSV_PATH = ROOT / "credit_ratings.csv"
+RATING_AGENCY_ALIASES = {
+    "kis": "한국신용평가",
+    "한국신용평가": "한국신용평가",
+    "한국신용평가㈜": "한국신용평가",
+    "korea investors service": "한국신용평가",
+    "koreainvestorsservice": "한국신용평가",
+    "nice": "NICE신용평가",
+    "nice신용평가": "NICE신용평가",
+    "nice신용평가㈜": "NICE신용평가",
+    "나이스신용평가": "NICE신용평가",
+    "kr": "한국기업평가",
+    "korea ratings": "한국기업평가",
+    "korearatings": "한국기업평가",
+    "한국기업평가": "한국기업평가",
+    "한국기업평가㈜": "한국기업평가",
+}
+LONG_RATING_TYPES = ["장기", "회사채", "무보증사채", "일반사채", "특수채", "issuer", "icr", "sb", "pfb", "기업신용등급"]
+SHORT_RATING_TYPES = ["단기", "기업어음", "cp", "단기사채", "stb", "abcp", "abstb"]
+
+
+def normalize_company_key(value: str) -> str:
+    text = (value or "").lower()
+    text = re.sub(r"\(주\)|㈜|주식회사|\(유\)|유한회사|co\.?,?\s*ltd\.?", "", text)
+    text = re.sub(r"[^0-9a-z가-힣]", "", text)
+    return text
+
+
+def canonical_rating_agency(value: str) -> str:
+    key = re.sub(r"\s+", "", (value or "").strip()).lower()
+    if key in RATING_AGENCY_ALIASES:
+        return RATING_AGENCY_ALIASES[key]
+    return (value or "외부등급").strip() or "외부등급"
+
+
+def row_value(row: Dict[str, str], *names: str) -> str:
+    lowered = {str(k).strip().lower(): v for k, v in row.items()}
+    for name in names:
+        if name in row and row.get(name):
+            return str(row.get(name, "")).strip()
+        value = lowered.get(name.lower())
+        if value:
+            return str(value).strip()
+    return ""
+
+
+def split_rating_outlook(value: str, fallback_outlook: str = "") -> Tuple[str, str]:
+    text = (value or "").strip()
+    if not text:
+        return "", fallback_outlook
+    outlook = fallback_outlook.strip()
+    match = re.search(r"\(([^)]+)\)", text)
+    if match and not outlook:
+        outlook = match.group(1).strip()
+    rating = re.sub(r"\([^)]*\)", "", text).strip()
+    rating = re.sub(r"\s+", "", rating)
+    return rating, outlook
+
+
+def infer_rating_bucket(rating_type: str, rating: str) -> str:
+    text = f"{rating_type} {rating}".lower()
+    if any(token in text for token in SHORT_RATING_TYPES):
+        return "short"
+    if any(token in text for token in LONG_RATING_TYPES):
+        return "long"
+    if re.match(r"^a[1-3][+-]?(\(sf\))?$", (rating or "").lower()):
+        return "short"
+    if rating:
+        return "long"
+    return ""
+
+
+def parse_credit_rating_row(row: Dict[str, str]) -> List[Dict[str, str]]:
+    corp_name = row_value(row, "corp_name", "company", "회사명", "기업명", "issuer")
+    ticker = row_value(row, "ticker", "종목코드", "stock_code")
+    corp_code = row_value(row, "corp_code", "고유번호", "dart_corp_code")
+    agency = canonical_rating_agency(row_value(row, "agency", "신평사", "평가사", "rating_agency"))
+    rating_date = row_value(row, "rating_date", "평가일", "date", "등급일")
+    source_url = row_value(row, "source_url", "url", "출처")
+    outlook = row_value(row, "outlook", "등급전망", "watch", "rating_outlook")
+    records: List[Dict[str, str]] = []
+
+    long_rating, long_outlook = split_rating_outlook(row_value(row, "long_term_rating", "장기신용등급", "장기등급"), outlook)
+    short_rating, short_outlook = split_rating_outlook(row_value(row, "short_term_rating", "단기신용등급", "단기등급"), outlook)
+    if long_rating:
+        records.append({"corp_name": corp_name, "ticker": ticker, "corp_code": corp_code, "agency": agency, "bucket": "long", "rating": long_rating, "outlook": long_outlook, "rating_date": rating_date, "source_url": source_url})
+    if short_rating:
+        records.append({"corp_name": corp_name, "ticker": ticker, "corp_code": corp_code, "agency": agency, "bucket": "short", "rating": short_rating, "outlook": short_outlook, "rating_date": rating_date, "source_url": source_url})
+
+    generic_rating, generic_outlook = split_rating_outlook(row_value(row, "rating", "current_rating", "현재등급", "등급"), outlook)
+    if generic_rating:
+        rating_type = row_value(row, "rating_type", "instrument_type", "종류", "평가종류", "구분")
+        bucket = infer_rating_bucket(rating_type, generic_rating)
+        if bucket:
+            records.append({"corp_name": corp_name, "ticker": ticker, "corp_code": corp_code, "agency": agency, "bucket": bucket, "rating": generic_rating, "outlook": generic_outlook, "rating_date": rating_date, "source_url": source_url})
+    return [record for record in records if record.get("corp_name") or record.get("ticker") or record.get("corp_code")]
+
+
+def read_credit_rating_records() -> Tuple[List[Dict[str, str]], str]:
+    path = Path(os.getenv("CREDIT_RATINGS_CSV", str(RATING_CSV_PATH))).expanduser()
+    if not path.exists():
+        return [], "csv_missing"
+    try:
+        with path.open("r", encoding="utf-8-sig", newline="") as f:
+            rows = list(csv.DictReader(f))
+        records: List[Dict[str, str]] = []
+        for row in rows:
+            records.extend(parse_credit_rating_row(row))
+        return records, f"csv_loaded:{len(records)}"
+    except Exception as exc:
+        return [], f"csv_error:{type(exc).__name__}"
+
+
+def build_credit_rating_index(records: List[Dict[str, str]]) -> Dict[str, List[Dict[str, str]]]:
+    index: Dict[str, List[Dict[str, str]]] = defaultdict(list)
+    for record in records:
+        keys = [
+            f"corp_code:{record.get('corp_code', '').strip()}",
+            f"ticker:{record.get('ticker', '').strip()}",
+            f"name:{normalize_company_key(record.get('corp_name', ''))}",
+        ]
+        for key in keys:
+            if key.split(":", 1)[1]:
+                index[key].append(record)
+    return index
+
+
+def latest_record(records: List[Dict[str, str]]) -> Optional[Dict[str, str]]:
+    if not records:
+        return None
+    return sorted(records, key=lambda x: x.get("rating_date", ""), reverse=True)[0]
+
+
+def credit_rating_for_issuer(row: Dict[str, str], index: Dict[str, List[Dict[str, str]]]) -> Dict[str, Any]:
+    keys = [
+        f"corp_code:{(row.get('corp_code') or '').strip()}",
+        f"ticker:{(row.get('ticker') or '').strip()}",
+        f"name:{normalize_company_key(row.get('corp_name', ''))}",
+    ]
+    records: List[Dict[str, str]] = []
+    seen = set()
+    for key in keys:
+        for record in index.get(key, []):
+            record_key = tuple(sorted(record.items()))
+            if record_key not in seen:
+                seen.add(record_key)
+                records.append(record)
+
+    agency_rows = []
+    for agency in ["한국신용평가", "NICE신용평가", "한국기업평가"]:
+        agency_records = [x for x in records if x.get("agency") == agency]
+        long_record = latest_record([x for x in agency_records if x.get("bucket") == "long"])
+        short_record = latest_record([x for x in agency_records if x.get("bucket") == "short"])
+        agency_rows.append({
+            "agency": agency,
+            "long_term_rating": long_record.get("rating", "무등급") if long_record else "무등급",
+            "long_term_outlook": long_record.get("outlook", "") if long_record else "",
+            "long_term_date": long_record.get("rating_date", "") if long_record else "",
+            "short_term_rating": short_record.get("rating", "무등급") if short_record else "무등급",
+            "short_term_outlook": short_record.get("outlook", "") if short_record else "",
+            "short_term_date": short_record.get("rating_date", "") if short_record else "",
+            "source_url": (long_record or short_record or {}).get("source_url", "") if (long_record or short_record) else "",
+        })
+
+    long_values = [x["long_term_rating"] for x in agency_rows if x["long_term_rating"] != "무등급"]
+    short_values = [x["short_term_rating"] for x in agency_rows if x["short_term_rating"] != "무등급"]
+    all_dates = [x.get("long_term_date", "") for x in agency_rows] + [x.get("short_term_date", "") for x in agency_rows]
+    status = "유효등급" if long_values or short_values else "무등급"
+    return {
+        "credit_rating_status": status,
+        "long_term_rating": " / ".join(long_values) if long_values else "무등급",
+        "short_term_rating": " / ".join(short_values) if short_values else "무등급",
+        "credit_rating_agencies": agency_rows,
+        "credit_rating_last_date": max([x for x in all_dates if x], default=""),
+        "credit_rating_source": "credit_ratings.csv" if status == "유효등급" else "미매칭",
+    }
+
+
 def infer_specific_industry_from_text(text: str) -> Tuple[str, str]:
     compact = (text or "").replace(" ", "").upper()
     for industry, keywords in SPECIFIC_KEYWORD_RULES:
@@ -824,9 +1002,13 @@ def build_snapshot() -> Dict[str, Any]:
         "news": "api_key_missing",
         "kind_rss": "not_configured",
         "fsc_profile": "reserved_hook_not_enabled",
-        "credit_rating": "manual_file_needed",
+        "credit_rating": "csv_pending",
         "llm_annotation": "transparent_proxy_static_mvp",
     }
+
+    credit_rating_records, credit_rating_status = read_credit_rating_records()
+    credit_rating_index = build_credit_rating_index(credit_rating_records)
+    source_status_global["credit_rating"] = credit_rating_status
 
     profile_by_code, profile_status = fetch_company_profiles(rows)
     source_status_global["dart_company_profile"] = profile_status
@@ -879,6 +1061,7 @@ def build_snapshot() -> Dict[str, Any]:
             news_cards = [{"title": f"최근 45일 직접 자금조달 이벤트 미검출 · {classification['funding_need_type']} 관점 정기 관찰", "source": "full_universe_fast_screen", "sentiment": "mixed", "severity": int(news_score)}]
         score_label = score_band(final_score)
         action_stage = classification["action_stage"] if str(classification["action_stage"]).startswith("Hold") else classification["priority"]
+        credit_rating = credit_rating_for_issuer(row, credit_rating_index)
         issuers.append({
             "rank": 0,
             "corp_name": corp_name,
@@ -903,6 +1086,7 @@ def build_snapshot() -> Dict[str, Any]:
             "news_trigger_score": round(news_score, 1),
             "recommended_structure": classification["recommended_structure"],
             "suggested_terms": classification["suggested_terms"],
+            **credit_rating,
             "rationale": classification["rationale"],
             "key_factors": classification["key_factors"],
             "news": sorted(news_cards, key=lambda x: x.get("severity", 0), reverse=True)[:5],
@@ -913,7 +1097,7 @@ def build_snapshot() -> Dict[str, Any]:
                 "dart_disclosure": source_status_global["dart_disclosure"],
                 "news": source_status_global["news"],
                 "kind_rss": source_status_global["kind_rss"],
-                "rating": "manual_file_needed",
+                "rating": source_status_global["credit_rating"],
             },
             "missing_fields": missing_fields,
             "rule_breakdown": [],
@@ -1006,6 +1190,7 @@ def build_snapshot() -> Dict[str, Any]:
             "universe_mode": "opendart_full_listed_expert_segmentation_two_stage",
             "news_enrich_limit": news_limit,
             "page_detail_limit": page_detail_limit,
+            "credit_rating_record_count": len(credit_rating_records),
             "industry_mapped_count": sum(1 for x in issuers if x.get("industry") != "기타/미분류"),
             "industry_unmapped_count": sum(1 for x in issuers if x.get("industry") == "기타/미분류"),
             "industry_source_counts": dict(Counter(x.get("industry_source", "unknown") for x in issuers)),
@@ -1018,6 +1203,7 @@ def build_snapshot() -> Dict[str, Any]:
             "priority_a": sum(1 for x in issuers if x.get("score_band") in {"S. 긴급 검토", "A. 즉시 접촉"}),
             "news_trigger_count": sum(1 for x in issuers if x.get("trigger_type") not in {"재무구조 점검", "기초 모니터링"}),
             "needs_review": sum(1 for x in issuers if x.get("risk_level") in {"Critical", "High", "Elevated"}),
+            "rated_count": sum(1 for x in issuers if x.get("credit_rating_status") == "유효등급"),
         },
         "filters": {
             "industries": ordered_industry_filters(issuers),
@@ -1029,6 +1215,9 @@ def build_snapshot() -> Dict[str, Any]:
             "funding_need_types": ["전체"] + sorted({x.get("funding_need_type", "") for x in issuers if x.get("funding_need_type")}),
             "structure_groups": ["전체"] + sorted({x.get("structure_group", "") for x in issuers if x.get("structure_group")}),
             "action_stages": ["전체", "1. 긴급 확인", "2. 즉시 접촉", "3. 구조 검토", "4. 관심 관찰", "5. 정기 모니터링", "Hold / 원문 확인"],
+            "credit_rating_statuses": ["전체", "유효등급", "무등급"],
+            "long_term_ratings": ["전체"] + sorted({x.get("long_term_rating", "") for x in issuers if x.get("long_term_rating") and x.get("long_term_rating") != "무등급"}),
+            "short_term_ratings": ["전체"] + sorted({x.get("short_term_rating", "") for x in issuers if x.get("short_term_rating") and x.get("short_term_rating") != "무등급"}),
             "industry_sources": ["전체", "수기/CSV", "키워드 보정", "DART 업종코드", "키워드 추정", "자동 미분류"],
             "industry_categories": [{"name": k, "meaning": v} for k, v in INDUSTRY_CATEGORY_DESCRIPTIONS.items()],
             "definitions": [
@@ -1037,7 +1226,8 @@ def build_snapshot() -> Dict[str, Any]:
                 {"field": "Trigger", "meaning": "최근 자금조달 공시, 투자/차입 이벤트, 뉴스 신호, 기초 모니터링 중 어떤 신호가 우선 감지됐는지 표시합니다."},
                 {"field": "Risk", "meaning": "Low/Watch/Moderate/Elevated/High/Critical로 세분화한 위험 수준입니다. 점수와 별도로 구조 검토에 사용합니다."},
                 {"field": "자금수요 유형", "meaning": "차환, CAPEX, 메자닌, 자본확충, PF 등 예상되는 자금 목적입니다."},
-                {"field": "추천 금융구조", "meaning": "공시·뉴스·업종 신호를 토대로 우선 검토할 수 있는 금융상품/구조입니다."}
+                {"field": "추천 금융구조", "meaning": "공시·뉴스·업종 신호를 토대로 우선 검토할 수 있는 금융상품/구조입니다."},
+                {"field": "신용등급", "meaning": "한국신용평가, NICE신용평가, 한국기업평가 기준 장기·단기 등급을 매칭합니다. 매칭값이 없으면 무등급으로 표시합니다."}
             ]
         },
         "issuers": issuers,

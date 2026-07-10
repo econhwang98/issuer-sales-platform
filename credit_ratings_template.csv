@@ -1,0 +1,4 @@
+corp_name,ticker,corp_code,agency,long_term_rating,long_term_outlook,long_term_date,short_term_rating,short_term_outlook,short_term_date,source_url
+예시기업,000000,00000000,한국신용평가,AA-,안정적,2026-01-01,A1,,2026-01-01,https://www.kisrating.com/
+예시기업,000000,00000000,NICE신용평가,A+,안정적,2026-01-01,A1,,2026-01-01,https://www.nicerating.com/
+예시기업,000000,00000000,한국기업평가,AA-,안정적,2026-01-01,A1,,2026-01-01,https://www.korearatings.com/

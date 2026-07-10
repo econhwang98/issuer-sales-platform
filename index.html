@@ -475,6 +475,18 @@
               <select class="control" id="actionStageFilter" aria-label="검토 단계"></select>
             </div>
             <div class="filter-field">
+              <label for="ratingStatusFilter">신용등급 상태</label>
+              <select class="control" id="ratingStatusFilter" aria-label="신용등급 상태"></select>
+            </div>
+            <div class="filter-field">
+              <label for="longRatingFilter">장기 신용등급</label>
+              <select class="control" id="longRatingFilter" aria-label="장기 신용등급"></select>
+            </div>
+            <div class="filter-field">
+              <label for="shortRatingFilter">단기 신용등급</label>
+              <select class="control" id="shortRatingFilter" aria-label="단기 신용등급"></select>
+            </div>
+            <div class="filter-field">
               <label for="sourceFilter">업종 분류 근거</label>
               <select class="control" id="sourceFilter" aria-label="업종 분류 근거"></select>
             </div>
@@ -684,8 +696,44 @@
         item.priority, item.score_band, item.trigger_type, item.risk_level, item.risk_type,
         item.funding_need_type, item.structure_group, item.action_stage, item.action_comment,
         item.analysis_confidence, item.recommended_structure, item.suggested_terms,
+        item.credit_rating_status, item.long_term_rating, item.short_term_rating, item.credit_rating_last_date,
+        ...creditRatingAgencies(item).map((x) => `${x.agency} ${x.long_term_rating} ${x.short_term_rating}`),
         item.rationale, ...(item.key_factors || []), ...((item.news || []).map((n) => `${n.title} ${n.source}`))
       ].join(" ").toLowerCase();
+    }
+
+    function defaultCreditRatingAgencies() {
+      return ["한국신용평가", "NICE신용평가", "한국기업평가"].map((agency) => ({
+        agency,
+        long_term_rating: "무등급",
+        long_term_outlook: "",
+        long_term_date: "",
+        short_term_rating: "무등급",
+        short_term_outlook: "",
+        short_term_date: "",
+        source_url: ""
+      }));
+    }
+
+    function creditRatingAgencies(item) {
+      return Array.isArray(item?.credit_rating_agencies) && item.credit_rating_agencies.length
+        ? item.credit_rating_agencies
+        : defaultCreditRatingAgencies();
+    }
+
+    function normalizeCreditRatingItem(item) {
+      const longRating = item.long_term_rating || "무등급";
+      const shortRating = item.short_term_rating || "무등급";
+      const status = item.credit_rating_status || (longRating !== "무등급" || shortRating !== "무등급" ? "유효등급" : "무등급");
+      return {
+        ...item,
+        credit_rating_status: status,
+        long_term_rating: longRating,
+        short_term_rating: shortRating,
+        credit_rating_agencies: creditRatingAgencies(item),
+        credit_rating_last_date: item.credit_rating_last_date || "",
+        credit_rating_source: item.credit_rating_source || (status === "유효등급" ? "외부 매칭" : "미매칭")
+      };
     }
 
     async function loadSnapshot() {
@@ -703,7 +751,7 @@
       const issuers = (snapshot.issuers || []).map((item, index) => {
         const industryRaw = item.industry || "";
         return {
-          ...item,
+          ...normalizeCreditRatingItem(item),
           rank: item.rank || index + 1,
           industry_raw: industryRaw,
           industry: normalizeIndustry(industryRaw),
@@ -725,6 +773,9 @@
         funding_need_types: unique(["전체", ...(filters.funding_need_types || []), ...issuers.map((x) => x.funding_need_type)]),
         structure_groups: unique(["전체", ...(filters.structure_groups || []), ...issuers.map((x) => x.structure_group)]),
         action_stages: unique(["전체", "1. 긴급 확인", "2. 즉시 접촉", "3. 구조 검토", "4. 관심 관찰", "5. 정기 모니터링", "Hold / 원문 확인", ...(filters.action_stages || []), ...issuers.map((x) => x.action_stage)]),
+        credit_rating_statuses: unique(["전체", "유효등급", "무등급", ...(filters.credit_rating_statuses || []), ...issuers.map((x) => x.credit_rating_status)]),
+        long_term_ratings: unique(["전체", "무등급", ...(filters.long_term_ratings || []), ...issuers.map((x) => x.long_term_rating)]),
+        short_term_ratings: unique(["전체", "무등급", ...(filters.short_term_ratings || []), ...issuers.map((x) => x.short_term_rating)]),
         industry_sources: unique(["전체", ...(filters.industry_sources || []), ...issuers.map((x) => x.industry_source)]),
         definitions: filters.definitions || []
       };
@@ -740,7 +791,8 @@
         screened_universe: snapshot.kpis?.screened_universe ?? issuers.length,
         priority_a: snapshot.kpis?.priority_a ?? issuers.filter((x) => x.priority === "Priority A" || String(x.score_band).includes("A.")).length,
         news_trigger_count: snapshot.kpis?.news_trigger_count ?? issuers.filter((x) => x.news_trigger_score >= 60).length,
-        needs_review: snapshot.kpis?.needs_review ?? issuers.filter((x) => ["Critical", "High", "Elevated"].includes(x.risk_level)).length
+        needs_review: snapshot.kpis?.needs_review ?? issuers.filter((x) => ["Critical", "High", "Elevated"].includes(x.risk_level)).length,
+        rated_count: snapshot.kpis?.rated_count ?? issuers.filter((x) => x.credit_rating_status === "유효등급").length
       };
       return snapshot;
     }
@@ -748,7 +800,8 @@
     function initElements() {
       [
         "dashboardSection", "industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter",
-        "fundingNeedFilter", "structureFilter", "actionStageFilter", "sourceFilter",
+        "fundingNeedFilter", "structureFilter", "actionStageFilter", "ratingStatusFilter", "longRatingFilter",
+        "shortRatingFilter", "sourceFilter",
         "sortSelect", "pageSizeSelect", "keywordFilter", "resetBtn", "exportBtn", "issuerList", "resultCount",
         "pager", "detailPanel", "sideStatus", "asOfTag", "versionTag", "pageSub", "mobileSummary",
         "mappedCount", "unmappedCount", "qualityFill", "sectorBars", "mappingMethod", "listSub"
@@ -778,7 +831,7 @@
         ["전체 대상", total, "OpenDART 상장사 기준"],
         ["즉시 검토", k.priority_a ?? 0, "우선순위 A 구간"],
         ["Trigger 감지", k.news_trigger_count ?? 0, "공시·뉴스 이벤트"],
-        ["보완 필요", k.needs_review ?? 0, "상세 재무·등급 등"]
+        ["유효등급", k.rated_count ?? 0, "3사 장기·단기 매칭"]
       ];
       els.dashboardSection.innerHTML = items.map(([label, value, sub]) => `
         <div class="card kpi">
@@ -799,6 +852,9 @@
       els.fundingNeedFilter.innerHTML = optionize(f.funding_need_types || ["전체"]);
       els.structureFilter.innerHTML = optionize(f.structure_groups || ["전체"]);
       els.actionStageFilter.innerHTML = optionize(f.action_stages || ["전체", "1. 긴급 확인", "2. 즉시 접촉", "3. 구조 검토", "4. 관심 관찰", "5. 정기 모니터링", "Hold / 원문 확인"]);
+      els.ratingStatusFilter.innerHTML = optionize(f.credit_rating_statuses || ["전체", "유효등급", "무등급"]);
+      els.longRatingFilter.innerHTML = optionize(f.long_term_ratings || ["전체", "무등급"]);
+      els.shortRatingFilter.innerHTML = optionize(f.short_term_ratings || ["전체", "무등급"]);
       els.sourceFilter.innerHTML = optionize(f.industry_sources || ["전체", "수기/CSV", "키워드 보정", "DART 업종코드", "키워드 추정", "자동 미분류"]);
     }
 
@@ -842,6 +898,9 @@
       const fundingNeed = els.fundingNeedFilter.value;
       const structure = els.structureFilter.value;
       const actionStage = els.actionStageFilter.value;
+      const ratingStatus = els.ratingStatusFilter.value;
+      const longRating = els.longRatingFilter.value;
+      const shortRating = els.shortRatingFilter.value;
       const source = els.sourceFilter.value;
       const keyword = els.keywordFilter.value.trim().toLowerCase();
       state.pageSize = Number(els.pageSizeSelect.value || 10);
@@ -854,6 +913,9 @@
       if (fundingNeed && fundingNeed !== "전체") items = items.filter((x) => x.funding_need_type === fundingNeed);
       if (structure && structure !== "전체") items = items.filter((x) => x.structure_group === structure);
       if (actionStage && actionStage !== "전체") items = items.filter((x) => x.action_stage === actionStage);
+      if (ratingStatus && ratingStatus !== "전체") items = items.filter((x) => x.credit_rating_status === ratingStatus);
+      if (longRating && longRating !== "전체") items = items.filter((x) => x.long_term_rating === longRating);
+      if (shortRating && shortRating !== "전체") items = items.filter((x) => x.short_term_rating === shortRating);
       if (source && source !== "전체") items = items.filter((x) => x.industry_source === source);
       if (keyword) items = items.filter((x) => textBlob(x).includes(keyword));
       state.filtered = sortIssuers(items);
@@ -923,6 +985,8 @@
               <span class="badge ${badgeClass(item.funding_need_type)}">${escapeHtml(item.funding_need_type || "기초 모니터링")}</span>
               <span class="badge ${badgeClass(item.structure_group)}">${escapeHtml(item.structure_group || "정기 모니터링")}</span>
               <span class="badge ${badgeClass(item.action_stage)}">${escapeHtml(item.action_stage || "-")}</span>
+              <span class="badge ${item.credit_rating_status === "유효등급" ? "purple" : "green"}">장기 ${escapeHtml(item.long_term_rating || "무등급")}</span>
+              <span class="badge ${item.credit_rating_status === "유효등급" ? "purple" : "green"}">단기 ${escapeHtml(item.short_term_rating || "무등급")}</span>
             </div>
             <p class="summary">${escapeHtml(displaySummary)}</p>
           </button>
@@ -984,6 +1048,12 @@
       const displaySuggestedTerms = summaryOnly
         ? "신규 자금조달 공시, 실적 발표, 신용 이벤트 발생 시 접촉 타이밍 재판단"
         : (item.suggested_terms || "재무비율, 만기 구조, 공시 원문 확인");
+      const agencyRatings = creditRatingAgencies(item).map((r) => {
+        const longText = `${r.long_term_rating || "무등급"}${r.long_term_outlook ? ` (${r.long_term_outlook})` : ""}${r.long_term_date ? ` · ${r.long_term_date}` : ""}`;
+        const shortText = `${r.short_term_rating || "무등급"}${r.short_term_outlook ? ` (${r.short_term_outlook})` : ""}${r.short_term_date ? ` · ${r.short_term_date}` : ""}`;
+        const source = r.source_url ? ` · <a href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener">출처</a>` : "";
+        return `<li><b>${escapeHtml(r.agency || "-")}</b>: 장기 ${escapeHtml(longText)} / 단기 ${escapeHtml(shortText)}${source}</li>`;
+      }).join("");
       const news = (item.news || []).slice(0, 4).map((n) => `
         <div class="news">
           <b>${escapeHtml(["full_universe_summary", "summary_screening"].includes(n.source) ? summaryScreeningNewsTitle() : (n.title || "제목 없음"))}</b>
@@ -1005,6 +1075,8 @@
           <div class="mini"><div class="label">자금수요 유형</div><div class="value">${escapeHtml(item.funding_need_type || "기초 모니터링")}</div></div>
           <div class="mini"><div class="label">추천 금융구조</div><div class="value">${escapeHtml(item.structure_group || "-")}</div></div>
           <div class="mini"><div class="label">검토 단계</div><div class="value">${escapeHtml(item.action_stage || "-")}</div></div>
+          <div class="mini"><div class="label">장기 신용등급</div><div class="value">${escapeHtml(item.long_term_rating || "무등급")}</div></div>
+          <div class="mini"><div class="label">단기 신용등급</div><div class="value">${escapeHtml(item.short_term_rating || "무등급")}</div></div>
         </div>
         <div class="report-section">
           <h3>영업 코멘트</h3>
@@ -1016,6 +1088,13 @@
             <li>${escapeHtml(item.recommended_structure || item.structure_group || "정기 모니터링")}</li>
             <li>${escapeHtml(displaySuggestedTerms)}</li>
             <li>분석 신뢰도: ${escapeHtml(item.analysis_confidence || "Low")}${item.action_comment ? ` · 세부 액션: ${escapeHtml(item.action_comment)}` : ""}</li>
+          </ul>
+        </div>
+        <div class="report-section">
+          <h3>신용평가사 등급</h3>
+          <ul class="bullets">
+            <li>등급 상태: ${escapeHtml(item.credit_rating_status || "무등급")} · 최근 평가일: ${escapeHtml(item.credit_rating_last_date || "-")} · 출처: ${escapeHtml(item.credit_rating_source || "미매칭")}</li>
+            ${agencyRatings}
           </ul>
         </div>
         <div class="report-section">
@@ -1042,6 +1121,9 @@
       els.fundingNeedFilter.value = "전체";
       els.structureFilter.value = "전체";
       els.actionStageFilter.value = "전체";
+      els.ratingStatusFilter.value = "전체";
+      els.longRatingFilter.value = "전체";
+      els.shortRatingFilter.value = "전체";
       els.sourceFilter.value = "전체";
       els.sortSelect.value = "score";
       els.pageSizeSelect.value = "10";
@@ -1065,7 +1147,7 @@
     }
 
     function exportCsv() {
-      const header = ["rank", "corp_name", "ticker", "corp_code", "industry", "industry_source", "score_band", "trigger_type", "risk_level", "risk_type", "funding_need_type", "structure_group", "action_stage", "analysis_confidence", "final_score", "recommended_structure"];
+      const header = ["rank", "corp_name", "ticker", "corp_code", "industry", "industry_source", "score_band", "trigger_type", "risk_level", "risk_type", "funding_need_type", "structure_group", "action_stage", "credit_rating_status", "long_term_rating", "short_term_rating", "credit_rating_last_date", "analysis_confidence", "final_score", "recommended_structure"];
       const rows = state.filtered.map((item) => header.map((key) => {
         const value = item[key] ?? "";
         return `"${String(value).replace(/"/g, "\"\"")}"`;
@@ -1103,7 +1185,7 @@
       renderMapping(state.snapshot);
       setupNavigation();
       setupPresets();
-      ["industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter", "fundingNeedFilter", "structureFilter", "actionStageFilter", "sourceFilter", "sortSelect", "pageSizeSelect", "keywordFilter"].forEach((id) => {
+      ["industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter", "fundingNeedFilter", "structureFilter", "actionStageFilter", "ratingStatusFilter", "longRatingFilter", "shortRatingFilter", "sourceFilter", "sortSelect", "pageSizeSelect", "keywordFilter"].forEach((id) => {
         els[id].addEventListener("input", () => applyFilters(true));
       });
       els.resetBtn.addEventListener("click", resetFilters);
