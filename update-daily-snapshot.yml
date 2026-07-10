@@ -1,4 +1,4 @@
-name: 발행사 자금 수요 레이더 daily snapshot update
+name: 콜콜 daily snapshot update
 
 on:
   schedule:
@@ -56,7 +56,7 @@ jobs:
           issuers = data.get("issuers") or []
           assert issuers, "daily_snapshot.json has no issuers"
           assert data.get("policy_version") == "v2.0-expert-risk-structure-segmentation", "unexpected policy_version"
-          required = ["risk_type", "funding_need_type", "structure_group", "action_stage", "analysis_confidence", "credit_rating_status", "long_term_rating", "short_term_rating"]
+          required = ["risk_type", "funding_need_type", "structure_group", "action_stage", "analysis_confidence", "ir_phone", "credit_rating_status", "long_term_rating", "short_term_rating"]
           missing = [key for key in required if key not in issuers[0]]
           assert not missing, f"missing expert fields: {missing}"
           print(f"Validated {len(issuers)} issuers")

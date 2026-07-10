@@ -807,6 +807,33 @@ def opendart_get(path: str, params: Dict[str, Any], timeout: int = 30) -> Dict[s
     return r.json()
 
 
+def normalize_phone(value: str) -> str:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    return text
+
+
+def phone_to_tel_href(value: str) -> str:
+    first = re.split(r"[,;/]", normalize_phone(value))[0].strip()
+    cleaned = re.sub(r"[^0-9+]", "", first)
+    digits = re.sub(r"\D", "", cleaned)
+    if len(digits) < 7:
+        return ""
+    if cleaned.startswith("+"):
+        cleaned = "+" + cleaned[1:].replace("+", "")
+    else:
+        cleaned = cleaned.replace("+", "")
+    return f"tel:{cleaned}"
+
+
+def normalize_external_url(value: str) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    if not re.match(r"^https?://", text, flags=re.I):
+        text = "https://" + text
+    return text
+
+
 def fetch_company_profile(corp_code: str) -> Dict[str, Any]:
     data = opendart_get("company.json", {"corp_code": corp_code}, timeout=12)
     if data.get("status") not in {"000", None, ""}:
@@ -819,7 +846,10 @@ def fetch_company_profile(corp_code: str) -> Dict[str, Any]:
         "induty_code": data.get("induty_code", ""),
         "est_dt": data.get("est_dt", ""),
         "acc_mt": data.get("acc_mt", ""),
+        "phn_no": data.get("phn_no", ""),
+        "adres": data.get("adres", ""),
         "hm_url": data.get("hm_url", ""),
+        "ir_url": data.get("ir_url", ""),
         "status": data.get("status", "000"),
     }
 
@@ -1099,6 +1129,9 @@ def build_snapshot() -> Dict[str, Any]:
         score_label = score_band(final_score)
         action_stage = classification["action_stage"] if str(classification["action_stage"]).startswith("Hold") else classification["priority"]
         credit_rating = credit_rating_for_issuer(row, credit_rating_index)
+        ir_phone = normalize_phone(profile.get("phn_no", "")) if profile else ""
+        ir_url = normalize_external_url(profile.get("ir_url", "")) if profile else ""
+        company_homepage = normalize_external_url(profile.get("hm_url", "")) if profile else ""
         issuers.append({
             "rank": 0,
             "corp_name": corp_name,
@@ -1107,6 +1140,12 @@ def build_snapshot() -> Dict[str, Any]:
             "industry": industry,
             "industry_source": industry_source,
             "industry_code": str(profile.get("induty_code", "")) if profile else "",
+            "company_address": str(profile.get("adres", "")) if profile else "",
+            "ir_phone": ir_phone,
+            "ir_phone_tel": phone_to_tel_href(ir_phone),
+            "ir_phone_source": "OpenDART company.json phn_no" if ir_phone else "",
+            "ir_url": ir_url,
+            "company_homepage": company_homepage,
             "score_band": score_label,
             "trigger_type": trigger_type_from(event_severity, news_score, [n.get("title", "") for n in news_cards]),
             "priority": classification["priority"],
@@ -1207,9 +1246,9 @@ def build_snapshot() -> Dict[str, Any]:
         "as_of_date": t.strftime("%Y-%m-%d"),
         "policy_version": "v2.0-expert-risk-structure-segmentation",
         "service": {
-            "name": "발행사 선제 영업 플랫폼",
-            "subtitle": "공개정보 기반 자금수요 레이더",
-            "description": "전체 상장사를 업종·자금수요·리스크·금융구조 관점으로 세분화해 선제 영업 후보를 제시합니다.",
+            "name": "콜콜",
+            "subtitle": "오늘 연락할 발행사를 콕 집어주는 플랫폼",
+            "description": "오늘 연락할 발행사를 콕 집어주는 플랫폼. 전체 상장사를 업종·자금수요·리스크·금융구조 관점으로 세분화해 선제 영업 후보를 제시합니다.",
         },
         "formula": {
             "label": "Final Funding Score",
@@ -1228,6 +1267,7 @@ def build_snapshot() -> Dict[str, Any]:
             "news_enrich_limit": news_limit,
             "page_detail_limit": page_detail_limit,
             "credit_rating_record_count": len(credit_rating_records),
+            "ir_phone_mapped_count": sum(1 for x in issuers if x.get("ir_phone")),
             "industry_mapped_count": sum(1 for x in issuers if x.get("industry") != "기타/미분류"),
             "industry_unmapped_count": sum(1 for x in issuers if x.get("industry") == "기타/미분류"),
             "industry_source_counts": dict(Counter(x.get("industry_source", "unknown") for x in issuers)),
