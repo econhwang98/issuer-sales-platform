@@ -1,8 +1,8 @@
-# 콜콜
+# 콜콜 (Cold Call)
 
-오늘 연락할 발행사를 콕 집어주는 플랫폼입니다. 고정 HTML + `daily_snapshot.json` 자동 갱신 방식으로 운영되는 외부 배포용 발행사 선제 영업 플랫폼입니다.
+**콜콜 (Cold Call)**은 오늘 연락할 발행사를 콕 집어주는 플랫폼입니다. 고정 HTML + `daily_snapshot.json` 자동 갱신 방식으로 운영되는 외부 배포용 발행사 선제 영업 플랫폼입니다.
 
-이번 버전은 **콜콜 v12 전문 금융분류 고도화 패치**입니다. 기존처럼 대부분 기업이 `Risk Low / 기초 모니터링`으로만 떨어지는 현상을 줄이기 위해 위험수준, 위험유형, 자금수요, 추천 금융구조, 검토단계를 세분화했습니다.
+이번 버전은 **콜콜 (Cold Call) v12 전문 금융분류 고도화 패치**입니다. 기존처럼 대부분 기업이 `Risk Low / 기초 모니터링`으로만 떨어지는 현상을 줄이기 위해 위험수준, 위험유형, 자금수요, 추천 금융구조, 검토단계를 세분화했습니다.
 
 ## v12 고도화 핵심
 
@@ -24,7 +24,7 @@
 - 검토 단계를 `1. 긴급 확인`, `2. 즉시 접촉`, `3. 구조 검토`, `4. 관심 관찰`, `5. 정기 모니터링`, `Hold / 원문 확인`으로 제공합니다.
 - 한국신용평가, NICE신용평가, 한국기업평가 기준 장기·단기 신용등급을 기업별로 매칭합니다. 매칭값이 없으면 `무등급`으로 표시합니다.
 - OpenDART 회사개요의 전화번호를 기업별 `ir_phone`으로 연결해 상세 리포트에서 바로 전화할 수 있게 표시합니다.
-- `assets/callcall-brand.png` 브랜드 이미지를 화면 상단과 사이드바에 적용했습니다.
+- 브랜드 로고를 `index.html` 안에 내장 SVG 마크로 적용해 GitHub Pages 배포 시 이미지 파일 누락으로 깨지지 않게 했습니다.
 - 조건검색에서 업종, 우선순위, Trigger, Risk, 위험유형, 자금수요, 추천 금융구조, 검토단계, 신용등급, 키워드를 함께 필터링할 수 있습니다.
 - 상세 리포트에 Risk Level + Risk Type, 자금수요 유형, 추천 금융구조, 검토 단계, IR 전화번호, 장기·단기 신용등급, 신평사별 등급, 추천 구조 및 조건, 분석 신뢰도, 주요 근거, 최근 공시/뉴스, 보완 필요 항목을 표시합니다.
 
@@ -38,7 +38,6 @@ requirements.txt
 README.md
 credit_ratings.csv
 credit_ratings_template.csv
-assets/callcall-brand.png
 ```
 
 `daily_snapshot.json`은 GitHub Actions가 매일 자동 생성합니다.
@@ -55,7 +54,7 @@ schedule:
 수동 실행도 가능합니다.
 
 ```text
-GitHub repository → Actions → 콜콜 daily snapshot update → Run workflow
+GitHub repository → Actions → 콜콜 (Cold Call) daily snapshot update → Run workflow
 ```
 
 ## 필수 GitHub Secrets
@@ -137,10 +136,9 @@ requirements.txt
 README.md
 credit_ratings.csv
 credit_ratings_template.csv
-assets/callcall-brand.png
 ```
 
-그 다음 `Commit changes`를 누르고, Actions에서 `콜콜 daily snapshot update`를 수동 실행합니다.
+그 다음 `Commit changes`를 누르고, Actions에서 `콜콜 (Cold Call) daily snapshot update`를 수동 실행합니다.
 
 실행 성공 후 `daily_snapshot.json`에서 아래 값을 확인합니다.
 

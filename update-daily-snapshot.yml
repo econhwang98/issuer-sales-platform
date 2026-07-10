@@ -1,4 +1,4 @@
-name: 콜콜 daily snapshot update
+name: 콜콜 (Cold Call) daily snapshot update
 
 on:
   schedule:

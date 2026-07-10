@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>콜콜 | 오늘 연락할 발행사를 콕 집어주는 플랫폼</title>
+  <title>콜콜 (Cold Call) | 오늘 연락할 발행사를 콕 집어주는 플랫폼</title>
   <style>
     :root {
       --bg: #f4f6f9;
@@ -60,9 +60,10 @@
       overflow: hidden;
       background: #fff;
       border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 2px;
     }
-    .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .brand strong { display: block; font-size: 18px; line-height: 1.15; }
+    .logo-mark svg { width: 100%; height: 100%; display: block; }
+    .brand strong { display: block; font-size: 17px; line-height: 1.15; }
     .brand span { display: block; margin-top: 3px; color: #a9b8d6; font-size: 12px; line-height: 1.35; }
     .nav-stack, .quick-stack { display: grid; gap: 8px; }
     .nav-item, .quick-btn {
@@ -117,9 +118,11 @@
       height: 68px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      object-fit: cover;
+      display: grid;
+      place-items: center;
       background: #fff;
       box-shadow: 0 10px 22px rgba(16, 24, 40, 0.1);
+      padding: 5px;
     }
     .pill {
       border: 1px solid var(--line);
@@ -422,10 +425,19 @@
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <div class="logo"><img src="assets/callcall-brand.png" alt="" /></div>
+        <div class="logo logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" focusable="false">
+            <rect x="3" y="3" width="58" height="58" rx="14" fill="#ffffff" />
+            <circle cx="34" cy="30" r="20" fill="#e0f2fe" />
+            <path d="M20 34c6 9 15 13 25 10 2-.6 3.2-2.5 2.8-4.5l-.5-2.4c-.2-1.2-1.1-2.1-2.3-2.4l-5-1.1c-1-.2-2 .2-2.6 1l-1.5 2c-3.8-1.6-6.6-4.4-8.5-8.2l1.9-1.7c.8-.7 1.1-1.7.8-2.7L28 19.3c-.3-1.1-1.2-1.9-2.4-2.1l-2.5-.3c-2-.2-3.8 1.1-4.3 3.1-1.1 5-.7 9.6 1.2 14z" fill="#175cd3" />
+            <path d="M39 14c7 2 12 7 13 14" fill="none" stroke="#0e9384" stroke-width="4" stroke-linecap="round" />
+            <path d="M38 23c3 1 5 3 6 6" fill="none" stroke="#0e9384" stroke-width="3" stroke-linecap="round" />
+            <circle cx="45" cy="44" r="5" fill="#14b8a6" />
+          </svg>
+        </div>
         <div>
-          <strong>콜콜</strong>
-          <span>오늘 연락할 발행사를 콕 집어주는 플랫폼</span>
+          <strong>콜콜 (Cold Call)</strong>
+          <span>오늘 연락할 발행사를<br />콕 집어주는 플랫폼</span>
         </div>
       </div>
       <nav class="nav-stack">
@@ -450,17 +462,26 @@
 
     <main class="main">
       <div class="mobile-brief">
-        <strong>콜콜</strong>
+        <strong>콜콜 (Cold Call)</strong>
         <p id="mobileSummary">오늘 연락할 발행사를 콕 집어주는 플랫폼</p>
       </div>
 
       <header class="topbar">
         <div class="title">
-          <h1>콜콜</h1>
+          <h1>콜콜 (Cold Call)</h1>
           <p id="pageSub">오늘 연락할 발행사를 콕 집어주는 플랫폼</p>
         </div>
         <div class="top-actions">
-          <img class="brand-visual" src="assets/callcall-brand.png" alt="" />
+          <div class="brand-visual logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 64" focusable="false">
+              <rect x="3" y="3" width="58" height="58" rx="14" fill="#ffffff" />
+              <circle cx="34" cy="30" r="20" fill="#e0f2fe" />
+              <path d="M20 34c6 9 15 13 25 10 2-.6 3.2-2.5 2.8-4.5l-.5-2.4c-.2-1.2-1.1-2.1-2.3-2.4l-5-1.1c-1-.2-2 .2-2.6 1l-1.5 2c-3.8-1.6-6.6-4.4-8.5-8.2l1.9-1.7c.8-.7 1.1-1.7.8-2.7L28 19.3c-.3-1.1-1.2-1.9-2.4-2.1l-2.5-.3c-2-.2-3.8 1.1-4.3 3.1-1.1 5-.7 9.6 1.2 14z" fill="#175cd3" />
+              <path d="M39 14c7 2 12 7 13 14" fill="none" stroke="#0e9384" stroke-width="4" stroke-linecap="round" />
+              <path d="M38 23c3 1 5 3 6 6" fill="none" stroke="#0e9384" stroke-width="3" stroke-linecap="round" />
+              <circle cx="45" cy="44" r="5" fill="#14b8a6" />
+            </svg>
+          </div>
           <div class="pill-row">
             <span class="pill" id="asOfTag">기준일</span>
             <span class="pill" id="versionTag">정책 버전</span>
@@ -653,7 +674,7 @@
       as_of_date: "sample",
       policy_version: "sample-ui",
       service: {
-        name: "콜콜",
+        name: "콜콜 (Cold Call)",
         subtitle: "오늘 연락할 발행사를 콕 집어주는 플랫폼",
         description: "스냅샷을 불러오지 못해 예시 데이터를 표시합니다."
       },

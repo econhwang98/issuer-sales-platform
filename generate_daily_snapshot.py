@@ -1246,7 +1246,7 @@ def build_snapshot() -> Dict[str, Any]:
         "as_of_date": t.strftime("%Y-%m-%d"),
         "policy_version": "v2.0-expert-risk-structure-segmentation",
         "service": {
-            "name": "콜콜",
+            "name": "콜콜 (Cold Call)",
             "subtitle": "오늘 연락할 발행사를 콕 집어주는 플랫폼",
             "description": "오늘 연락할 발행사를 콕 집어주는 플랫폼. 전체 상장사를 업종·자금수요·리스크·금융구조 관점으로 세분화해 선제 영업 후보를 제시합니다.",
         },
