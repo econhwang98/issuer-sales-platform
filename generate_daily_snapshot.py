@@ -186,6 +186,47 @@ MANUAL_INDUSTRY_ALIASES = {
 }
 
 
+# 상장 구분은 OpenDART company.json의 corp_cls로만 판별한다.
+# 코넥스도 stock_code를 가지므로 stock_code 유무로 추정하면 안 된다.
+# 코스피(Y)·코스닥(K)만 상장사이고, 코넥스(N)·기타법인(E)은 비상장사로 본다.
+MARKET_LABELS = {"Y": "코스피", "K": "코스닥", "N": "코넥스", "E": "기타법인"}
+LISTED_MARKET_CODES = {"Y", "K"}
+UNLISTED_MARKET_CODES = {"N", "E"}
+
+
+def listing_type_from(market_code: str) -> str:
+    code = (market_code or "").strip().upper()
+    if code in LISTED_MARKET_CODES:
+        return "상장"
+    if code in UNLISTED_MARKET_CODES:
+        return "비상장"
+    return "미확인"
+
+
+def load_previous_scores() -> Tuple[Dict[str, float], str]:
+    """직전 스냅샷의 점수를 읽어 일간 변화(신규 진입/점수 변동) 계산에 쓴다.
+
+    화면은 브라우저에 보관한 이력으로도 변화를 계산할 수 있지만, 그것은 어제 접속한
+    사람에게만 동작한다. 파이프라인이 직접 내려주면 처음 들어온 사람도 바로 볼 수 있다.
+    """
+    if not OUTPUT_PATH.exists():
+        return {}, ""
+    try:
+        previous = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"previous snapshot read failed: {type(exc).__name__}: {exc}")
+        return {}, ""
+    scores: Dict[str, float] = {}
+    for item in previous.get("issuers", []):
+        key = str(item.get("corp_code") or item.get("ticker") or item.get("corp_name") or "").strip()
+        if key:
+            try:
+                scores[key] = float(item.get("final_score") or 0)
+            except (TypeError, ValueError):
+                continue
+    return scores, str(previous.get("as_of_date") or "")
+
+
 def canonicalize_industry(value: str) -> str:
     text = (value or "").strip()
     if not text:
@@ -1060,6 +1101,10 @@ def mock_rule_score(idx: int, event_severity: int, industry: str = "기타/미�
 
 def build_snapshot() -> Dict[str, Any]:
     t = now_kst()
+    # daily_snapshot.json을 덮어쓰기 전에 직전 점수를 먼저 읽어둔다.
+    previous_scores, previous_as_of = load_previous_scores()
+    if previous_scores:
+        print(f"previous snapshot loaded: {len(previous_scores)} issuers, as_of={previous_as_of}")
     rows = load_universe()
     source_status_global = {
         "dart_universe": "live_ok",
@@ -1129,6 +1174,9 @@ def build_snapshot() -> Dict[str, Any]:
         score_label = score_band(final_score)
         action_stage = classification["action_stage"] if str(classification["action_stage"]).startswith("Hold") else classification["priority"]
         credit_rating = credit_rating_for_issuer(row, credit_rating_index)
+        market_code = str(profile.get("corp_cls", "") or "").strip().upper() if profile else ""
+        market_label = MARKET_LABELS.get(market_code, "")
+        listing_type = listing_type_from(market_code)
         ir_phone = normalize_phone(profile.get("phn_no", "")) if profile else ""
         ir_url = normalize_external_url(profile.get("ir_url", "")) if profile else ""
         company_homepage = normalize_external_url(profile.get("hm_url", "")) if profile else ""
@@ -1140,6 +1188,9 @@ def build_snapshot() -> Dict[str, Any]:
             "industry": industry,
             "industry_source": industry_source,
             "industry_code": str(profile.get("induty_code", "")) if profile else "",
+            "corp_cls": market_code,
+            "market_label": market_label,
+            "listing_type": listing_type,
             "company_address": str(profile.get("adres", "")) if profile else "",
             "ir_phone": ir_phone,
             "ir_phone_tel": phone_to_tel_href(ir_phone),
@@ -1241,6 +1292,19 @@ def build_snapshot() -> Dict[str, Any]:
             issuer["rule_breakdown"] = []
             issuer["rationale"] = f"{issuer.get('corp_name') or '해당 기업'}은 전체 상장사 스크리닝에 포함된 요약 모니터링 대상입니다. 현재는 상세 원문 저장보다 정기 관찰이 적합한 구간으로, 업종·자금수요·리스크 분류를 기준으로 관찰하고 신규 자금조달 공시나 실적 변화가 확인되면 접촉 우선순위를 재산정합니다."
 
+    # 일간 변화: 직전 스냅샷에 없던 기업은 신규 진입으로 표시한다.
+    # 직전 스냅샷 자체가 없으면(최초 실행) 모두 신규가 아니라 "판단 불가"로 둔다.
+    for issuer in issuers:
+        key = str(issuer.get("corp_code") or issuer.get("ticker") or issuer.get("corp_name") or "").strip()
+        if previous_scores and key in previous_scores:
+            issuer["prev_final_score"] = round(previous_scores[key], 1)
+            issuer["is_new_entry"] = False
+        else:
+            issuer["prev_final_score"] = None
+            issuer["is_new_entry"] = bool(previous_scores)
+
+    listing_counts = Counter(x.get("listing_type", "미확인") for x in issuers)
+
     next_run = (t + timedelta(days=1)).replace(hour=8, minute=0, second=0, microsecond=0)
     return {
         "as_of_date": t.strftime("%Y-%m-%d"),
@@ -1248,7 +1312,7 @@ def build_snapshot() -> Dict[str, Any]:
         "service": {
             "name": "콜콜 (Cold Call)",
             "subtitle": "오늘 연락할 발행사를 콕 집어주는 플랫폼",
-            "description": "오늘 연락할 발행사를 콕 집어주는 플랫폼. 전체 상장사를 업종·자금수요·리스크·금융구조 관점으로 세분화해 선제 영업 후보를 제시합니다.",
+            "description": "오늘 연락할 발행사를 콕 집어주는 플랫폼. 코스피·코스닥 상장사와 코넥스·기타법인(비상장)을 업종·자금수요·리스크·금융구조 관점으로 세분화해 선제 영업 후보를 제시합니다.",
         },
         "formula": {
             "label": "Final Funding Score",
@@ -1267,6 +1331,8 @@ def build_snapshot() -> Dict[str, Any]:
             "news_enrich_limit": news_limit,
             "page_detail_limit": page_detail_limit,
             "credit_rating_record_count": len(credit_rating_records),
+            "previous_as_of_date": previous_as_of,
+            "listing_type_counts": dict(listing_counts),
             "ir_phone_mapped_count": sum(1 for x in issuers if x.get("ir_phone")),
             "industry_mapped_count": sum(1 for x in issuers if x.get("industry") != "기타/미분류"),
             "industry_unmapped_count": sum(1 for x in issuers if x.get("industry") == "기타/미분류"),
@@ -1281,6 +1347,9 @@ def build_snapshot() -> Dict[str, Any]:
             "news_trigger_count": sum(1 for x in issuers if x.get("trigger_type") not in {"재무구조 점검", "기초 모니터링"}),
             "needs_review": sum(1 for x in issuers if x.get("risk_level") in {"Critical", "High", "Elevated"}),
             "rated_count": sum(1 for x in issuers if x.get("credit_rating_status") == "유효등급"),
+            "listed_count": listing_counts.get("상장", 0),
+            "unlisted_count": listing_counts.get("비상장", 0),
+            "new_entry_count": sum(1 for x in issuers if x.get("is_new_entry")),
         },
         "filters": {
             "industries": ordered_industry_filters(issuers),
@@ -1292,6 +1361,7 @@ def build_snapshot() -> Dict[str, Any]:
             "funding_need_types": ["전체"] + sorted({x.get("funding_need_type", "") for x in issuers if x.get("funding_need_type")}),
             "structure_groups": ["전체"] + sorted({x.get("structure_group", "") for x in issuers if x.get("structure_group")}),
             "action_stages": ["전체", "1. 긴급 확인", "2. 즉시 접촉", "3. 구조 검토", "4. 관심 관찰", "5. 정기 모니터링", "Hold / 원문 확인"],
+            "listing_types": ["전체", "상장", "코스피", "코스닥", "비상장", "코넥스", "기타법인", "미확인"],
             "credit_rating_statuses": ["전체", "유효등급", "무등급"],
             "long_term_ratings": ["전체"] + sorted({x.get("long_term_rating", "") for x in issuers if x.get("long_term_rating") and x.get("long_term_rating") != "무등급"}),
             "short_term_ratings": ["전체"] + sorted({x.get("short_term_rating", "") for x in issuers if x.get("short_term_rating") and x.get("short_term_rating") != "무등급"}),
@@ -1304,7 +1374,9 @@ def build_snapshot() -> Dict[str, Any]:
                 {"field": "Risk", "meaning": "Low/Watch/Moderate/Elevated/High/Critical로 세분화한 위험 수준입니다. 점수와 별도로 구조 검토에 사용합니다."},
                 {"field": "자금수요 유형", "meaning": "차환, CAPEX, 메자닌, 자본확충, PF 등 예상되는 자금 목적입니다."},
                 {"field": "추천 금융구조", "meaning": "공시·뉴스·업종 신호를 토대로 우선 검토할 수 있는 금융상품/구조입니다."},
-                {"field": "신용등급", "meaning": "한국신용평가, NICE신용평가, 한국기업평가 기준 장기·단기 등급을 매칭합니다. 매칭값이 없으면 무등급으로 표시합니다."}
+                {"field": "신용등급", "meaning": "한국신용평가, NICE신용평가, 한국기업평가 기준 장기·단기 등급을 매칭합니다. 매칭값이 없으면 무등급으로 표시합니다."},
+                {"field": "상장 구분", "meaning": "코스피·코스닥은 상장, 코넥스·기타법인은 비상장으로 분류합니다. OpenDART 회사개요의 법인구분(corp_cls)을 근거로 하며, 조회되지 않으면 미확인으로 표시합니다."},
+                {"field": "일간 변화", "meaning": "직전 스냅샷 대비 점수 변동입니다. 직전 스냅샷에 없던 기업은 신규 진입으로 표시합니다."}
             ]
         },
         "issuers": issuers,
