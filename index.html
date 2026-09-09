@@ -285,6 +285,22 @@
     .badge.orange { background: #fff4e5; color: var(--amber); }
     .badge.green { background: #ecfdf3; color: var(--green); }
     .badge.purple { background: #f4f3ff; color: var(--purple); }
+    .badge.blue { background: #eff8ff; color: #1570ef; }
+    .badge.slate { background: #f2f4f7; color: #475467; }
+    .badge.solid-red { background: var(--red); color: #fff; }
+    .workspace-box { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+    .workspace-box .control { flex: 0 0 auto; width: auto; min-width: 118px; }
+    .star-btn {
+      border: 1px solid #d0d5dd; background: #fff; border-radius: 8px;
+      padding: 7px 11px; font-size: 13px; font-weight: 800; cursor: pointer; line-height: 1.2;
+    }
+    .star-btn.on { background: #fff8e1; border-color: #f5c451; color: #b54708; }
+    .memo-input {
+      width: 100%; margin-top: 8px; min-height: 62px; resize: vertical; box-sizing: border-box;
+      border: 1px solid #d0d5dd; border-radius: 8px; padding: 9px 10px;
+      font: inherit; font-size: 13px; color: #101828;
+    }
+    .memo-hint { font-size: 12px; color: #667085; margin-top: 6px; }
     .summary { margin: 9px 0 0; color: #344054; line-height: 1.55; font-size: 13px; }
     .detail {
       position: sticky;
@@ -496,10 +512,36 @@
           <div class="panel-head">
             <div>
               <h2>조건 검색</h2>
-              <p>업종, 우선순위, 감지 신호, 리스크, 자금수요와 금융구조로 후보를 좁힙니다.</p>
+              <p>상장 구분, 일간 변화, 접촉 상태, 업종, 우선순위, 감지 신호, 리스크, 자금수요와 금융구조로 후보를 좁힙니다.</p>
             </div>
           </div>
           <div class="filter-grid">
+            <div class="filter-field">
+              <label for="listingTypeFilter">상장 구분</label>
+              <select class="control" id="listingTypeFilter" aria-label="상장 구분"></select>
+            </div>
+            <div class="filter-field">
+              <label for="changeFilter">일간 변화</label>
+              <select class="control" id="changeFilter" aria-label="일간 변화">
+                <option value="전체">전체</option>
+                <option value="신규">신규 진입</option>
+                <option value="급등">점수 급등 (+5 이상)</option>
+                <option value="상승">점수 상승</option>
+                <option value="하락">점수 하락</option>
+              </select>
+            </div>
+            <div class="filter-field">
+              <label for="contactFilter">접촉 상태</label>
+              <select class="control" id="contactFilter" aria-label="접촉 상태">
+                <option value="전체">전체</option>
+                <option value="관심">관심 (★)</option>
+                <option value="미접촉">미접촉</option>
+                <option value="접촉완료">접촉완료</option>
+                <option value="보류">보류</option>
+                <option value="제외">제외</option>
+                <option value="메모있음">메모 있음</option>
+              </select>
+            </div>
             <div class="filter-field">
               <label for="industryFilter">업종</label>
               <select class="control" id="industryFilter" aria-label="업종"></select>
@@ -554,6 +596,7 @@
                 <option value="score">점수 높은 순</option>
                 <option value="name">회사명 순</option>
                 <option value="industry">업종 순</option>
+                <option value="delta">일간 상승폭 순</option>
               </select>
             </div>
             <div class="filter-field wide">
@@ -705,7 +748,10 @@
       selectedIndex: 0,
       page: 1,
       pageSize: 10,
-      loadNotice: ""
+      loadNotice: "",
+      workspace: {},
+      deltaBaseDate: "",
+      hasDeltaBase: false
     };
     const els = {};
 
@@ -817,9 +863,123 @@
       };
     }
 
+    /* ===== 상장 구분 =====
+       코스피(Y)·코스닥(K)만 상장사, 코넥스(N)·기타법인(E)은 비상장사로 본다.
+       stock_code 유무로는 판별할 수 없다(코넥스도 stock_code를 가짐). */
+    const MARKET_LABELS = { Y: "코스피", K: "코스닥", N: "코넥스", E: "기타법인" };
+    const LISTED_MARKETS = new Set(["Y", "K"]);
+    const UNLISTED_MARKETS = new Set(["N", "E"]);
+
+    function marketCode(item) {
+      return String(item?.corp_cls || item?.market_code || "").trim().toUpperCase();
+    }
+
+    function marketLabel(item) {
+      return item?.market_label || MARKET_LABELS[marketCode(item)] || "";
+    }
+
+    function listingType(item) {
+      if (item?.listing_type) return item.listing_type;
+      const code = marketCode(item);
+      if (LISTED_MARKETS.has(code)) return "상장";
+      if (UNLISTED_MARKETS.has(code)) return "비상장";
+      return "미확인";
+    }
+
+    /* ===== 워크스페이스: 접촉 상태 · 메모 · 관심 표시 (브라우저 로컬 저장) ===== */
+    const WORKSPACE_KEY = "callcall.workspace.v1";
+    const HISTORY_KEY = "callcall.history.v1";
+    const EMPTY_ENTRY = { status: "미접촉", memo: "", star: false, updated: "" };
+
+    function safeParse(raw, fallback) {
+      try { return raw ? JSON.parse(raw) : fallback; } catch (error) { return fallback; }
+    }
+
+    function readStore(key) {
+      try { return safeParse(localStorage.getItem(key), {}) || {}; } catch (error) { return {}; }
+    }
+
+    function writeStore(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (error) { return false; }
+    }
+
+    function issuerKey(item) {
+      return String(item?.corp_code || item?.ticker || item?.corp_name || "");
+    }
+
+    function workspaceEntry(item) {
+      return state.workspace[issuerKey(item)] || EMPTY_ENTRY;
+    }
+
+    function updateWorkspace(item, patch) {
+      const key = issuerKey(item);
+      if (!key) return;
+      const next = { ...workspaceEntry(item), ...patch, updated: new Date().toISOString().slice(0, 10) };
+      if (next.status === "미접촉" && !next.memo && !next.star) delete state.workspace[key];
+      else state.workspace[key] = next;
+      writeStore(WORKSPACE_KEY, state.workspace);
+    }
+
+    /* ===== 일간 변화 =====
+       파이프라인이 prev_final_score를 내려주면 그것을 쓰고,
+       없으면 브라우저에 보관한 직전 기준일 점수와 비교한다. */
+    function syncHistory(snapshot) {
+      const today = snapshot.as_of_date || "";
+      const history = readStore(HISTORY_KEY);
+      const priorDates = Object.keys(history).filter((date) => date && date !== today).sort();
+      const prevDate = priorDates.length ? priorDates[priorDates.length - 1] : "";
+      const prevScores = prevDate ? (history[prevDate] || {}) : {};
+      const todayScores = {};
+      (snapshot.issuers || []).forEach((item) => {
+        const key = issuerKey(item);
+        if (key) todayScores[key] = Math.round(Number(item.final_score || 0) * 10) / 10;
+      });
+      if (today) {
+        history[today] = todayScores;
+        // localStorage 용량 보호: 최근 3개 기준일만 보관
+        Object.keys(history).sort().slice(0, -3).forEach((date) => { delete history[date]; });
+        writeStore(HISTORY_KEY, history);
+      }
+      return { prevDate, prevScores, hasPrev: Boolean(prevDate) };
+    }
+
+    function annotateDelta(snapshot) {
+      const { prevDate, prevScores, hasPrev } = syncHistory(snapshot);
+      state.deltaBaseDate = prevDate;
+      state.hasDeltaBase = hasPrev;
+      (snapshot.issuers || []).forEach((item) => {
+        const serverPrev = item.prev_final_score;
+        let prev = null;
+        let isNew = item.is_new_entry === true;
+        if (serverPrev !== undefined && serverPrev !== null && serverPrev !== "") {
+          prev = Number(serverPrev);
+        } else if (hasPrev) {
+          const key = issuerKey(item);
+          if (Object.prototype.hasOwnProperty.call(prevScores, key)) prev = Number(prevScores[key]);
+          else isNew = true;
+        }
+        item.score_delta = prev === null || Number.isNaN(prev)
+          ? null
+          : Math.round((Number(item.final_score || 0) - prev) * 10) / 10;
+        item.is_new_entry = isNew;
+      });
+      return snapshot;
+    }
+
+    function deltaBadge(item) {
+      if (item.is_new_entry) return { text: "신규 진입", cls: "solid-red" };
+      const delta = item.score_delta;
+      if (delta === null || delta === undefined || delta === 0) return null;
+      if (delta >= 5) return { text: "▲ " + delta.toFixed(1), cls: "red" };
+      if (delta > 0) return { text: "▲ " + delta.toFixed(1), cls: "orange" };
+      return { text: "▼ " + Math.abs(delta).toFixed(1), cls: "blue" };
+    }
+
     async function loadSnapshot() {
       try {
-        const res = await fetch("daily_snapshot.json?ts=" + Date.now(), { cache: "no-store" });
+        // no-store는 매 방문마다 17MB 전량 재다운로드를 강제한다.
+        // no-cache는 ETag로 재검증만 하므로 내용이 그대로면 304로 끝난다.
+        const res = await fetch("daily_snapshot.json", { cache: "no-cache" });
         if (!res.ok) throw new Error("daily_snapshot.json HTTP " + res.status);
         return await res.json();
       } catch (error) {
@@ -843,7 +1003,9 @@
           ir_url: normalizeUrl(item.ir_url || ""),
           company_homepage: normalizeUrl(item.company_homepage || item.hm_url || ""),
           final_score: Number(item.final_score || 0),
-          news_trigger_score: Number(item.news_trigger_score || 0)
+          news_trigger_score: Number(item.news_trigger_score || 0),
+          market_label: marketLabel(item),
+          listing_type: listingType(item)
         };
       });
       snapshot.issuers = issuers;
@@ -864,6 +1026,7 @@
         long_term_ratings: unique(["전체", "무등급", ...(filters.long_term_ratings || []), ...issuers.map((x) => x.long_term_rating)]),
         short_term_ratings: unique(["전체", "무등급", ...(filters.short_term_ratings || []), ...issuers.map((x) => x.short_term_rating)]),
         industry_sources: unique(["전체", ...(filters.industry_sources || []), ...issuers.map((x) => x.industry_source)]),
+        listing_types: ["전체", "상장", "코스피", "코스닥", "비상장", "코넥스", "기타법인", "미확인"],
         definitions: filters.definitions || []
       };
       const mapped = issuers.filter((x) => x.industry !== "기타/미분류").length;
@@ -886,7 +1049,8 @@
 
     function initElements() {
       [
-        "dashboardSection", "industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter",
+        "dashboardSection", "listingTypeFilter", "changeFilter", "contactFilter",
+        "industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter",
         "fundingNeedFilter", "structureFilter", "actionStageFilter", "ratingStatusFilter", "longRatingFilter",
         "shortRatingFilter", "sourceFilter",
         "sortSelect", "pageSizeSelect", "keywordFilter", "resetBtn", "exportBtn", "issuerList", "resultCount",
@@ -916,7 +1080,7 @@
       const ps = snapshot.pipeline_status || {};
       const total = k.screened_universe ?? ps.universe_count ?? snapshot.issuers.length;
       const items = [
-        ["전체 대상", total, "OpenDART 상장사 기준"],
+        ["전체 대상", total, listingMixLabel(snapshot)],
         ["즉시 검토", k.priority_a ?? 0, "우선순위 A 구간"],
         ["Trigger 감지", k.news_trigger_count ?? 0, "공시·뉴스 이벤트"],
         ["유효등급", k.rated_count ?? 0, "3사 장기·단기 매칭"]
@@ -932,6 +1096,7 @@
 
     function initFilters(snapshot) {
       const f = snapshot.filters || {};
+      els.listingTypeFilter.innerHTML = optionize(f.listing_types || ["전체", "상장", "비상장"]);
       els.industryFilter.innerHTML = optionize(f.industries || ["전체"]);
       els.scoreBandFilter.innerHTML = optionize(f.score_bands || ["전체", "S. 긴급 검토", "A. 즉시 접촉", "B. 구조화 검토", "C. 관심 관찰", "D. 정기 모니터링"]);
       els.triggerFilter.innerHTML = optionize(f.trigger_types || ["전체", "신용/계속기업 리스크", "자금조달 직접공시", "차입/담보 이벤트", "투자·CAPEX 이벤트", "M&A/지분투자 이벤트", "업황/뉴스 압력", "재무구조 점검"]);
@@ -970,14 +1135,37 @@
       `).join("") || "<div class=\"empty\">업종 분포 없음</div>";
     }
 
+    function listingMixLabel(snapshot) {
+      const issuers = snapshot.issuers || [];
+      const listed = issuers.filter((x) => x.listing_type === "상장").length;
+      const unlisted = issuers.filter((x) => x.listing_type === "비상장").length;
+      if (!listed && !unlisted) return "OpenDART 공시대상 법인 기준";
+      return `상장 ${money.format(listed)} · 비상장 ${money.format(unlisted)}`;
+    }
+
     function sortIssuers(items) {
       const mode = els.sortSelect.value;
       if (mode === "name") return items.sort((a, b) => String(a.corp_name || "").localeCompare(String(b.corp_name || ""), "ko"));
       if (mode === "industry") return items.sort((a, b) => String(a.industry || "").localeCompare(String(b.industry || ""), "ko") || (b.final_score - a.final_score));
+      if (mode === "delta") {
+        // 신규 진입을 맨 위로, 그다음 상승폭 큰 순
+        return items.sort((a, b) => {
+          const an = a.is_new_entry ? 1 : 0;
+          const bn = b.is_new_entry ? 1 : 0;
+          if (an !== bn) return bn - an;
+          const ad = a.score_delta ?? -Infinity;
+          const bd = b.score_delta ?? -Infinity;
+          if (ad !== bd) return bd - ad;
+          return (b.final_score || 0) - (a.final_score || 0);
+        });
+      }
       return items.sort((a, b) => (b.final_score || 0) - (a.final_score || 0));
     }
 
     function applyFilters(resetPage = true) {
+      const listingChoice = els.listingTypeFilter.value;
+      const change = els.changeFilter.value;
+      const contact = els.contactFilter.value;
       const industry = els.industryFilter.value;
       const scoreBand = els.scoreBandFilter.value;
       const trigger = els.triggerFilter.value;
@@ -993,6 +1181,31 @@
       const keyword = els.keywordFilter.value.trim().toLowerCase();
       state.pageSize = Number(els.pageSizeSelect.value || 10);
       let items = [...(state.snapshot.issuers || [])];
+      if (listingChoice && listingChoice !== "전체") {
+        // "상장"/"비상장"은 묶음, "코스피"/"코스닥"/"코넥스"/"기타법인"은 개별 시장
+        items = ["상장", "비상장", "미확인"].includes(listingChoice)
+          ? items.filter((x) => x.listing_type === listingChoice)
+          : items.filter((x) => x.market_label === listingChoice);
+      }
+      if (change && change !== "전체") {
+        items = items.filter((x) => {
+          if (change === "신규") return x.is_new_entry === true;
+          const delta = x.score_delta;
+          if (delta === null || delta === undefined) return false;
+          if (change === "급등") return delta >= 5;
+          if (change === "상승") return delta > 0;
+          if (change === "하락") return delta < 0;
+          return true;
+        });
+      }
+      if (contact && contact !== "전체") {
+        items = items.filter((x) => {
+          const entry = workspaceEntry(x);
+          if (contact === "관심") return entry.star === true;
+          if (contact === "메모있음") return Boolean(entry.memo);
+          return entry.status === contact;
+        });
+      }
       if (industry && industry !== "전체") items = items.filter((x) => x.industry === industry);
       if (scoreBand && scoreBand !== "전체") items = items.filter((x) => x.score_band === scoreBand);
       if (trigger && trigger !== "전체") items = items.filter((x) => x.trigger_type === trigger);
@@ -1066,6 +1279,9 @@
               <div class="score">${Math.round(item.final_score || 0)}<span>점수</span></div>
             </div>
             <div class="badges">
+              ${listingBadgeHtml(item)}
+              ${deltaBadgeHtml(item)}
+              ${contactBadgeHtml(item)}
               <span class="badge ${badgeClass(item.score_band)}">${escapeHtml(item.score_band || item.priority || "-")}</span>
               <span class="badge ${badgeClass(item.trigger_type)}">${escapeHtml(item.trigger_type || "-")}</span>
               <span class="badge ${badgeClass(item.risk_level)}">Risk ${escapeHtml(item.risk_level || "-")}</span>
@@ -1088,6 +1304,30 @@
         });
       });
       renderPager(pages);
+    }
+
+    function listingBadgeHtml(item) {
+      const type = item.listing_type || "미확인";
+      const market = item.market_label || "";
+      const cls = type === "상장" ? "blue" : type === "비상장" ? "slate" : "slate";
+      const text = market ? `${type} · ${market}` : type;
+      return `<span class="badge ${cls}">${escapeHtml(text)}</span>`;
+    }
+
+    function deltaBadgeHtml(item) {
+      const badge = deltaBadge(item);
+      return badge ? `<span class="badge ${badge.cls}">${escapeHtml(badge.text)}</span>` : "";
+    }
+
+    function contactBadgeHtml(item) {
+      const entry = workspaceEntry(item);
+      const parts = [];
+      if (entry.star) parts.push('<span class="badge orange">★ 관심</span>');
+      if (entry.status && entry.status !== "미접촉") {
+        const cls = entry.status === "접촉완료" ? "green" : "slate";
+        parts.push(`<span class="badge ${cls}">${escapeHtml(entry.status)}</span>`);
+      }
+      return parts.join("");
     }
 
     function renderPager(pages) {
@@ -1130,6 +1370,7 @@
         return;
       }
       const sourceLabel = item.industry_raw && item.industry_raw !== item.industry ? `${item.industry_raw} → ${item.industry}` : item.industry;
+      const entry = workspaceEntry(item);
       const factors = (item.key_factors || []).slice(0, 6);
       const summaryOnly = isSummaryScreeningItem(item);
       const displayRationale = summaryOnly ? summaryScreeningComment(item) : (item.rationale || "공개정보 기반 자동 선별 후보입니다.");
@@ -1167,6 +1408,8 @@
           <div class="score-copy">공개정보 기반 영업 우선순위입니다. 실행 전 DART 원문, 뉴스 원문, 담당자 검토가 필요합니다.</div>
         </div>
         <div class="split">
+          <div class="mini"><div class="label">상장 구분</div><div class="value">${escapeHtml(item.listing_type || "미확인")}${item.market_label ? `<br>${escapeHtml(item.market_label)}` : ""}</div></div>
+          <div class="mini"><div class="label">일간 변화</div><div class="value">${deltaValueHtml(item)}</div></div>
           <div class="mini"><div class="label">우선순위</div><div class="value">${escapeHtml(item.priority || item.score_band || "-")}</div></div>
           <div class="mini"><div class="label">감지 신호</div><div class="value">${escapeHtml(item.trigger_type || "-")}</div></div>
           <div class="mini"><div class="label">Risk</div><div class="value">${escapeHtml(item.risk_level || "-")}<br>${escapeHtml(item.risk_type || "기초 신용 모니터링")}</div></div>
@@ -1181,6 +1424,17 @@
           <h3>연락 액션</h3>
           <div class="contact-actions">${contactLinks}</div>
           <p class="summary">전화번호 출처: ${escapeHtml(item.ir_phone_source || (irPhone ? "OpenDART 회사개요" : "미확보"))}</p>
+        </div>
+        <div class="report-section">
+          <h3>내 영업 관리</h3>
+          <div class="workspace-box">
+            <select class="control" id="wsStatus" aria-label="접촉 상태">
+              ${["미접촉", "접촉완료", "보류", "제외"].map((s) => `<option value="${s}" ${entry.status === s ? "selected" : ""}>${s}</option>`).join("")}
+            </select>
+            <button type="button" class="star-btn ${entry.star ? "on" : ""}" id="wsStar">${entry.star ? "★ 관심" : "☆ 관심"}</button>
+          </div>
+          <textarea class="memo-input" id="wsMemo" placeholder="통화 결과, 담당자, 다음 액션을 적어두세요.">${escapeHtml(entry.memo || "")}</textarea>
+          <p class="memo-hint" id="wsHint">${entry.updated ? `마지막 수정 ${escapeHtml(entry.updated)}` : "이 브라우저에만 저장됩니다."}</p>
         </div>
         <div class="report-section">
           <h3>영업 코멘트</h3>
@@ -1214,9 +1468,55 @@
           <div class="badges">${missing.length ? missing.map((m) => `<span class="badge orange">${escapeHtml(m)}</span>`).join("") : "<span class=\"badge green\">특이 누락 없음</span>"}</div>
         </div>
       `;
+      bindWorkspaceControls(item);
+    }
+
+    function deltaValueHtml(item) {
+      if (!state.hasDeltaBase && (item.score_delta === null || item.score_delta === undefined)) {
+        return "기준 스냅샷 없음";
+      }
+      const badge = deltaBadge(item);
+      if (!badge) return "변동 없음";
+      const base = state.deltaBaseDate ? `<br>${escapeHtml(state.deltaBaseDate)} 대비` : "";
+      return `${escapeHtml(badge.text)}${base}`;
+    }
+
+    // 상세 패널은 선택할 때마다 새로 그려지므로 매번 다시 바인딩한다.
+    function bindWorkspaceControls(item) {
+      const statusEl = $("wsStatus");
+      const starEl = $("wsStar");
+      const memoEl = $("wsMemo");
+      const hintEl = $("wsHint");
+      if (!statusEl || !starEl || !memoEl) return;
+      const touch = (message) => {
+        if (hintEl) hintEl.textContent = message;
+        renderList();
+      };
+      statusEl.addEventListener("change", () => {
+        updateWorkspace(item, { status: statusEl.value });
+        touch("접촉 상태를 저장했습니다.");
+      });
+      starEl.addEventListener("click", () => {
+        const next = !workspaceEntry(item).star;
+        updateWorkspace(item, { star: next });
+        starEl.classList.toggle("on", next);
+        starEl.textContent = next ? "★ 관심" : "☆ 관심";
+        touch(next ? "관심 목록에 추가했습니다." : "관심 표시를 해제했습니다.");
+      });
+      let memoTimer = null;
+      memoEl.addEventListener("input", () => {
+        clearTimeout(memoTimer);
+        memoTimer = setTimeout(() => {
+          updateWorkspace(item, { memo: memoEl.value });
+          touch("메모를 저장했습니다.");
+        }, 400);
+      });
     }
 
     function resetFilters() {
+      els.listingTypeFilter.value = "전체";
+      els.changeFilter.value = "전체";
+      els.contactFilter.value = "전체";
       els.industryFilter.value = "전체";
       els.scoreBandFilter.value = "전체";
       els.triggerFilter.value = "전체";
@@ -1251,9 +1551,17 @@
     }
 
     function exportCsv() {
-      const header = ["rank", "corp_name", "ticker", "corp_code", "industry", "industry_source", "score_band", "trigger_type", "risk_level", "risk_type", "funding_need_type", "structure_group", "action_stage", "ir_phone", "ir_phone_source", "ir_url", "company_homepage", "credit_rating_status", "long_term_rating", "long_term_outlook", "long_term_rating_agency", "short_term_rating", "short_term_rating_agency", "credit_rating_last_date", "analysis_confidence", "final_score", "recommended_structure"];
+      const header = ["rank", "corp_name", "ticker", "corp_code", "listing_type", "market_label", "score_delta", "is_new_entry", "contact_status", "contact_star", "contact_memo", "industry", "industry_source", "score_band", "trigger_type", "risk_level", "risk_type", "funding_need_type", "structure_group", "action_stage", "ir_phone", "ir_phone_source", "ir_url", "company_homepage", "credit_rating_status", "long_term_rating", "long_term_outlook", "long_term_rating_agency", "short_term_rating", "short_term_rating_agency", "credit_rating_last_date", "analysis_confidence", "final_score", "recommended_structure"];
       const rows = state.filtered.map((item) => header.map((key) => {
-        const value = item[key] ?? "";
+        const entry = workspaceEntry(item);
+        const overrides = {
+          contact_status: entry.status || "미접촉",
+          contact_star: entry.star ? "Y" : "",
+          contact_memo: entry.memo || "",
+          is_new_entry: item.is_new_entry ? "Y" : "",
+          score_delta: item.score_delta === null || item.score_delta === undefined ? "" : item.score_delta
+        };
+        const value = key in overrides ? overrides[key] : (item[key] ?? "");
         return `"${String(value).replace(/"/g, "\"\"")}"`;
       }).join(","));
       const csv = "\uFEFF" + [header.join(","), ...rows].join("\n");
@@ -1281,15 +1589,16 @@
 
     async function main() {
       initElements();
+      state.workspace = readStore(WORKSPACE_KEY);
       const rawSnapshot = await loadSnapshot();
-      state.snapshot = prepareSnapshot(rawSnapshot);
+      state.snapshot = annotateDelta(prepareSnapshot(rawSnapshot));
       renderHeader(state.snapshot);
       renderKpis(state.snapshot);
       initFilters(state.snapshot);
       renderMapping(state.snapshot);
       setupNavigation();
       setupPresets();
-      ["industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter", "fundingNeedFilter", "structureFilter", "actionStageFilter", "ratingStatusFilter", "longRatingFilter", "shortRatingFilter", "sourceFilter", "sortSelect", "pageSizeSelect", "keywordFilter"].forEach((id) => {
+      ["listingTypeFilter", "changeFilter", "contactFilter", "industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter", "fundingNeedFilter", "structureFilter", "actionStageFilter", "ratingStatusFilter", "longRatingFilter", "shortRatingFilter", "sourceFilter", "sortSelect", "pageSizeSelect", "keywordFilter"].forEach((id) => {
         els[id].addEventListener("input", () => applyFilters(true));
       });
       els.resetBtn.addEventListener("click", resetFilters);
