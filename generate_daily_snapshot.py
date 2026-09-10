@@ -775,7 +775,7 @@ def _load_seed_universe() -> List[Dict[str, str]]:
         return list(csv.DictReader(f))
 
 
-def _fetch_opendart_listed_companies() -> List[Dict[str, str]]:
+def _fetch_opendart_corp_codes() -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
     if requests is None:
         raise RuntimeError("requests package is not installed")
     key = os.getenv("OPENDART_API_KEY", "").strip()
@@ -801,20 +801,29 @@ def _fetch_opendart_listed_companies() -> List[Dict[str, str]]:
     with zipfile.ZipFile(bio) as zf:
         xml_name = zf.namelist()[0]
         root = ET.fromstring(zf.read(xml_name))
-    rows: List[Dict[str, str]] = []
+    with_stock: List[Dict[str, str]] = []
+    without_stock: List[Dict[str, str]] = []
     for item in root.findall(".//list"):
         corp_name = (item.findtext("corp_name") or "").strip()
         corp_code = (item.findtext("corp_code") or "").strip()
         stock_code = (item.findtext("stock_code") or "").strip()
-        if corp_name and corp_code and stock_code:
-            rows.append({"corp_name": corp_name, "corp_code": corp_code, "ticker": stock_code, "industry": "", "keywords": corp_name})
-    print(f"OpenDART listed universe loaded: {len(rows)} rows")
-    return rows
+        if not (corp_name and corp_code):
+            continue
+        row = {"corp_name": corp_name, "corp_code": corp_code, "ticker": stock_code, "industry": "", "keywords": corp_name}
+        (with_stock if stock_code else without_stock).append(row)
+    # stock_code 보유 = 코스피·코스닥·코넥스. 상장 여부는 나중에 corp_cls로 확정한다.
+    print(f"OpenDART corpCode loaded: {len(with_stock)} with stock_code, {len(without_stock)} without")
+    return with_stock, without_stock
 
 
-def load_universe() -> List[Dict[str, str]]:
+def load_universe() -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
+    """(기본 유니버스, 비상장 후보 풀)을 돌려준다.
+
+    기본 유니버스는 stock_code를 가진 법인 전체다. 비상장 후보 풀은 stock_code가 없는
+    법인이며, 최근 공시가 잡힌 곳만 추려서 나중에 유니버스에 더한다.
+    """
     seeds = _load_seed_universe()
-    dart_rows = _fetch_opendart_listed_companies()
+    dart_rows, unlisted_pool = _fetch_opendart_corp_codes()
     seed_by_code = {r.get("corp_code", ""): r for r in seeds if r.get("corp_code")}
     seed_by_ticker = {r.get("ticker", ""): r for r in seeds if r.get("ticker")}
     merged: List[Dict[str, str]] = []
@@ -834,7 +843,32 @@ def load_universe() -> List[Dict[str, str]]:
         add(enriched)
     if len(merged) < 1000:
         raise RuntimeError(f"OpenDART listed universe returned only {len(merged)} rows")
-    return merged
+    return merged, unlisted_pool
+
+
+def expand_with_unlisted(
+    base_rows: List[Dict[str, str]],
+    unlisted_pool: List[Dict[str, str]],
+    disclosure_by_code: Dict[str, List[Dict[str, Any]]],
+) -> List[Dict[str, str]]:
+    """최근 공시 이력이 있는 비상장 법인만 유니버스에 더한다.
+
+    corpCode.xml에는 10만 건이 넘는 법인이 들어 있지만 대부분은 공시 활동이 없다.
+    최근 공시가 잡힌 법인으로 좁히면 실제 자금조달 영업 대상에 가까운 규모가 된다.
+    """
+    limit = int(os.getenv("UNLISTED_MAX", "2000"))
+    if limit <= 0 or not unlisted_pool:
+        print("unlisted universe expansion skipped")
+        return base_rows
+    existing = {r.get("corp_code", "") for r in base_rows}
+    candidates = [
+        row for row in unlisted_pool
+        if row.get("corp_code") in disclosure_by_code and row.get("corp_code") not in existing
+    ]
+    candidates.sort(key=lambda row: len(disclosure_by_code.get(row.get("corp_code", ""), [])), reverse=True)
+    added = candidates[:limit]
+    print(f"unlisted universe expansion: {len(candidates)} candidates with disclosures, {len(added)} added (limit={limit})")
+    return base_rows + added
 
 
 def opendart_get(path: str, params: Dict[str, Any], timeout: int = 30) -> Dict[str, Any]:
@@ -1105,7 +1139,7 @@ def build_snapshot() -> Dict[str, Any]:
     previous_scores, previous_as_of = load_previous_scores()
     if previous_scores:
         print(f"previous snapshot loaded: {len(previous_scores)} issuers, as_of={previous_as_of}")
-    rows = load_universe()
+    rows, unlisted_pool = load_universe()
     source_status_global = {
         "dart_universe": "live_ok",
         "dart_disclosure": "api_key_missing",
@@ -1122,9 +1156,6 @@ def build_snapshot() -> Dict[str, Any]:
     credit_rating_index = build_credit_rating_index(credit_rating_records)
     source_status_global["credit_rating"] = credit_rating_status
 
-    profile_by_code, profile_status = fetch_company_profiles(rows)
-    source_status_global["dart_company_profile"] = profile_status
-
     disclosure_by_code: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     try:
         max_pages = int(os.getenv("DART_DISCLOSURE_MAX_PAGES", "30"))
@@ -1139,6 +1170,14 @@ def build_snapshot() -> Dict[str, Any]:
     except Exception as exc:
         source_status_global["dart_disclosure"] = f"error:{type(exc).__name__}"
         print(f"DART global disclosure error: {type(exc).__name__}: {exc}")
+
+    # 비상장 확장은 공시 결과에 의존하므로 회사개요 조회보다 먼저 끝내야 한다.
+    listed_only_count = len(rows)
+    rows = expand_with_unlisted(rows, unlisted_pool, disclosure_by_code)
+    unlisted_added_count = len(rows) - listed_only_count
+
+    profile_by_code, profile_status = fetch_company_profiles(rows)
+    source_status_global["dart_company_profile"] = profile_status
 
     kind_items: List[Dict[str, Any]] = []
     if os.getenv("KRX_KIND_RSS_URL"):
@@ -1327,7 +1366,9 @@ def build_snapshot() -> Dict[str, Any]:
             "scheduled_run": "매일 08:00 KST / GitHub Actions cron 0 23 * * * UTC",
             "source_status": source_status_global,
             "universe_count": len(rows),
-            "universe_mode": "opendart_full_listed_expert_segmentation_two_stage",
+            "universe_mode": "opendart_listed_plus_disclosing_unlisted",
+            "stock_code_universe_count": listed_only_count,
+            "unlisted_added_count": unlisted_added_count,
             "news_enrich_limit": news_limit,
             "page_detail_limit": page_detail_limit,
             "credit_rating_record_count": len(credit_rating_records),
