@@ -85,6 +85,43 @@ check("8개 항목 모두 평가됨", result.missing_fields, [])
 check("점수는 0~100", 0 <= result.score <= 100, True)
 print(f"     룰 점수 {result.score} (raw {result.raw_points}/{result.available_max_points})")
 
+# --- 계정명 변형 (실제 DART 데이터에서 놓쳤던 것들) ------------------------
+# 정확일치 매칭일 때 실측 86.4% 기간의 EBITDA가 EBIT과 같아졌다(상각비 미매칭).
+from fixtures_dart import row as _row
+
+VARIANTS = [
+    _row("BS", "ifrs-full_Assets", "자산총계", "1,000,000,000,000"),
+    _row("IS", "dart_OperatingIncomeLoss", "영업이익", "40,000,000,000"),
+    # 상각비 표기 변형 — 모두 더해져야 한다
+    _row("CF", "", "유형자산감가상각비", "30,000,000,000"),
+    _row("CF", "", "사용권자산상각비", "6,000,000,000"),
+    _row("CF", "", "무형자산상각비", "4,000,000,000"),
+    # 더하면 안 되는 것들
+    _row("CF", "", "대손상각비", "9,000,000,000"),
+    _row("CF", "", "감가상각누계액환입", "5,000,000,000"),
+    # 차입금 표기 변형 — 모두 더해져야 한다
+    _row("BS", "", "유동성장기차입금", "100,000,000,000"),
+    _row("BS", "", "장기차입금", "200,000,000,000"),
+    _row("BS", "", "차입부채", "50,000,000,000"),
+    _row("BS", "", "유동리스부채", "10,000,000,000"),
+    # 차감계정이라 더하면 이중계상
+    _row("BS", "", "사채할인발행차금", "-3,000,000,000"),
+    _row("BS", "", "전환권조정", "-2,000,000,000"),
+]
+va = fe.parse_period(VARIANTS, "thstrm")
+check("상각비 변형 3종 합산", va["dep_amort"], 40_000_000_000.0)
+check("대손상각비는 제외", va["dep_amort"] != 49_000_000_000.0, True)
+check("차입금 변형 4종 합산", va["total_debt"], 360_000_000_000.0)
+check("사채 차감계정 제외", va["total_debt"] != 355_000_000_000.0, True)
+
+vr = fe.derive_shard_row("2025(12)", va)
+check("EBITDA = EBIT + 상각비", vr["ebitda"], 800.0)
+check("EBITDA != EBIT", vr["ebitda"] != vr["ebit"], True)
+
+# 상각비가 아예 없으면 EBITDA = EBIT (정상 동작)
+none_dep = fe.parse_period([_row("IS", "dart_OperatingIncomeLoss", "영업이익", "40,000,000,000")], "thstrm")
+check("상각비 없으면 dep_amort None", none_dep["dep_amort"], None)
+
 check("데이터 없으면 None",
       fe.build_financial_shard("x", "y", 2025, lambda p, q: {"status": "013"}, ""), None)
 

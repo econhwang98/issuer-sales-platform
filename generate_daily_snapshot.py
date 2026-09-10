@@ -1207,7 +1207,9 @@ def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> 
                 cached = json.loads(existing.read_text(encoding="utf-8"))
                 fetched = str(cached.get("fetched_at") or "")[:10]
                 age = (as_of.date() - datetime.strptime(fetched, "%Y-%m-%d").date()).days if fetched else 999
-                if age < refresh_days and apply_financial_rule_score(issuer, cached):
+                # 파싱 규칙이 바뀌었으면 캐시 기간이 남았어도 다시 받는다.
+                stale_schema = int(cached.get("schema_version") or 1) < financial_engine.SHARD_SCHEMA_VERSION
+                if not stale_schema and age < refresh_days and apply_financial_rule_score(issuer, cached):
                     stats["reused"] += 1
                     continue
             except Exception:

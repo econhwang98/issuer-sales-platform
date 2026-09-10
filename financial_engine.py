@@ -17,6 +17,11 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+# 샤드 스키마/파싱 규칙 버전.
+# 파싱 규칙을 고치면 올린다. 저장해둔 샤드가 이 버전보다 낮으면 캐시 기간이 남았어도
+# 다시 받는다. 그러지 않으면 잘못 파싱된 값이 갱신 주기 내내 그대로 남는다.
+SHARD_SCHEMA_VERSION = 2
+
 # 억원
 UNIT_DIVISOR = 100_000_000
 UNIT_LABEL = "억원"
@@ -91,8 +96,6 @@ ACCOUNT_MATCHERS: Dict[str, Tuple[List[str], List[str], set]] = {
         ["현금및현금성자산", "현금및현금성자산등"],
         {"BS"},
     ),
-    "depreciation": ([], ["감가상각비"], {"CF"}),
-    "amortization": ([], ["무형자산상각비", "무형자산상각", "사용권자산상각비"], {"CF"}),
     "operating_cash_flow": (
         [],
         ["영업활동현금흐름", "영업활동으로인한현금흐름", "영업활동순현금흐름"],
@@ -116,19 +119,28 @@ ACCOUNT_MATCHERS: Dict[str, Tuple[List[str], List[str], set]] = {
     ),
 }
 
-# 총차입금은 표준 태그가 없어 계정명을 더해 구한다.
-DEBT_ACCOUNT_NAMES = [
-    "단기차입금", "유동성장기부채", "유동성장기차입금", "유동성사채", "유동성전환사채",
-    "사채", "장기차입금", "전환사채", "신주인수권부사채", "교환사채",
-    "유동리스부채", "비유동리스부채", "리스부채",
-]
+# 총차입금과 상각비는 표준 태그가 없고 계정명이 회사마다 제각각이다.
+# 정확히 일치시키려 들면 대부분 놓친다(실측: 상각비 86% 미매칭, 총차입금 18% 미매칭).
+# 이름에 특정 조각이 들어간 계정을 모두 더하되, 뜻이 다른 계정은 제외어로 걸러낸다.
+
+# 재무상태표의 이자부 부채. "차입금"은 단기/장기/유동성장기를 모두 잡는다.
+DEBT_HINTS = ("차입금", "사채", "리스부채", "차입부채")
+# 사채할인발행차금은 사채의 차감계정이고, 상환할증금은 부대항목이다.
+# 전환권조정·신주인수권조정도 차감계정이라 더하면 이중계상이 된다.
+DEBT_EXCLUDE = ("할인발행차금", "상환할증금", "전환권조정", "신주인수권조정", "발행차금")
+
+# 현금흐름표의 상각비 조정 항목. "감가상각비", "유형자산감가상각비",
+# "사용권자산상각비", "감가상각비및무형자산상각비" 등 표기가 다양하다.
+# CF 조정 항목끼리는 서로 배타적이라 합산해도 이중계상이 되지 않는다.
+DEP_HINTS = ("감가상각", "무형자산상각", "사용권자산상각", "투자부동산상각")
+# 대손상각비는 EBITDA 가산 대상이 아니고, 상각후원가는 금융자산 측정 기준이다.
+DEP_EXCLUDE = ("대손", "환입", "누계", "상각후원가", "손상")
 
 
 def _squash(text: Any) -> str:
     return str(text or "").replace(" ", "").replace("　", "").strip()
 
 
-_DEBT_NAMES_SQUASHED = {_squash(n) for n in DEBT_ACCOUNT_NAMES}
 _MATCHERS_SQUASHED = {
     field: (ids, {_squash(n) for n in names}, statements)
     for field, (ids, names, statements) in ACCOUNT_MATCHERS.items()
@@ -153,6 +165,13 @@ def to_number(value: Any) -> Optional[float]:
     return -number if negative else number
 
 
+def _matches_hint(name: str, hints: Tuple[str, ...], excludes: Tuple[str, ...]) -> bool:
+    """계정명에 힌트 조각이 있고 제외어가 없으면 참."""
+    if not name or any(bad in name for bad in excludes):
+        return False
+    return any(hint in name for hint in hints)
+
+
 def _pick(row: Dict[str, Any], keys: List[str]) -> Optional[float]:
     for key in keys:
         value = to_number(row.get(key))
@@ -166,6 +185,9 @@ def parse_period(rows: List[Dict[str, Any]], period: str) -> Dict[str, Optional[
     out: Dict[str, Optional[float]] = {field: None for field in ACCOUNT_MATCHERS}
     debt_total = 0.0
     debt_found = False
+    dep_total = 0.0
+    dep_found = False
+    seen_accounts: set = set()
     for row in rows:
         statement = str(row.get("sj_div") or "").strip().upper()
         keys = PERIOD_FLOW_KEYS[period] if statement in FLOW_STATEMENTS else PERIOD_AMOUNT_KEYS[period]
@@ -179,10 +201,21 @@ def parse_period(rows: List[Dict[str, Any]], period: str) -> Dict[str, Optional[
                 continue
             if (account_id and account_id in ids) or account_nm in names:
                 out[field] = amount
-        if statement in BALANCE_STATEMENTS and account_nm in _DEBT_NAMES_SQUASHED:
+        # 같은 계정명이 여러 줄로 오면(주석 분해 등) 한 번만 더한다.
+        dedupe_key = (statement, account_nm)
+        if dedupe_key in seen_accounts:
+            continue
+        if statement in BALANCE_STATEMENTS and _matches_hint(account_nm, DEBT_HINTS, DEBT_EXCLUDE):
             debt_total += amount
             debt_found = True
+            seen_accounts.add(dedupe_key)
+        elif statement == "CF" and _matches_hint(account_nm, DEP_HINTS, DEP_EXCLUDE):
+            # CF 조정 항목은 부호가 뒤집혀 오는 경우가 있어 절댓값으로 더한다.
+            dep_total += abs(amount)
+            dep_found = True
+            seen_accounts.add(dedupe_key)
     out["total_debt"] = debt_total if debt_found else None
+    out["dep_amort"] = dep_total if dep_found else None
     return out
 
 
@@ -199,9 +232,8 @@ def _scaled(value: Optional[float]) -> Optional[float]:
 def derive_shard_row(period_label: str, accounts: Dict[str, Optional[float]]) -> Dict[str, Any]:
     """검토보고서 재무 표에 그대로 들어가는 한 열을 만든다."""
     ebit = accounts.get("operating_income")
-    depreciation = accounts.get("depreciation") or 0.0
-    amortization = accounts.get("amortization") or 0.0
-    ebitda = None if ebit is None else ebit + depreciation + amortization
+    dep_amort = accounts.get("dep_amort") or 0.0
+    ebitda = None if ebit is None else ebit + dep_amort
     total_debt = accounts.get("total_debt")
     cash = accounts.get("cash")
     net_debt = None if total_debt is None else total_debt - (cash or 0.0)
@@ -347,6 +379,7 @@ def build_financial_shard(
     return {
         "corp_code": corp_code,
         "corp_name": corp_name,
+        "schema_version": SHARD_SCHEMA_VERSION,
         "unit": UNIT_LABEL,
         "latest_period": (quarter_row or derive_shard_row(*ordered[-1]))["period"],
         "source": f"OpenDART fnlttSinglAcntAll ({fs_used})",
