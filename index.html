@@ -285,6 +285,31 @@
     .badge.orange { background: #fff4e5; color: var(--amber); }
     .badge.green { background: #ecfdf3; color: var(--green); }
     .badge.purple { background: #f4f3ff; color: var(--purple); }
+    .badge.blue { background: #eff8ff; color: #1570ef; }
+    .badge.slate { background: #f2f4f7; color: #475467; }
+    .badge.solid-red { background: var(--red); color: #fff; }
+    .workspace-box { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+    .workspace-box .control { flex: 0 0 auto; width: auto; min-width: 118px; }
+    .star-btn {
+      border: 1px solid #d0d5dd; background: #fff; border-radius: 8px;
+      padding: 7px 11px; font-size: 13px; font-weight: 800; cursor: pointer; line-height: 1.2;
+    }
+    .star-btn.on { background: #fff8e1; border-color: #f5c451; color: #b54708; }
+    .memo-input {
+      width: 100%; margin-top: 8px; min-height: 62px; resize: vertical; box-sizing: border-box;
+      border: 1px solid #d0d5dd; border-radius: 8px; padding: 9px 10px;
+      font: inherit; font-size: 13px; color: #101828;
+    }
+    .memo-hint { font-size: 12px; color: #667085; margin-top: 6px; }
+    .report-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+    .report-btn {
+      border: 0; border-radius: 9px; padding: 10px 14px; cursor: pointer;
+      font-size: 13px; font-weight: 800; color: #fff; background: var(--navy);
+    }
+    .report-btn:disabled { opacity: .55; cursor: progress; }
+    .report-state { font-size: 12px; color: #667085; }
+    .report-state.warn { color: #b54708; }
+    .report-state.ok { color: var(--green); }
     .summary { margin: 9px 0 0; color: #344054; line-height: 1.55; font-size: 13px; }
     .detail {
       position: sticky;
@@ -496,10 +521,44 @@
           <div class="panel-head">
             <div>
               <h2>조건 검색</h2>
-              <p>업종, 우선순위, 감지 신호, 리스크, 자금수요와 금융구조로 후보를 좁힙니다.</p>
+              <p>상장 구분, 일간 변화, 접촉 상태, 업종, 우선순위, 감지 신호, 리스크, 자금수요와 금융구조로 후보를 좁힙니다.</p>
             </div>
           </div>
           <div class="filter-grid">
+            <div class="filter-field">
+              <label for="listingTypeFilter">상장 구분</label>
+              <select class="control" id="listingTypeFilter" aria-label="상장 구분"></select>
+            </div>
+            <div class="filter-field">
+              <label for="basisFilter">재무 근거</label>
+              <select class="control" id="basisFilter" aria-label="재무 근거">
+                <option value="전체">전체</option>
+                <option value="재무제표">재무제표 수집됨</option>
+                <option value="대체지표">대체지표 (미수집)</option>
+              </select>
+            </div>
+            <div class="filter-field">
+              <label for="changeFilter">일간 변화</label>
+              <select class="control" id="changeFilter" aria-label="일간 변화">
+                <option value="전체">전체</option>
+                <option value="신규">신규 진입</option>
+                <option value="급등">점수 급등 (+5 이상)</option>
+                <option value="상승">점수 상승</option>
+                <option value="하락">점수 하락</option>
+              </select>
+            </div>
+            <div class="filter-field">
+              <label for="contactFilter">접촉 상태</label>
+              <select class="control" id="contactFilter" aria-label="접촉 상태">
+                <option value="전체">전체</option>
+                <option value="관심">관심 (★)</option>
+                <option value="미접촉">미접촉</option>
+                <option value="접촉완료">접촉완료</option>
+                <option value="보류">보류</option>
+                <option value="제외">제외</option>
+                <option value="메모있음">메모 있음</option>
+              </select>
+            </div>
             <div class="filter-field">
               <label for="industryFilter">업종</label>
               <select class="control" id="industryFilter" aria-label="업종"></select>
@@ -554,6 +613,7 @@
                 <option value="score">점수 높은 순</option>
                 <option value="name">회사명 순</option>
                 <option value="industry">업종 순</option>
+                <option value="delta">일간 상승폭 순</option>
               </select>
             </div>
             <div class="filter-field wide">
@@ -705,7 +765,12 @@
       selectedIndex: 0,
       page: 1,
       pageSize: 10,
-      loadNotice: ""
+      loadNotice: "",
+      workspace: {},
+      deltaBaseDate: "",
+      hasDeltaBase: false,
+      reportIndex: {},
+      financialCache: {}
     };
     const els = {};
 
@@ -817,9 +882,123 @@
       };
     }
 
+    /* ===== 상장 구분 =====
+       코스피(Y)·코스닥(K)만 상장사, 코넥스(N)·기타법인(E)은 비상장사로 본다.
+       stock_code 유무로는 판별할 수 없다(코넥스도 stock_code를 가짐). */
+    const MARKET_LABELS = { Y: "코스피", K: "코스닥", N: "코넥스", E: "기타법인" };
+    const LISTED_MARKETS = new Set(["Y", "K"]);
+    const UNLISTED_MARKETS = new Set(["N", "E"]);
+
+    function marketCode(item) {
+      return String(item?.corp_cls || item?.market_code || "").trim().toUpperCase();
+    }
+
+    function marketLabel(item) {
+      return item?.market_label || MARKET_LABELS[marketCode(item)] || "";
+    }
+
+    function listingType(item) {
+      if (item?.listing_type) return item.listing_type;
+      const code = marketCode(item);
+      if (LISTED_MARKETS.has(code)) return "상장";
+      if (UNLISTED_MARKETS.has(code)) return "비상장";
+      return "미확인";
+    }
+
+    /* ===== 워크스페이스: 접촉 상태 · 메모 · 관심 표시 (브라우저 로컬 저장) ===== */
+    const WORKSPACE_KEY = "callcall.workspace.v1";
+    const HISTORY_KEY = "callcall.history.v1";
+    const EMPTY_ENTRY = { status: "미접촉", memo: "", star: false, updated: "" };
+
+    function safeParse(raw, fallback) {
+      try { return raw ? JSON.parse(raw) : fallback; } catch (error) { return fallback; }
+    }
+
+    function readStore(key) {
+      try { return safeParse(localStorage.getItem(key), {}) || {}; } catch (error) { return {}; }
+    }
+
+    function writeStore(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (error) { return false; }
+    }
+
+    function issuerKey(item) {
+      return String(item?.corp_code || item?.ticker || item?.corp_name || "");
+    }
+
+    function workspaceEntry(item) {
+      return state.workspace[issuerKey(item)] || EMPTY_ENTRY;
+    }
+
+    function updateWorkspace(item, patch) {
+      const key = issuerKey(item);
+      if (!key) return;
+      const next = { ...workspaceEntry(item), ...patch, updated: new Date().toISOString().slice(0, 10) };
+      if (next.status === "미접촉" && !next.memo && !next.star) delete state.workspace[key];
+      else state.workspace[key] = next;
+      writeStore(WORKSPACE_KEY, state.workspace);
+    }
+
+    /* ===== 일간 변화 =====
+       파이프라인이 prev_final_score를 내려주면 그것을 쓰고,
+       없으면 브라우저에 보관한 직전 기준일 점수와 비교한다. */
+    function syncHistory(snapshot) {
+      const today = snapshot.as_of_date || "";
+      const history = readStore(HISTORY_KEY);
+      const priorDates = Object.keys(history).filter((date) => date && date !== today).sort();
+      const prevDate = priorDates.length ? priorDates[priorDates.length - 1] : "";
+      const prevScores = prevDate ? (history[prevDate] || {}) : {};
+      const todayScores = {};
+      (snapshot.issuers || []).forEach((item) => {
+        const key = issuerKey(item);
+        if (key) todayScores[key] = Math.round(Number(item.final_score || 0) * 10) / 10;
+      });
+      if (today) {
+        history[today] = todayScores;
+        // localStorage 용량 보호: 최근 3개 기준일만 보관
+        Object.keys(history).sort().slice(0, -3).forEach((date) => { delete history[date]; });
+        writeStore(HISTORY_KEY, history);
+      }
+      return { prevDate, prevScores, hasPrev: Boolean(prevDate) };
+    }
+
+    function annotateDelta(snapshot) {
+      const { prevDate, prevScores, hasPrev } = syncHistory(snapshot);
+      state.deltaBaseDate = prevDate;
+      state.hasDeltaBase = hasPrev;
+      (snapshot.issuers || []).forEach((item) => {
+        const serverPrev = item.prev_final_score;
+        let prev = null;
+        let isNew = item.is_new_entry === true;
+        if (serverPrev !== undefined && serverPrev !== null && serverPrev !== "") {
+          prev = Number(serverPrev);
+        } else if (hasPrev) {
+          const key = issuerKey(item);
+          if (Object.prototype.hasOwnProperty.call(prevScores, key)) prev = Number(prevScores[key]);
+          else isNew = true;
+        }
+        item.score_delta = prev === null || Number.isNaN(prev)
+          ? null
+          : Math.round((Number(item.final_score || 0) - prev) * 10) / 10;
+        item.is_new_entry = isNew;
+      });
+      return snapshot;
+    }
+
+    function deltaBadge(item) {
+      if (item.is_new_entry) return { text: "신규 진입", cls: "solid-red" };
+      const delta = item.score_delta;
+      if (delta === null || delta === undefined || delta === 0) return null;
+      if (delta >= 5) return { text: "▲ " + delta.toFixed(1), cls: "red" };
+      if (delta > 0) return { text: "▲ " + delta.toFixed(1), cls: "orange" };
+      return { text: "▼ " + Math.abs(delta).toFixed(1), cls: "blue" };
+    }
+
     async function loadSnapshot() {
       try {
-        const res = await fetch("daily_snapshot.json?ts=" + Date.now(), { cache: "no-store" });
+        // no-store는 매 방문마다 17MB 전량 재다운로드를 강제한다.
+        // no-cache는 ETag로 재검증만 하므로 내용이 그대로면 304로 끝난다.
+        const res = await fetch("daily_snapshot.json", { cache: "no-cache" });
         if (!res.ok) throw new Error("daily_snapshot.json HTTP " + res.status);
         return await res.json();
       } catch (error) {
@@ -843,7 +1022,9 @@
           ir_url: normalizeUrl(item.ir_url || ""),
           company_homepage: normalizeUrl(item.company_homepage || item.hm_url || ""),
           final_score: Number(item.final_score || 0),
-          news_trigger_score: Number(item.news_trigger_score || 0)
+          news_trigger_score: Number(item.news_trigger_score || 0),
+          market_label: marketLabel(item),
+          listing_type: listingType(item)
         };
       });
       snapshot.issuers = issuers;
@@ -864,6 +1045,7 @@
         long_term_ratings: unique(["전체", "무등급", ...(filters.long_term_ratings || []), ...issuers.map((x) => x.long_term_rating)]),
         short_term_ratings: unique(["전체", "무등급", ...(filters.short_term_ratings || []), ...issuers.map((x) => x.short_term_rating)]),
         industry_sources: unique(["전체", ...(filters.industry_sources || []), ...issuers.map((x) => x.industry_source)]),
+        listing_types: ["전체", "상장", "코스피", "코스닥", "비상장", "코넥스", "기타법인", "미확인"],
         definitions: filters.definitions || []
       };
       const mapped = issuers.filter((x) => x.industry !== "기타/미분류").length;
@@ -886,7 +1068,8 @@
 
     function initElements() {
       [
-        "dashboardSection", "industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter",
+        "dashboardSection", "listingTypeFilter", "basisFilter", "changeFilter", "contactFilter",
+        "industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter",
         "fundingNeedFilter", "structureFilter", "actionStageFilter", "ratingStatusFilter", "longRatingFilter",
         "shortRatingFilter", "sourceFilter",
         "sortSelect", "pageSizeSelect", "keywordFilter", "resetBtn", "exportBtn", "issuerList", "resultCount",
@@ -916,7 +1099,7 @@
       const ps = snapshot.pipeline_status || {};
       const total = k.screened_universe ?? ps.universe_count ?? snapshot.issuers.length;
       const items = [
-        ["전체 대상", total, "OpenDART 상장사 기준"],
+        ["전체 대상", total, listingMixLabel(snapshot)],
         ["즉시 검토", k.priority_a ?? 0, "우선순위 A 구간"],
         ["Trigger 감지", k.news_trigger_count ?? 0, "공시·뉴스 이벤트"],
         ["유효등급", k.rated_count ?? 0, "3사 장기·단기 매칭"]
@@ -932,6 +1115,7 @@
 
     function initFilters(snapshot) {
       const f = snapshot.filters || {};
+      els.listingTypeFilter.innerHTML = optionize(f.listing_types || ["전체", "상장", "비상장"]);
       els.industryFilter.innerHTML = optionize(f.industries || ["전체"]);
       els.scoreBandFilter.innerHTML = optionize(f.score_bands || ["전체", "S. 긴급 검토", "A. 즉시 접촉", "B. 구조화 검토", "C. 관심 관찰", "D. 정기 모니터링"]);
       els.triggerFilter.innerHTML = optionize(f.trigger_types || ["전체", "신용/계속기업 리스크", "자금조달 직접공시", "차입/담보 이벤트", "투자·CAPEX 이벤트", "M&A/지분투자 이벤트", "업황/뉴스 압력", "재무구조 점검"]);
@@ -970,14 +1154,38 @@
       `).join("") || "<div class=\"empty\">업종 분포 없음</div>";
     }
 
+    function listingMixLabel(snapshot) {
+      const issuers = snapshot.issuers || [];
+      const listed = issuers.filter((x) => x.listing_type === "상장").length;
+      const unlisted = issuers.filter((x) => x.listing_type === "비상장").length;
+      if (!listed && !unlisted) return "OpenDART 공시대상 법인 기준";
+      return `상장 ${money.format(listed)} · 비상장 ${money.format(unlisted)}`;
+    }
+
     function sortIssuers(items) {
       const mode = els.sortSelect.value;
       if (mode === "name") return items.sort((a, b) => String(a.corp_name || "").localeCompare(String(b.corp_name || ""), "ko"));
       if (mode === "industry") return items.sort((a, b) => String(a.industry || "").localeCompare(String(b.industry || ""), "ko") || (b.final_score - a.final_score));
+      if (mode === "delta") {
+        // 신규 진입을 맨 위로, 그다음 상승폭 큰 순
+        return items.sort((a, b) => {
+          const an = a.is_new_entry ? 1 : 0;
+          const bn = b.is_new_entry ? 1 : 0;
+          if (an !== bn) return bn - an;
+          const ad = a.score_delta ?? -Infinity;
+          const bd = b.score_delta ?? -Infinity;
+          if (ad !== bd) return bd - ad;
+          return (b.final_score || 0) - (a.final_score || 0);
+        });
+      }
       return items.sort((a, b) => (b.final_score || 0) - (a.final_score || 0));
     }
 
     function applyFilters(resetPage = true) {
+      const listingChoice = els.listingTypeFilter.value;
+      const basis = els.basisFilter.value;
+      const change = els.changeFilter.value;
+      const contact = els.contactFilter.value;
       const industry = els.industryFilter.value;
       const scoreBand = els.scoreBandFilter.value;
       const trigger = els.triggerFilter.value;
@@ -993,6 +1201,34 @@
       const keyword = els.keywordFilter.value.trim().toLowerCase();
       state.pageSize = Number(els.pageSizeSelect.value || 10);
       let items = [...(state.snapshot.issuers || [])];
+      if (listingChoice && listingChoice !== "전체") {
+        // "상장"/"비상장"은 묶음, "코스피"/"코스닥"/"코넥스"/"기타법인"은 개별 시장
+        items = ["상장", "비상장", "미확인"].includes(listingChoice)
+          ? items.filter((x) => x.listing_type === listingChoice)
+          : items.filter((x) => x.market_label === listingChoice);
+      }
+      if (basis && basis !== "전체") {
+        items = items.filter((x) => (x.financial_basis || "대체지표") === basis);
+      }
+      if (change && change !== "전체") {
+        items = items.filter((x) => {
+          if (change === "신규") return x.is_new_entry === true;
+          const delta = x.score_delta;
+          if (delta === null || delta === undefined) return false;
+          if (change === "급등") return delta >= 5;
+          if (change === "상승") return delta > 0;
+          if (change === "하락") return delta < 0;
+          return true;
+        });
+      }
+      if (contact && contact !== "전체") {
+        items = items.filter((x) => {
+          const entry = workspaceEntry(x);
+          if (contact === "관심") return entry.star === true;
+          if (contact === "메모있음") return Boolean(entry.memo);
+          return entry.status === contact;
+        });
+      }
       if (industry && industry !== "전체") items = items.filter((x) => x.industry === industry);
       if (scoreBand && scoreBand !== "전체") items = items.filter((x) => x.score_band === scoreBand);
       if (trigger && trigger !== "전체") items = items.filter((x) => x.trigger_type === trigger);
@@ -1066,6 +1302,9 @@
               <div class="score">${Math.round(item.final_score || 0)}<span>점수</span></div>
             </div>
             <div class="badges">
+              ${listingBadgeHtml(item)}
+              ${deltaBadgeHtml(item)}
+              ${contactBadgeHtml(item)}
               <span class="badge ${badgeClass(item.score_band)}">${escapeHtml(item.score_band || item.priority || "-")}</span>
               <span class="badge ${badgeClass(item.trigger_type)}">${escapeHtml(item.trigger_type || "-")}</span>
               <span class="badge ${badgeClass(item.risk_level)}">Risk ${escapeHtml(item.risk_level || "-")}</span>
@@ -1088,6 +1327,30 @@
         });
       });
       renderPager(pages);
+    }
+
+    function listingBadgeHtml(item) {
+      const type = item.listing_type || "미확인";
+      const market = item.market_label || "";
+      const cls = type === "상장" ? "blue" : type === "비상장" ? "slate" : "slate";
+      const text = market ? `${type} · ${market}` : type;
+      return `<span class="badge ${cls}">${escapeHtml(text)}</span>`;
+    }
+
+    function deltaBadgeHtml(item) {
+      const badge = deltaBadge(item);
+      return badge ? `<span class="badge ${badge.cls}">${escapeHtml(badge.text)}</span>` : "";
+    }
+
+    function contactBadgeHtml(item) {
+      const entry = workspaceEntry(item);
+      const parts = [];
+      if (entry.star) parts.push('<span class="badge orange">★ 관심</span>');
+      if (entry.status && entry.status !== "미접촉") {
+        const cls = entry.status === "접촉완료" ? "green" : "slate";
+        parts.push(`<span class="badge ${cls}">${escapeHtml(entry.status)}</span>`);
+      }
+      return parts.join("");
     }
 
     function renderPager(pages) {
@@ -1130,6 +1393,11 @@
         return;
       }
       const sourceLabel = item.industry_raw && item.industry_raw !== item.industry ? `${item.industry_raw} → ${item.industry}` : item.industry;
+      const entry = workspaceEntry(item);
+      const cachedMeta = state.reportIndex[issuerKey(item)];
+      const reportHintText = cachedMeta
+        ? `최근 생성 ${cachedMeta.generated_at || "-"} · 변경이 없으면 그대로 제공합니다.`
+        : "아직 생성된 보고서가 없습니다.";
       const factors = (item.key_factors || []).slice(0, 6);
       const summaryOnly = isSummaryScreeningItem(item);
       const displayRationale = summaryOnly ? summaryScreeningComment(item) : (item.rationale || "공개정보 기반 자동 선별 후보입니다.");
@@ -1167,6 +1435,9 @@
           <div class="score-copy">공개정보 기반 영업 우선순위입니다. 실행 전 DART 원문, 뉴스 원문, 담당자 검토가 필요합니다.</div>
         </div>
         <div class="split">
+          <div class="mini"><div class="label">상장 구분</div><div class="value">${escapeHtml(item.listing_type || "미확인")}${item.market_label ? `<br>${escapeHtml(item.market_label)}` : ""}</div></div>
+          <div class="mini"><div class="label">일간 변화</div><div class="value">${deltaValueHtml(item)}</div></div>
+          <div class="mini"><div class="label">재무 근거</div><div class="value">${escapeHtml(item.financial_basis || "대체지표")}${item.financial_period ? `<br>${escapeHtml(item.financial_period)}` : ""}</div></div>
           <div class="mini"><div class="label">우선순위</div><div class="value">${escapeHtml(item.priority || item.score_band || "-")}</div></div>
           <div class="mini"><div class="label">감지 신호</div><div class="value">${escapeHtml(item.trigger_type || "-")}</div></div>
           <div class="mini"><div class="label">Risk</div><div class="value">${escapeHtml(item.risk_level || "-")}<br>${escapeHtml(item.risk_type || "기초 신용 모니터링")}</div></div>
@@ -1181,6 +1452,24 @@
           <h3>연락 액션</h3>
           <div class="contact-actions">${contactLinks}</div>
           <p class="summary">전화번호 출처: ${escapeHtml(item.ir_phone_source || (irPhone ? "OpenDART 회사개요" : "미확보"))}</p>
+        </div>
+        <div class="report-section">
+          <h3>기업 검토보고서</h3>
+          <div class="report-actions">
+            <button type="button" class="report-btn" id="reportBtn">검토보고서 생성 · PDF</button>
+            <span class="report-state" id="reportState">${escapeHtml(reportHintText)}</span>
+          </div>
+        </div>
+        <div class="report-section">
+          <h3>내 영업 관리</h3>
+          <div class="workspace-box">
+            <select class="control" id="wsStatus" aria-label="접촉 상태">
+              ${["미접촉", "접촉완료", "보류", "제외"].map((s) => `<option value="${s}" ${entry.status === s ? "selected" : ""}>${s}</option>`).join("")}
+            </select>
+            <button type="button" class="star-btn ${entry.star ? "on" : ""}" id="wsStar">${entry.star ? "★ 관심" : "☆ 관심"}</button>
+          </div>
+          <textarea class="memo-input" id="wsMemo" placeholder="통화 결과, 담당자, 다음 액션을 적어두세요.">${escapeHtml(entry.memo || "")}</textarea>
+          <p class="memo-hint" id="wsHint">${entry.updated ? `마지막 수정 ${escapeHtml(entry.updated)}` : "이 브라우저에만 저장됩니다."}</p>
         </div>
         <div class="report-section">
           <h3>영업 코멘트</h3>
@@ -1214,9 +1503,62 @@
           <div class="badges">${missing.length ? missing.map((m) => `<span class="badge orange">${escapeHtml(m)}</span>`).join("") : "<span class=\"badge green\">특이 누락 없음</span>"}</div>
         </div>
       `;
+      bindWorkspaceControls(item);
+    }
+
+    function deltaValueHtml(item) {
+      if (!state.hasDeltaBase && (item.score_delta === null || item.score_delta === undefined)) {
+        return "기준 스냅샷 없음";
+      }
+      const badge = deltaBadge(item);
+      if (!badge) return "변동 없음";
+      const base = state.deltaBaseDate ? `<br>${escapeHtml(state.deltaBaseDate)} 대비` : "";
+      return `${escapeHtml(badge.text)}${base}`;
+    }
+
+    // 상세 패널은 선택할 때마다 새로 그려지므로 매번 다시 바인딩한다.
+    function bindWorkspaceControls(item) {
+      const statusEl = $("wsStatus");
+      const starEl = $("wsStar");
+      const memoEl = $("wsMemo");
+      const hintEl = $("wsHint");
+      if (!statusEl || !starEl || !memoEl) return;
+      const touch = (message) => {
+        if (hintEl) hintEl.textContent = message;
+        renderList();
+      };
+      statusEl.addEventListener("change", () => {
+        updateWorkspace(item, { status: statusEl.value });
+        touch("접촉 상태를 저장했습니다.");
+      });
+      starEl.addEventListener("click", () => {
+        const next = !workspaceEntry(item).star;
+        updateWorkspace(item, { star: next });
+        starEl.classList.toggle("on", next);
+        starEl.textContent = next ? "★ 관심" : "☆ 관심";
+        touch(next ? "관심 목록에 추가했습니다." : "관심 표시를 해제했습니다.");
+      });
+      const reportEl = $("reportBtn");
+      if (reportEl) {
+        reportEl.addEventListener("click", () => { handleReportRequest(item).catch((error) => {
+          setReportState("보고서 생성 실패: " + (error && error.message ? error.message : error), "warn");
+        }); });
+      }
+      let memoTimer = null;
+      memoEl.addEventListener("input", () => {
+        clearTimeout(memoTimer);
+        memoTimer = setTimeout(() => {
+          updateWorkspace(item, { memo: memoEl.value });
+          touch("메모를 저장했습니다.");
+        }, 400);
+      });
     }
 
     function resetFilters() {
+      els.listingTypeFilter.value = "전체";
+      els.basisFilter.value = "전체";
+      els.changeFilter.value = "전체";
+      els.contactFilter.value = "전체";
       els.industryFilter.value = "전체";
       els.scoreBandFilter.value = "전체";
       els.triggerFilter.value = "전체";
@@ -1251,9 +1593,17 @@
     }
 
     function exportCsv() {
-      const header = ["rank", "corp_name", "ticker", "corp_code", "industry", "industry_source", "score_band", "trigger_type", "risk_level", "risk_type", "funding_need_type", "structure_group", "action_stage", "ir_phone", "ir_phone_source", "ir_url", "company_homepage", "credit_rating_status", "long_term_rating", "long_term_outlook", "long_term_rating_agency", "short_term_rating", "short_term_rating_agency", "credit_rating_last_date", "analysis_confidence", "final_score", "recommended_structure"];
+      const header = ["rank", "corp_name", "ticker", "corp_code", "listing_type", "market_label", "financial_basis", "financial_period", "score_delta", "is_new_entry", "contact_status", "contact_star", "contact_memo", "industry", "industry_source", "score_band", "trigger_type", "risk_level", "risk_type", "funding_need_type", "structure_group", "action_stage", "ir_phone", "ir_phone_source", "ir_url", "company_homepage", "credit_rating_status", "long_term_rating", "long_term_outlook", "long_term_rating_agency", "short_term_rating", "short_term_rating_agency", "credit_rating_last_date", "analysis_confidence", "final_score", "recommended_structure"];
       const rows = state.filtered.map((item) => header.map((key) => {
-        const value = item[key] ?? "";
+        const entry = workspaceEntry(item);
+        const overrides = {
+          contact_status: entry.status || "미접촉",
+          contact_star: entry.star ? "Y" : "",
+          contact_memo: entry.memo || "",
+          is_new_entry: item.is_new_entry ? "Y" : "",
+          score_delta: item.score_delta === null || item.score_delta === undefined ? "" : item.score_delta
+        };
+        const value = key in overrides ? overrides[key] : (item[key] ?? "");
         return `"${String(value).replace(/"/g, "\"\"")}"`;
       }).join(","));
       const csv = "\uFEFF" + [header.join(","), ...rows].join("\n");
@@ -1279,17 +1629,521 @@
       });
     }
 
+    /* =========================================================================
+       기업 검토보고서
+       - 버튼을 누른 기업만 그 자리에서 생성한다.
+       - 생성한 보고서는 IndexedDB에 누적하고, 지문(fingerprint)이 같으면 그대로 재사용한다.
+       - 지문이 달라지면(재무 신규 공시, 신규 이벤트, 정책 변경) 새로 만들어 덮어쓴다.
+       ========================================================================= */
+    const REPORT_DB = "callcall-reports";
+    const REPORT_STORE = "reports";
+    const REPORT_INDEX_KEY = "callcall.reportindex.v1";
+
+    function openReportDb() {
+      return new Promise((resolve, reject) => {
+        if (!window.indexedDB) { reject(new Error("이 브라우저는 IndexedDB를 지원하지 않습니다.")); return; }
+        const request = indexedDB.open(REPORT_DB, 1);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains(REPORT_STORE)) db.createObjectStore(REPORT_STORE, { keyPath: "key" });
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error("IndexedDB 열기 실패"));
+      });
+    }
+
+    function reportDbGet(key) {
+      return openReportDb().then((db) => new Promise((resolve, reject) => {
+        const tx = db.transaction(REPORT_STORE, "readonly");
+        const req = tx.objectStore(REPORT_STORE).get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      }));
+    }
+
+    function reportDbPut(record) {
+      return openReportDb().then((db) => new Promise((resolve, reject) => {
+        const tx = db.transaction(REPORT_STORE, "readwrite");
+        tx.objectStore(REPORT_STORE).put(record);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      }));
+    }
+
+    // 지문: 이 값이 그대로면 보고서를 다시 만들 이유가 없다.
+    function reportFingerprint(item, financial) {
+      const newsKey = (item.news || [])
+        .map((n) => `${n.source || ""}|${n.url || n.title || ""}`)
+        .sort()
+        .join(";");
+      const parts = [
+        state.snapshot?.policy_version || "",
+        financial ? `fin:${financial.latest_period || ""}@${financial.fetched_at || ""}` : "fin:none",
+        `score:${Math.round(Number(item.final_score || 0) * 10) / 10}`,
+        `risk:${item.risk_level || ""}/${item.risk_type || ""}`,
+        `rating:${item.long_term_rating || ""}/${item.short_term_rating || ""}`,
+        `news:${newsKey}`
+      ];
+      return hashString(parts.join("||"));
+    }
+
+    function hashString(text) {
+      let h1 = 0x811c9dc5;
+      let h2 = 0x01000193;
+      for (let i = 0; i < text.length; i += 1) {
+        const code = text.charCodeAt(i);
+        h1 = Math.imul(h1 ^ code, 0x01000193) >>> 0;
+        h2 = Math.imul(h2 + code, 0x85ebca6b) >>> 0;
+      }
+      return (h1.toString(16) + h2.toString(16)).padStart(16, "0");
+    }
+
+    // 재무 샤드는 파이프라인이 우선순위 상위부터 채운다. 없으면 null.
+    async function loadFinancial(item) {
+      const code = String(item.corp_code || "").trim();
+      if (!code) return null;
+      if (Object.prototype.hasOwnProperty.call(state.financialCache, code)) return state.financialCache[code];
+      let data = null;
+      try {
+        const res = await fetch(`financials/${code}.json`, { cache: "no-cache" });
+        if (res.ok) data = await res.json();
+      } catch (error) {
+        data = null;
+      }
+      state.financialCache[code] = data;
+      return data;
+    }
+
+    function setReportState(text, tone) {
+      const el = $("reportState");
+      if (!el) return;
+      el.textContent = text;
+      el.className = "report-state" + (tone ? " " + tone : "");
+    }
+
+    async function handleReportRequest(item) {
+      const button = $("reportBtn");
+      const key = issuerKey(item);
+      if (button) button.disabled = true;
+      setReportState("재무·공시 자료를 확인하는 중…");
+      try {
+        const financial = await loadFinancial(item);
+        const fingerprint = reportFingerprint(item, financial);
+        const cached = await reportDbGet(key).catch(() => null);
+
+        let record = cached;
+        let reused = false;
+        if (cached && cached.fingerprint === fingerprint) {
+          reused = true;
+        } else {
+          record = {
+            key,
+            corp_code: item.corp_code || "",
+            corp_name: item.corp_name || "",
+            fingerprint,
+            generated_at: new Date().toISOString().slice(0, 19).replace("T", " "),
+            revision: (cached?.revision || 0) + 1,
+            change_reason: cached ? describeReportChange(cached, item, financial) : "최초 생성",
+            report: buildReportData(item, financial)
+          };
+          await reportDbPut(record).catch(() => null);
+          state.reportIndex[key] = { generated_at: record.generated_at, revision: record.revision };
+          writeStore(REPORT_INDEX_KEY, state.reportIndex);
+        }
+
+        openReportWindow(record, reused);
+        setReportState(
+          reused
+            ? `기존 보고서 재사용 (생성 ${record.generated_at}, ${record.revision}판) · 변경사항 없음`
+            : `새로 생성했습니다 (${record.revision}판) · ${record.change_reason}`,
+          "ok"
+        );
+      } finally {
+        if (button) button.disabled = false;
+      }
+    }
+
+    function describeReportChange(cached, item, financial) {
+      const before = cached.report || {};
+      const reasons = [];
+      if (financial && before.financial_period !== (financial.latest_period || "")) {
+        reasons.push(`재무 기준 ${before.financial_period || "없음"} → ${financial.latest_period}`);
+      }
+      if (Math.round(Number(before.final_score || 0)) !== Math.round(Number(item.final_score || 0))) {
+        reasons.push(`점수 ${Math.round(Number(before.final_score || 0))} → ${Math.round(Number(item.final_score || 0))}`);
+      }
+      if (before.risk_level !== item.risk_level) reasons.push(`리스크 ${before.risk_level || "-"} → ${item.risk_level || "-"}`);
+      const beforeNews = (before.news || []).length;
+      const nowNews = (item.news || []).length;
+      if (beforeNews !== nowNews) reasons.push(`이벤트 ${beforeNews}건 → ${nowNews}건`);
+      return reasons.length ? "변경 반영: " + reasons.join(", ") : "세부 이벤트 변경 반영";
+    }
+
+    /* ---- 보고서 데이터 조립 ---- */
+    function buildReportData(item, financial) {
+      const snapshot = state.snapshot || {};
+      const entry = workspaceEntry(item);
+      return {
+        as_of_date: snapshot.as_of_date || "",
+        policy_version: snapshot.policy_version || "",
+        corp_name: item.corp_name || "",
+        corp_code: item.corp_code || "",
+        ticker: item.ticker || "",
+        listing_type: item.listing_type || "미확인",
+        market_label: item.market_label || "",
+        industry: item.industry || "",
+        industry_source: item.industry_source || "",
+        company_address: item.company_address || "",
+        company_homepage: item.company_homepage || "",
+        ir_phone: item.ir_phone || "",
+        final_score: Number(item.final_score || 0),
+        prev_score_note: state.hasDeltaBase && item.score_delta !== null && item.score_delta !== undefined
+          ? `${state.deltaBaseDate} 대비 ${item.score_delta > 0 ? "+" : ""}${item.score_delta}`
+          : "직전 기준 없음",
+        score_band: item.score_band || "",
+        priority: item.priority || "",
+        action_stage: item.action_stage || "",
+        trigger_type: item.trigger_type || "",
+        risk_level: item.risk_level || "",
+        risk_type: item.risk_type || "",
+        funding_need_type: item.funding_need_type || "",
+        structure_group: item.structure_group || "",
+        recommended_structure: item.recommended_structure || "",
+        suggested_terms: item.suggested_terms || "",
+        analysis_confidence: item.analysis_confidence || "",
+        rationale: item.rationale || "",
+        key_factors: item.key_factors || [],
+        credit_rating_status: item.credit_rating_status || "무등급",
+        long_term_rating: item.long_term_rating || "무등급",
+        long_term_outlook: item.long_term_outlook || "",
+        short_term_rating: item.short_term_rating || "무등급",
+        credit_rating_agencies: creditRatingAgencies(item),
+        credit_rating_last_date: item.credit_rating_last_date || "",
+        news: (item.news || []).slice(0, 8),
+        missing_fields: item.missing_fields || [],
+        memo: entry.memo || "",
+        contact_status: entry.status || "미접촉",
+        financial_period: financial ? (financial.latest_period || "") : "",
+        financial: financial || null,
+        financial_basis: item.financial_basis || (financial ? "재무제표" : "대체지표"),
+        rule_breakdown: item.rule_breakdown || [],
+        score_breakdown: {
+          rule: Number(item.pure_financial_rule_score || 0),
+          ai: Number(item.ai_base_score || 0),
+          news: Number(item.news_trigger_score || 0),
+          formula: snapshot.formula?.text || ""
+        }
+      };
+    }
+
+    /* ---- 보고서 렌더링 (새 창 · 인쇄/PDF 저장) ---- */
+    const REPORT_METRICS = [
+      ["revenue", "매출액", 0],
+      ["ebit", "EBIT", 0],
+      ["ebitda", "EBITDA", 0],
+      ["net_income", "당기순이익", 0],
+      ["total_assets", "총자산", 0],
+      ["total_debt", "총차입금", 0],
+      ["net_debt", "순차입금", 0],
+      ["ebit_margin", "EBIT마진(%)", 1],
+      ["ebitda_margin", "EBITDA마진(%)", 1],
+      ["ebitda_to_interest", "EBITDA/금융비용(배)", 1],
+      ["net_debt_to_ebitda", "순차입금/EBITDA(배)", 1],
+      ["debt_ratio", "부채비율(%)", 1],
+      ["debt_dependency", "차입금의존도(%)", 1]
+    ];
+
+    function fmtNum(value, digits) {
+      if (value === null || value === undefined || value === "" || Number.isNaN(Number(value))) return "-";
+      return Number(value).toLocaleString("ko-KR", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    }
+
+    function financialTableHtml(financial) {
+      if (!financial) {
+        return `<div class="notice">
+          <b>재무 데이터 미수집 구간입니다.</b>
+          <p>재무제표는 우선순위 상위 기업부터 단계적으로 수집하고 있습니다.
+          이 기업은 아직 수집 전이라 아래 내용은 공시·뉴스·업종 신호 기반의 축약 검토입니다.
+          다음 배치에서 재무가 채워지면 보고서를 다시 생성해 주십시오.</p>
+        </div>`;
+      }
+      const annual = financial.annual || [];
+      const quarter = financial.quarter || null;
+      const cols = [...annual.map((a) => a.period || a.year || ""), quarter ? (quarter.period || "최신분기") : ""].filter(Boolean);
+      const rows = REPORT_METRICS.map(([key, label, digits]) => {
+        const cells = [
+          ...annual.map((a) => `<td>${fmtNum(a[key], digits)}</td>`),
+          quarter ? `<td class="q">${fmtNum(quarter[key], digits)}</td>` : ""
+        ].join("");
+        return `<tr><th>${escapeHtml(label)}</th>${cells}</tr>`;
+      }).join("");
+      return `<table class="fin">
+        <thead><tr><th>구분</th>${cols.map((c) => `<th>${escapeHtml(c)}</th>`).join("")}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <p class="src">단위: ${escapeHtml(financial.unit || "억원")} · 자료: ${escapeHtml(financial.source || "OpenDART")} · 수집 ${escapeHtml(financial.fetched_at || "-")}</p>`;
+    }
+
+    function maturityTableHtml(financial) {
+      const maturity = financial && financial.maturity ? financial.maturity : null;
+      if (!maturity || !maturity.rows || !maturity.rows.length) return "";
+      const rows = maturity.rows.map((r) => `<tr>
+        <th>${escapeHtml(r.label || "-")}</th>
+        <td>${fmtNum(r.balance, 0)}</td>
+        <td>${fmtNum(r.within_1y, 0)}</td>
+        <td>${fmtNum(r.over_1y, 0)}</td>
+      </tr>`).join("");
+      return `<h3>차입금 만기구조</h3>
+      <table class="fin">
+        <thead><tr><th>구분</th><th>${escapeHtml(maturity.as_of || "잔액")}</th><th>1년 이내</th><th>1년 초과</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+    }
+
+    // 리스크 수준에 따라 우선순위가 오르내리는 조건을 명시한다.
+    function ratingTriggers(report) {
+      const up = [
+        "영업현금흐름 개선으로 순차입금/EBITDA 하락 전환",
+        "자본확충 또는 자산매각을 통한 부채비율 하락",
+        "신용등급 상향 또는 등급전망 긍정적 변경"
+      ];
+      const down = [
+        `${report.risk_type || "핵심 리스크"} 관련 추가 이벤트 발생`,
+        "만기 도래 차입금 차환 지연 또는 조달 실패",
+        "신용등급 하향 또는 등급전망 부정적 변경"
+      ];
+      return { up, down };
+    }
+
+    function issueSectionsHtml(report) {
+      const sections = [
+        {
+          title: `${report.risk_type || "핵심 리스크"} — Risk ${report.risk_level || "-"}`,
+          body: report.rationale || "공개정보 기반 자동 선별 결과입니다."
+        },
+        {
+          title: `예상 자금수요: ${report.funding_need_type || "기초 모니터링"}`,
+          body: `감지 신호는 ${report.trigger_type || "-"}이며, 현재 검토 단계는 ${report.action_stage || "-"}입니다. ` +
+                `자금수요 유형과 업종(${report.industry || "-"}) 특성을 함께 고려할 때 ${report.structure_group || "정기 모니터링"} 관점의 접근이 우선입니다.`
+        },
+        {
+          title: "신용등급 및 시장성 조달 여건",
+          body: report.credit_rating_status === "유효등급"
+            ? `장기 ${report.long_term_rating}${report.long_term_outlook ? `(${report.long_term_outlook})` : ""}, 단기 ${report.short_term_rating} 보유(최근 평가일 ${report.credit_rating_last_date || "-"}). 공모 시장성 조달 접근이 가능한 구간입니다.`
+            : "외부 신용등급이 확인되지 않습니다. 공모 회사채·기업어음보다 사모 조달, 담보부 차입, 신용보강 구조를 우선 검토해야 합니다."
+        }
+      ];
+      return sections.map((s) => `<h3>${escapeHtml(s.title)}</h3><p>${escapeHtml(s.body)}</p>`).join("");
+    }
+
+    function ruleBreakdownHtml(breakdown) {
+      const rows = (breakdown || []).filter((b) => b && b.factor);
+      if (!rows.length) return "";
+      const body = rows.map((b) => {
+        const applied = b.status === "applied";
+        const value = b.value === null || b.value === undefined
+          ? "-"
+          : (typeof b.value === "object" ? JSON.stringify(b.value) : String(b.value));
+        return `<tr>
+          <th>${escapeHtml(b.factor)}</th>
+          <td>${escapeHtml(value)}</td>
+          <td>${applied ? fmtNum(b.points, 0) : "미보유"}</td>
+        </tr>`;
+      }).join("");
+      return `<h3>재무 룰 세부</h3>
+        <table>
+          <thead><tr><th>항목</th><th>값</th><th>배점</th></tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+        <p class="src">배점이 높을수록 자금수요 신호가 강함을 뜻합니다. 미보유 항목은 분모에서 제외해 계산합니다.</p>`;
+    }
+
+    function reportDocumentHtml(record, reused) {
+      const r = record.report || {};
+      const triggers = ratingTriggers(r);
+      const agencies = (r.credit_rating_agencies || []).map((a) => `<tr>
+        <th>${escapeHtml(a.agency || "-")}</th>
+        <td>${escapeHtml(a.long_term_rating || "무등급")}${a.long_term_outlook ? ` (${escapeHtml(a.long_term_outlook)})` : ""}</td>
+        <td>${escapeHtml(a.short_term_rating || "무등급")}</td>
+        <td>${escapeHtml(a.long_term_date || a.short_term_date || "-")}</td>
+      </tr>`).join("");
+      const newsRows = (r.news || []).map((n) => `<li>
+        <b>${escapeHtml(n.title || "제목 없음")}</b>
+        <span>${escapeHtml(n.source || "-")} · ${escapeHtml(n.sentiment || "-")}${n.url ? ` · <a href="${escapeHtml(n.url)}">원문</a>` : ""}</span>
+      </li>`).join("") || "<li><b>저장된 공시·뉴스 이벤트가 없습니다.</b></li>";
+
+      return `<!doctype html>
+<html lang="ko"><head><meta charset="utf-8" />
+<title>${escapeHtml(r.corp_name)} 기업 검토보고서 (${escapeHtml(r.as_of_date)})</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", sans-serif; color: #101828; font-size: 12px; line-height: 1.6; }
+  .sheet { max-width: 820px; margin: 0 auto; padding: 24px; }
+  .toolbar { position: sticky; top: 0; background: #101a34; color: #fff; padding: 12px 24px; display: flex; gap: 12px; align-items: center; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 9px 16px; font-weight: 800; cursor: pointer; background: #fff; color: #101a34; }
+  .toolbar span { font-size: 12px; opacity: .85; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  h2 { font-size: 15px; color: #1d2e5c; border-bottom: 2px solid #1d2e5c; padding-bottom: 5px; margin: 26px 0 10px; }
+  h3 { font-size: 13px; margin: 16px 0 6px; border-left: 3px solid #1d2e5c; padding-left: 8px; }
+  p { margin: 0 0 8px; }
+  .cover { border-bottom: 3px solid #1d2e5c; padding-bottom: 14px; }
+  .cover .kicker { color: #b42318; font-weight: 800; letter-spacing: .04em; font-size: 12px; }
+  .cover .meta { color: #475467; font-size: 12px; }
+  .headline { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+  .chip { border: 1px solid #d0d5dd; border-radius: 8px; padding: 8px 12px; min-width: 116px; }
+  .chip b { display: block; font-size: 11px; color: #667085; font-weight: 700; }
+  .chip span { font-size: 14px; font-weight: 800; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 11.5px; }
+  th, td { border: 1px solid #d0d5dd; padding: 5px 7px; text-align: right; }
+  th { background: #f2f4f7; text-align: left; font-weight: 700; white-space: nowrap; }
+  thead th { background: #1d2e5c; color: #fff; text-align: center; }
+  td.q { background: #f8fafc; font-weight: 700; }
+  table.kv th { width: 130px; }
+  table.kv td { text-align: left; }
+  ul { margin: 6px 0 8px; padding-left: 18px; }
+  li { margin-bottom: 4px; }
+  ul.news li span { display: block; color: #667085; font-size: 11px; }
+  .notice { border: 1px solid #fec84b; background: #fffaeb; border-radius: 8px; padding: 12px 14px; margin: 8px 0; }
+  .notice b { color: #b54708; }
+  .notice p { margin: 6px 0 0; }
+  .src { color: #667085; font-size: 11px; margin-top: 2px; }
+  .disclaimer { margin-top: 26px; border-top: 1px solid #d0d5dd; padding-top: 12px; color: #667085; font-size: 11px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media print { .toolbar { display: none; } .sheet { max-width: none; padding: 0; } h2 { page-break-after: avoid; } table { page-break-inside: avoid; } }
+</style></head>
+<body>
+<div class="toolbar">
+  <button onclick="window.print()">PDF로 저장 · 인쇄</button>
+  <span>${reused ? "기존 보고서를 그대로 제공합니다" : "새로 생성된 보고서입니다"} · ${escapeHtml(record.generated_at)} · ${record.revision}판</span>
+</div>
+<div class="sheet">
+  <div class="cover">
+    <div class="kicker">CALL CALL · 기업 검토보고서</div>
+    <h1>${escapeHtml(r.corp_name)}</h1>
+    <div class="meta">
+      기준일 ${escapeHtml(r.as_of_date)} · 작성 ${escapeHtml(record.generated_at)} · ${record.revision}판
+      ${record.change_reason ? ` · ${escapeHtml(record.change_reason)}` : ""}
+    </div>
+    <div class="headline">
+      <div class="chip"><b>종합점수</b><span>${Math.round(r.final_score)}</span></div>
+      <div class="chip"><b>우선순위</b><span>${escapeHtml(r.score_band || "-")}</span></div>
+      <div class="chip"><b>Risk</b><span>${escapeHtml(r.risk_level || "-")}</span></div>
+      <div class="chip"><b>장기등급</b><span>${escapeHtml(r.long_term_rating)}</span></div>
+      <div class="chip"><b>단기등급</b><span>${escapeHtml(r.short_term_rating)}</span></div>
+    </div>
+  </div>
+
+  <h2>검토 개요</h2>
+  <table class="kv">
+    <tr><th>검토대상</th><td>${escapeHtml(r.corp_name)} (${escapeHtml(r.ticker || "-")} · ${escapeHtml(r.corp_code || "-")})</td></tr>
+    <tr><th>상장 구분</th><td>${escapeHtml(r.listing_type)}${r.market_label ? ` · ${escapeHtml(r.market_label)}` : ""}</td></tr>
+    <tr><th>업종</th><td>${escapeHtml(r.industry || "-")} <span class="src">(분류 근거: ${escapeHtml(r.industry_source || "-")})</span></td></tr>
+    <tr><th>검토 단계</th><td>${escapeHtml(r.action_stage || "-")}</td></tr>
+    <tr><th>감지 신호</th><td>${escapeHtml(r.trigger_type || "-")}</td></tr>
+    <tr><th>종합점수</th><td>${Math.round(r.final_score)} · ${escapeHtml(r.prev_score_note)}</td></tr>
+    <tr><th>분석 신뢰도</th><td>${escapeHtml(r.analysis_confidence || "-")}</td></tr>
+  </table>
+
+  <h2>주요 재무지표</h2>
+  ${financialTableHtml(r.financial)}
+
+  <h2>검토 논거</h2>
+  <ul>${(r.key_factors || []).map((f) => `<li>${escapeHtml(f)}</li>`).join("") || "<li>저장된 근거가 없습니다.</li>"}</ul>
+
+  <h2>회사 개요</h2>
+  <table class="kv">
+    <tr><th>소재지</th><td>${escapeHtml(r.company_address || "-")}</td></tr>
+    <tr><th>홈페이지</th><td>${r.company_homepage ? `<a href="${escapeHtml(r.company_homepage)}">${escapeHtml(r.company_homepage)}</a>` : "-"}</td></tr>
+    <tr><th>IR 전화</th><td>${escapeHtml(r.ir_phone || "미확보")}</td></tr>
+  </table>
+
+  <h2>주요 이슈와 검토의견</h2>
+  ${issueSectionsHtml(r)}
+
+  <h2>자금조달 구조 검토</h2>
+  <table class="kv">
+    <tr><th>추천 금융구조</th><td>${escapeHtml(r.recommended_structure || r.structure_group || "-")}</td></tr>
+    <tr><th>구조 분류</th><td>${escapeHtml(r.structure_group || "-")}</td></tr>
+    <tr><th>검토 조건</th><td>${escapeHtml(r.suggested_terms || "-")}</td></tr>
+  </table>
+  <h3>우선순위 변동요인</h3>
+  <table class="kv">
+    <tr><th>상향 요인</th><td><ul>${triggers.up.map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ul></td></tr>
+    <tr><th>하향 요인</th><td><ul>${triggers.down.map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ul></td></tr>
+  </table>
+
+  <h2>신용평가사 등급</h2>
+  <table>
+    <thead><tr><th>평가사</th><th>장기</th><th>단기</th><th>평가일</th></tr></thead>
+    <tbody>${agencies || "<tr><td colspan=\"4\">매칭된 등급 정보가 없습니다.</td></tr>"}</tbody>
+  </table>
+
+  ${maturityTableHtml(r.financial)}
+
+  <h2>최근 공시 · 뉴스</h2>
+  <ul class="news">${newsRows}</ul>
+
+  <h2>영업 관리 메모</h2>
+  <table class="kv">
+    <tr><th>접촉 상태</th><td>${escapeHtml(r.contact_status)}</td></tr>
+    <tr><th>메모</th><td>${escapeHtml(r.memo || "-")}</td></tr>
+  </table>
+
+  <h2>점수 산출 근거</h2>
+  <table class="kv">
+    <tr><th>산식</th><td>${escapeHtml(r.score_breakdown?.formula || "-")}</td></tr>
+    <tr><th>재무 룰 점수</th><td>${fmtNum(r.score_breakdown?.rule, 1)} <b>(${escapeHtml(r.financial_basis || "대체지표")} 기준)</b></td></tr>
+    <tr><th>AI 기반 점수</th><td>${fmtNum(r.score_breakdown?.ai, 1)}</td></tr>
+    <tr><th>뉴스 트리거</th><td>${fmtNum(r.score_breakdown?.news, 1)}</td></tr>
+  </table>
+  ${r.financial_basis === "재무제표"
+    ? ruleBreakdownHtml(r.rule_breakdown)
+    : `<div class="notice"><b>재무 룰 점수가 대체지표로 계산됐습니다.</b>
+        <p>이 기업은 아직 재무제표를 수집하지 않아, 업종 위험도와 공시 이벤트 강도만으로
+        임시 점수를 냈습니다. 재무제표가 수집되면 부채비율·유동비율·당좌비율·차입금의존도·
+        이자보상배율·현금흐름 8개 항목으로 다시 계산됩니다.</p></div>`}
+
+  ${(r.missing_fields || []).length ? `<h2>보완 필요 항목</h2><ul>${r.missing_fields.map((m) => `<li>${escapeHtml(m)}</li>`).join("")}</ul>` : ""}
+
+  <div class="disclaimer">
+    본 보고서는 OpenDART 공시, 공개 뉴스, 신용평가 공시자료를 기계적으로 취합해 자동 생성한 <b>영업 참고자료</b>입니다.
+    신용평가 의견이나 투자 권유가 아니며, 실행 전 공시 원문과 담당자 검토가 필요합니다.
+    정책 버전 ${escapeHtml(r.policy_version || "-")} · 지문 ${escapeHtml(record.fingerprint)}
+  </div>
+</div>
+</body></html>`;
+    }
+
+    function openReportWindow(record, reused) {
+      const win = window.open("", "_blank");
+      if (!win) {
+        setReportState("팝업이 차단되었습니다. 이 사이트의 팝업을 허용해 주세요.", "warn");
+        return;
+      }
+      win.document.open();
+      win.document.write(reportDocumentHtml(record, reused));
+      win.document.close();
+    }
+
+    async function loadReportIndex() {
+      state.reportIndex = readStore(REPORT_INDEX_KEY);
+    }
+
+    
     async function main() {
       initElements();
+      state.workspace = readStore(WORKSPACE_KEY);
+      await loadReportIndex();
       const rawSnapshot = await loadSnapshot();
-      state.snapshot = prepareSnapshot(rawSnapshot);
+      state.snapshot = annotateDelta(prepareSnapshot(rawSnapshot));
       renderHeader(state.snapshot);
       renderKpis(state.snapshot);
       initFilters(state.snapshot);
       renderMapping(state.snapshot);
       setupNavigation();
       setupPresets();
-      ["industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter", "fundingNeedFilter", "structureFilter", "actionStageFilter", "ratingStatusFilter", "longRatingFilter", "shortRatingFilter", "sourceFilter", "sortSelect", "pageSizeSelect", "keywordFilter"].forEach((id) => {
+      ["listingTypeFilter", "basisFilter", "changeFilter", "contactFilter", "industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter", "fundingNeedFilter", "structureFilter", "actionStageFilter", "ratingStatusFilter", "longRatingFilter", "shortRatingFilter", "sourceFilter", "sortSelect", "pageSizeSelect", "keywordFilter"].forEach((id) => {
         els[id].addEventListener("input", () => applyFilters(true));
       });
       els.resetBtn.addEventListener("click", resetFilters);

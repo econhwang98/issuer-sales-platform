@@ -12,6 +12,7 @@ permissions:
 jobs:
   update-daily-snapshot:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
 
     steps:
       - name: Checkout repository
@@ -28,6 +29,13 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install requests feedparser
 
+      # 재무 파서는 API 키 없이 합성 응답만으로 검증된다.
+      # 스냅샷을 만들기 전에 돌려 파싱이 깨진 채로 배포되는 일을 막는다.
+      - name: Run parser tests
+        run: |
+          python tests/test_financial_engine.py
+          python tests/test_financial_stage.py
+
       - name: Generate daily snapshot
         env:
           OPENDART_API_KEY: ${{ secrets.OPENDART_API_KEY }}
@@ -35,6 +43,16 @@ jobs:
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
           KRX_KIND_RSS_URL: ${{ secrets.KRX_KIND_RSS_URL }}
           FSC_SERVICE_KEY: ${{ secrets.FSC_SERVICE_KEY }}
+
+          # 재무제표 수집 규모. 우선순위 상위부터 이 수만큼만 채우고 나머지는 다음 실행에서 이어 받는다.
+          # 기업당 3콜이 나가므로 300이면 약 900콜이다. OpenDART 일일 한도는 20,000콜.
+          FINANCIAL_SHARD_LIMIT: ${{ vars.FINANCIAL_SHARD_LIMIT || '300' }}
+          # 이 일수 안에 받아둔 샤드는 다시 받지 않는다.
+          FINANCIAL_REFRESH_DAYS: ${{ vars.FINANCIAL_REFRESH_DAYS || '7' }}
+          # 최근 공시가 있는 비상장 법인을 이 수만큼 유니버스에 더한다. 0이면 비활성.
+          UNLISTED_MAX: ${{ vars.UNLISTED_MAX || '2000' }}
+          # 네이버 뉴스 보강 대상 수.
+          NEWS_ENRICH_LIMIT: ${{ vars.NEWS_ENRICH_LIMIT || '150' }}
         run: |
           if [ -f scripts/generate_daily_snapshot.py ]; then
             python scripts/generate_daily_snapshot.py
@@ -49,6 +67,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add daily_snapshot.json
+          # 재무 샤드도 함께 올려야 검토보고서가 재무를 읽을 수 있다.
+          git add daily_snapshot.json financials
           git diff --cached --quiet || git commit -m "Update daily snapshot"
           git push

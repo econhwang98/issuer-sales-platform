@@ -18,6 +18,7 @@ import csv
 import json
 import os
 import re
+import sys
 import time
 import zipfile
 import hashlib
@@ -34,12 +35,18 @@ try:
 except ImportError:
     requests = None
 
+# 같은 디렉터리의 모듈. Actions는 저장소 루트에서 실행하지만 경로를 명시해 둔다.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import financial_engine  # noqa: E402
+import scoring_engine  # noqa: E402
+
 KST = timezone(timedelta(hours=9))
 ROOT = Path(__file__).resolve().parents[1] if Path(__file__).resolve().parent.name == "scripts" else Path(__file__).resolve().parent
 UNIVERSE_PATH = ROOT / "universe.csv"
 OUTPUT_PATH = ROOT / "daily_snapshot.json"
 RAW_DIR = ROOT / "raw_cache"
 RAW_DIR.mkdir(exist_ok=True)
+FINANCIAL_DIR = ROOT / "financials"
 
 NEGATIVE_TERMS = [
     "적자", "부진", "하락", "둔화", "차입", "리파이낸싱", "유동성", "채무", "부도", "자본잠식",
@@ -184,6 +191,47 @@ MANUAL_INDUSTRY_ALIASES = {
     "기타": "기타/미분류",
     "미분류": "기타/미분류",
 }
+
+
+# 상장 구분은 OpenDART company.json의 corp_cls로만 판별한다.
+# 코넥스도 stock_code를 가지므로 stock_code 유무로 추정하면 안 된다.
+# 코스피(Y)·코스닥(K)만 상장사이고, 코넥스(N)·기타법인(E)은 비상장사로 본다.
+MARKET_LABELS = {"Y": "코스피", "K": "코스닥", "N": "코넥스", "E": "기타법인"}
+LISTED_MARKET_CODES = {"Y", "K"}
+UNLISTED_MARKET_CODES = {"N", "E"}
+
+
+def listing_type_from(market_code: str) -> str:
+    code = (market_code or "").strip().upper()
+    if code in LISTED_MARKET_CODES:
+        return "상장"
+    if code in UNLISTED_MARKET_CODES:
+        return "비상장"
+    return "미확인"
+
+
+def load_previous_scores() -> Tuple[Dict[str, float], str]:
+    """직전 스냅샷의 점수를 읽어 일간 변화(신규 진입/점수 변동) 계산에 쓴다.
+
+    화면은 브라우저에 보관한 이력으로도 변화를 계산할 수 있지만, 그것은 어제 접속한
+    사람에게만 동작한다. 파이프라인이 직접 내려주면 처음 들어온 사람도 바로 볼 수 있다.
+    """
+    if not OUTPUT_PATH.exists():
+        return {}, ""
+    try:
+        previous = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"previous snapshot read failed: {type(exc).__name__}: {exc}")
+        return {}, ""
+    scores: Dict[str, float] = {}
+    for item in previous.get("issuers", []):
+        key = str(item.get("corp_code") or item.get("ticker") or item.get("corp_name") or "").strip()
+        if key:
+            try:
+                scores[key] = float(item.get("final_score") or 0)
+            except (TypeError, ValueError):
+                continue
+    return scores, str(previous.get("as_of_date") or "")
 
 
 def canonicalize_industry(value: str) -> str:
@@ -734,7 +782,7 @@ def _load_seed_universe() -> List[Dict[str, str]]:
         return list(csv.DictReader(f))
 
 
-def _fetch_opendart_listed_companies() -> List[Dict[str, str]]:
+def _fetch_opendart_corp_codes() -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
     if requests is None:
         raise RuntimeError("requests package is not installed")
     key = os.getenv("OPENDART_API_KEY", "").strip()
@@ -760,20 +808,29 @@ def _fetch_opendart_listed_companies() -> List[Dict[str, str]]:
     with zipfile.ZipFile(bio) as zf:
         xml_name = zf.namelist()[0]
         root = ET.fromstring(zf.read(xml_name))
-    rows: List[Dict[str, str]] = []
+    with_stock: List[Dict[str, str]] = []
+    without_stock: List[Dict[str, str]] = []
     for item in root.findall(".//list"):
         corp_name = (item.findtext("corp_name") or "").strip()
         corp_code = (item.findtext("corp_code") or "").strip()
         stock_code = (item.findtext("stock_code") or "").strip()
-        if corp_name and corp_code and stock_code:
-            rows.append({"corp_name": corp_name, "corp_code": corp_code, "ticker": stock_code, "industry": "", "keywords": corp_name})
-    print(f"OpenDART listed universe loaded: {len(rows)} rows")
-    return rows
+        if not (corp_name and corp_code):
+            continue
+        row = {"corp_name": corp_name, "corp_code": corp_code, "ticker": stock_code, "industry": "", "keywords": corp_name}
+        (with_stock if stock_code else without_stock).append(row)
+    # stock_code 보유 = 코스피·코스닥·코넥스. 상장 여부는 나중에 corp_cls로 확정한다.
+    print(f"OpenDART corpCode loaded: {len(with_stock)} with stock_code, {len(without_stock)} without")
+    return with_stock, without_stock
 
 
-def load_universe() -> List[Dict[str, str]]:
+def load_universe() -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
+    """(기본 유니버스, 비상장 후보 풀)을 돌려준다.
+
+    기본 유니버스는 stock_code를 가진 법인 전체다. 비상장 후보 풀은 stock_code가 없는
+    법인이며, 최근 공시가 잡힌 곳만 추려서 나중에 유니버스에 더한다.
+    """
     seeds = _load_seed_universe()
-    dart_rows = _fetch_opendart_listed_companies()
+    dart_rows, unlisted_pool = _fetch_opendart_corp_codes()
     seed_by_code = {r.get("corp_code", ""): r for r in seeds if r.get("corp_code")}
     seed_by_ticker = {r.get("ticker", ""): r for r in seeds if r.get("ticker")}
     merged: List[Dict[str, str]] = []
@@ -793,7 +850,32 @@ def load_universe() -> List[Dict[str, str]]:
         add(enriched)
     if len(merged) < 1000:
         raise RuntimeError(f"OpenDART listed universe returned only {len(merged)} rows")
-    return merged
+    return merged, unlisted_pool
+
+
+def expand_with_unlisted(
+    base_rows: List[Dict[str, str]],
+    unlisted_pool: List[Dict[str, str]],
+    disclosure_by_code: Dict[str, List[Dict[str, Any]]],
+) -> List[Dict[str, str]]:
+    """최근 공시 이력이 있는 비상장 법인만 유니버스에 더한다.
+
+    corpCode.xml에는 10만 건이 넘는 법인이 들어 있지만 대부분은 공시 활동이 없다.
+    최근 공시가 잡힌 법인으로 좁히면 실제 자금조달 영업 대상에 가까운 규모가 된다.
+    """
+    limit = int(os.getenv("UNLISTED_MAX", "2000"))
+    if limit <= 0 or not unlisted_pool:
+        print("unlisted universe expansion skipped")
+        return base_rows
+    existing = {r.get("corp_code", "") for r in base_rows}
+    candidates = [
+        row for row in unlisted_pool
+        if row.get("corp_code") in disclosure_by_code and row.get("corp_code") not in existing
+    ]
+    candidates.sort(key=lambda row: len(disclosure_by_code.get(row.get("corp_code", ""), [])), reverse=True)
+    added = candidates[:limit]
+    print(f"unlisted universe expansion: {len(candidates)} candidates with disclosures, {len(added)} added (limit={limit})")
+    return base_rows + added
 
 
 def opendart_get(path: str, params: Dict[str, Any], timeout: int = 30) -> Dict[str, Any]:
@@ -1049,18 +1131,148 @@ def filter_items_for_company(items: List[Dict[str, Any]], corp_name: str) -> Lis
     return [x for x in items if corp_name in f"{x.get('title','')} {x.get('description','')}"][:10]
 
 
-def mock_rule_score(idx: int, event_severity: int, industry: str = "기타/미분류", issuer_seed: str = "") -> float:
-    # Fast-mode proxy: sector risk + event signal + deterministic dispersion.
-    # This is not a replacement for detailed financial statements; it is a first-pass screening score.
+def screening_proxy_score(idx: int, event_severity: int, industry: str = "기타/미분류", issuer_seed: str = "") -> float:
+    """재무제표를 아직 받지 못한 기업의 임시 대체 점수.
+
+    업종 위험도와 공시 이벤트 강도만 쓴다. stable_int로 얻는 분산은 동점을 흩기 위한
+    것이지 재무 분석이 아니다. 이 값은 재무 신호가 아니므로 issuer의 financial_basis에
+    "대체지표"로 표시되며, 재무제표를 받는 즉시 scoring_engine의 실제 룰 점수로 대체된다.
+    """
     sector = SECTOR_BASE_RISK.get(industry, 40)
     variation = stable_int(issuer_seed or str(idx), 21) - 10
     event_bonus = 18 if event_severity >= 90 else 12 if event_severity >= 75 else 6 if event_severity >= 60 else 0
     return round(clip(28 + sector * 0.45 + variation + event_bonus), 1)
 
 
+def write_financial_shard(shard: Dict[str, Any]) -> None:
+    FINANCIAL_DIR.mkdir(exist_ok=True)
+    path = FINANCIAL_DIR / f"{shard['corp_code']}.json"
+    path.write_text(json.dumps(shard, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def apply_financial_rule_score(issuer: Dict[str, Any], shard: Dict[str, Any]) -> bool:
+    """대체 점수를 실제 재무 룰 점수로 갈아끼우고 최종 점수를 다시 계산한다."""
+    metrics = scoring_engine.FinancialMetrics(**(shard.get("metrics") or {}))
+    result = scoring_engine.compute_pure_financial_rule_score(metrics)
+    if result.available_max_points <= 0:
+        return False
+    news_score = float(issuer.get("news_trigger_score", 0) or 0)
+    ai_score = float(issuer.get("ai_base_score", 0) or 0)
+    final_score = compute_final_funding_score(result.score, ai_score, news_score)
+    issuer.update({
+        "pure_financial_rule_score": result.score,
+        "financial_basis": "재무제표",
+        "financial_period": shard.get("latest_period", ""),
+        "financial_shard": f"financials/{issuer.get('corp_code', '')}.json",
+        "rule_breakdown": result.breakdown,
+        "final_score": final_score,
+        "score_band": score_band(final_score),
+        "missing_fields": [f"{name} 미확인" for name in result.missing_fields],
+        "source_status": {**issuer.get("source_status", {}), "dart_financial": "live_ok"},
+    })
+    return True
+
+
+def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> Dict[str, Any]:
+    """우선순위 상위부터 재무제표를 받아 샤드로 저장하고 점수를 다시 매긴다.
+
+    전 종목을 한 번에 긁지 않는다. FINANCIAL_SHARD_LIMIT만큼만 채우고, 나머지는
+    다음 실행에서 이어 받는다. 이미 같은 분기 기준으로 받아둔 샤드는 건너뛴다.
+    """
+    limit = int(os.getenv("FINANCIAL_SHARD_LIMIT", "0"))
+    stats = {"limit": limit, "attempted": 0, "written": 0, "reused": 0, "failed": 0, "status": "disabled"}
+    if limit <= 0:
+        return stats
+    if requests is None or not os.getenv("OPENDART_API_KEY", "").strip():
+        stats["status"] = "api_key_missing"
+        return stats
+
+    # 사업보고서는 3월경 제출된다. 1~3월에는 직전연도 보고서가 아직 없을 수 있다.
+    latest_year = as_of.year - 1 if as_of.month >= 4 else as_of.year - 2
+    refresh_days = int(os.getenv("FINANCIAL_REFRESH_DAYS", "7"))
+    fetched_at = as_of.strftime("%Y-%m-%d %H:%M")
+    stats["status"] = "live_ok"
+
+    def api_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
+        return opendart_get(path, params, timeout=20)
+
+    for issuer in issuers[:limit]:
+        corp_code = str(issuer.get("corp_code") or "").strip()
+        if not corp_code:
+            continue
+        stats["attempted"] += 1
+        existing = FINANCIAL_DIR / f"{corp_code}.json"
+        if existing.exists():
+            try:
+                cached = json.loads(existing.read_text(encoding="utf-8"))
+                fetched = str(cached.get("fetched_at") or "")[:10]
+                age = (as_of.date() - datetime.strptime(fetched, "%Y-%m-%d").date()).days if fetched else 999
+                if age < refresh_days and apply_financial_rule_score(issuer, cached):
+                    stats["reused"] += 1
+                    continue
+            except Exception:
+                pass
+        try:
+            shard = financial_engine.build_financial_shard(
+                corp_code, issuer.get("corp_name", ""), latest_year, api_get, fetched_at,
+                as_of_month=as_of.month,
+            )
+        except Exception as exc:
+            stats["failed"] += 1
+            print(f"financial fetch error {issuer.get('corp_name')}: {type(exc).__name__}: {exc}")
+            continue
+        if not shard:
+            stats["failed"] += 1
+            continue
+        write_financial_shard(shard)
+        if apply_financial_rule_score(issuer, shard):
+            stats["written"] += 1
+        else:
+            stats["failed"] += 1
+        if stats["attempted"] % 50 == 0:
+            print(f"financial shards: {stats['written']} written, {stats['reused']} reused, {stats['failed']} failed")
+        time.sleep(float(os.getenv("API_SLEEP_SECONDS", "0.02")))
+
+    print(f"financial shards done: {stats}")
+    return stats
+
+
+def slim_issuer(issuer: Dict[str, Any], page_detail_limit: int) -> Dict[str, Any]:
+    """화면이 쓰지 않거나 스스로 되만들 수 있는 값을 빼고 내보낸다.
+
+    스냅샷은 방문할 때마다 통째로 내려받아 파싱해야 하므로 용량이 곧 체감 속도다.
+    여기서 빼는 값은 모두 화면 쪽에 되만드는 경로가 있는 것들이다.
+    """
+    out = dict(issuer)
+
+    # issuer마다 같은 값이 반복된다. pipeline_status.source_status에 이미 있고 화면은 쓰지 않는다.
+    out.pop("source_status", None)
+
+    # 3사 모두 무등급이면 화면이 기본값으로 되만든다(creditRatingAgencies 폴백).
+    agencies = out.get("credit_rating_agencies") or []
+    if agencies and all(
+        str(a.get("long_term_rating") or "무등급") == "무등급"
+        and str(a.get("short_term_rating") or "무등급") == "무등급"
+        for a in agencies
+    ):
+        out.pop("credit_rating_agencies", None)
+
+    # 요약 구간의 rationale은 회사명만 끼운 정형문이라 화면이 그대로 되만든다
+    # (isSummaryScreeningItem → summaryScreeningComment).
+    if page_detail_limit > 0 and int(out.get("rank") or 0) > page_detail_limit:
+        out.pop("rationale", None)
+
+    # 빈 문자열·빈 배열·None은 화면에서 모두 기본값으로 처리된다.
+    return {key: value for key, value in out.items() if value not in ("", [], None)}
+
+
 def build_snapshot() -> Dict[str, Any]:
     t = now_kst()
-    rows = load_universe()
+    # daily_snapshot.json을 덮어쓰기 전에 직전 점수를 먼저 읽어둔다.
+    previous_scores, previous_as_of = load_previous_scores()
+    if previous_scores:
+        print(f"previous snapshot loaded: {len(previous_scores)} issuers, as_of={previous_as_of}")
+    rows, unlisted_pool = load_universe()
     source_status_global = {
         "dart_universe": "live_ok",
         "dart_disclosure": "api_key_missing",
@@ -1077,9 +1289,6 @@ def build_snapshot() -> Dict[str, Any]:
     credit_rating_index = build_credit_rating_index(credit_rating_records)
     source_status_global["credit_rating"] = credit_rating_status
 
-    profile_by_code, profile_status = fetch_company_profiles(rows)
-    source_status_global["dart_company_profile"] = profile_status
-
     disclosure_by_code: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     try:
         max_pages = int(os.getenv("DART_DISCLOSURE_MAX_PAGES", "30"))
@@ -1094,6 +1303,14 @@ def build_snapshot() -> Dict[str, Any]:
     except Exception as exc:
         source_status_global["dart_disclosure"] = f"error:{type(exc).__name__}"
         print(f"DART global disclosure error: {type(exc).__name__}: {exc}")
+
+    # 비상장 확장은 공시 결과에 의존하므로 회사개요 조회보다 먼저 끝내야 한다.
+    listed_only_count = len(rows)
+    rows = expand_with_unlisted(rows, unlisted_pool, disclosure_by_code)
+    unlisted_added_count = len(rows) - listed_only_count
+
+    profile_by_code, profile_status = fetch_company_profiles(rows)
+    source_status_global["dart_company_profile"] = profile_status
 
     kind_items: List[Dict[str, Any]] = []
     if os.getenv("KRX_KIND_RSS_URL"):
@@ -1116,7 +1333,7 @@ def build_snapshot() -> Dict[str, Any]:
         news_cards = []
         news_cards.extend(dart_events.get("key_events", []))
         news_cards.extend(kind_events.get("key_events", []))
-        rule_score = mock_rule_score(i, event_severity, industry, corp_code or corp_name)
+        rule_score = screening_proxy_score(i, event_severity, industry, corp_code or corp_name)
         news_score = float(max(38 + stable_int(corp_code or corp_name, 20), event_severity)) if event_severity == 0 else float(event_severity)
         missing_fields = ["상세 재무제표 보강 필요"]
         classification = enhanced_finance_classification(corp_code or corp_name, industry, rule_score, news_score, event_severity, news_cards, missing_fields)
@@ -1129,6 +1346,9 @@ def build_snapshot() -> Dict[str, Any]:
         score_label = score_band(final_score)
         action_stage = classification["action_stage"] if str(classification["action_stage"]).startswith("Hold") else classification["priority"]
         credit_rating = credit_rating_for_issuer(row, credit_rating_index)
+        market_code = str(profile.get("corp_cls", "") or "").strip().upper() if profile else ""
+        market_label = MARKET_LABELS.get(market_code, "")
+        listing_type = listing_type_from(market_code)
         ir_phone = normalize_phone(profile.get("phn_no", "")) if profile else ""
         ir_url = normalize_external_url(profile.get("ir_url", "")) if profile else ""
         company_homepage = normalize_external_url(profile.get("hm_url", "")) if profile else ""
@@ -1140,6 +1360,9 @@ def build_snapshot() -> Dict[str, Any]:
             "industry": industry,
             "industry_source": industry_source,
             "industry_code": str(profile.get("induty_code", "")) if profile else "",
+            "corp_cls": market_code,
+            "market_label": market_label,
+            "listing_type": listing_type,
             "company_address": str(profile.get("adres", "")) if profile else "",
             "ir_phone": ir_phone,
             "ir_phone_tel": phone_to_tel_href(ir_phone),
@@ -1158,6 +1381,8 @@ def build_snapshot() -> Dict[str, Any]:
             "analysis_confidence": classification["analysis_confidence"],
             "final_score": final_score,
             "pure_financial_rule_score": round(rule_score, 1),
+            "financial_basis": "대체지표",
+            "financial_period": "",
             "ai_base_score": ai_score,
             "news_trigger_score": round(news_score, 1),
             "recommended_structure": classification["recommended_structure"],
@@ -1227,6 +1452,14 @@ def build_snapshot() -> Dict[str, Any]:
                 print(f"Naver enrich error for {issuer.get('corp_name')}: {type(exc).__name__}: {exc}")
                 break
 
+    # Stage 3: 우선순위 상위부터 재무제표를 받아 대체 점수를 실제 룰 점수로 교체한다.
+    issuers = sorted(issuers, key=lambda x: x["final_score"], reverse=True)
+    financial_stats = collect_financial_shards(issuers, t)
+    source_status_global["dart_financial"] = (
+        f"live_ok:{financial_stats['written']}written/{financial_stats['reused']}reused"
+        if financial_stats["status"] == "live_ok" else financial_stats["status"]
+    )
+
     issuers = sorted(issuers, key=lambda x: x["final_score"], reverse=True)
     page_detail_limit = int(os.getenv("PAGE_DETAIL_LIMIT", "300"))
     for rank, issuer in enumerate(issuers, 1):
@@ -1241,6 +1474,19 @@ def build_snapshot() -> Dict[str, Any]:
             issuer["rule_breakdown"] = []
             issuer["rationale"] = f"{issuer.get('corp_name') or '해당 기업'}은 전체 상장사 스크리닝에 포함된 요약 모니터링 대상입니다. 현재는 상세 원문 저장보다 정기 관찰이 적합한 구간으로, 업종·자금수요·리스크 분류를 기준으로 관찰하고 신규 자금조달 공시나 실적 변화가 확인되면 접촉 우선순위를 재산정합니다."
 
+    # 일간 변화: 직전 스냅샷에 없던 기업은 신규 진입으로 표시한다.
+    # 직전 스냅샷 자체가 없으면(최초 실행) 모두 신규가 아니라 "판단 불가"로 둔다.
+    for issuer in issuers:
+        key = str(issuer.get("corp_code") or issuer.get("ticker") or issuer.get("corp_name") or "").strip()
+        if previous_scores and key in previous_scores:
+            issuer["prev_final_score"] = round(previous_scores[key], 1)
+            issuer["is_new_entry"] = False
+        else:
+            issuer["prev_final_score"] = None
+            issuer["is_new_entry"] = bool(previous_scores)
+
+    listing_counts = Counter(x.get("listing_type", "미확인") for x in issuers)
+
     next_run = (t + timedelta(days=1)).replace(hour=8, minute=0, second=0, microsecond=0)
     return {
         "as_of_date": t.strftime("%Y-%m-%d"),
@@ -1248,7 +1494,7 @@ def build_snapshot() -> Dict[str, Any]:
         "service": {
             "name": "콜콜 (Cold Call)",
             "subtitle": "오늘 연락할 발행사를 콕 집어주는 플랫폼",
-            "description": "오늘 연락할 발행사를 콕 집어주는 플랫폼. 전체 상장사를 업종·자금수요·리스크·금융구조 관점으로 세분화해 선제 영업 후보를 제시합니다.",
+            "description": "오늘 연락할 발행사를 콕 집어주는 플랫폼. 코스피·코스닥 상장사와 코넥스·기타법인(비상장)을 업종·자금수요·리스크·금융구조 관점으로 세분화해 선제 영업 후보를 제시합니다.",
         },
         "formula": {
             "label": "Final Funding Score",
@@ -1263,10 +1509,16 @@ def build_snapshot() -> Dict[str, Any]:
             "scheduled_run": "매일 08:00 KST / GitHub Actions cron 0 23 * * * UTC",
             "source_status": source_status_global,
             "universe_count": len(rows),
-            "universe_mode": "opendart_full_listed_expert_segmentation_two_stage",
+            "universe_mode": "opendart_listed_plus_disclosing_unlisted",
+            "stock_code_universe_count": listed_only_count,
+            "unlisted_added_count": unlisted_added_count,
             "news_enrich_limit": news_limit,
             "page_detail_limit": page_detail_limit,
             "credit_rating_record_count": len(credit_rating_records),
+            "previous_as_of_date": previous_as_of,
+            "financial_shard_stats": financial_stats,
+            "financial_covered_count": sum(1 for x in issuers if x.get("financial_basis") == "재무제표"),
+            "listing_type_counts": dict(listing_counts),
             "ir_phone_mapped_count": sum(1 for x in issuers if x.get("ir_phone")),
             "industry_mapped_count": sum(1 for x in issuers if x.get("industry") != "기타/미분류"),
             "industry_unmapped_count": sum(1 for x in issuers if x.get("industry") == "기타/미분류"),
@@ -1281,6 +1533,9 @@ def build_snapshot() -> Dict[str, Any]:
             "news_trigger_count": sum(1 for x in issuers if x.get("trigger_type") not in {"재무구조 점검", "기초 모니터링"}),
             "needs_review": sum(1 for x in issuers if x.get("risk_level") in {"Critical", "High", "Elevated"}),
             "rated_count": sum(1 for x in issuers if x.get("credit_rating_status") == "유효등급"),
+            "listed_count": listing_counts.get("상장", 0),
+            "unlisted_count": listing_counts.get("비상장", 0),
+            "new_entry_count": sum(1 for x in issuers if x.get("is_new_entry")),
         },
         "filters": {
             "industries": ordered_industry_filters(issuers),
@@ -1292,6 +1547,7 @@ def build_snapshot() -> Dict[str, Any]:
             "funding_need_types": ["전체"] + sorted({x.get("funding_need_type", "") for x in issuers if x.get("funding_need_type")}),
             "structure_groups": ["전체"] + sorted({x.get("structure_group", "") for x in issuers if x.get("structure_group")}),
             "action_stages": ["전체", "1. 긴급 확인", "2. 즉시 접촉", "3. 구조 검토", "4. 관심 관찰", "5. 정기 모니터링", "Hold / 원문 확인"],
+            "listing_types": ["전체", "상장", "코스피", "코스닥", "비상장", "코넥스", "기타법인", "미확인"],
             "credit_rating_statuses": ["전체", "유효등급", "무등급"],
             "long_term_ratings": ["전체"] + sorted({x.get("long_term_rating", "") for x in issuers if x.get("long_term_rating") and x.get("long_term_rating") != "무등급"}),
             "short_term_ratings": ["전체"] + sorted({x.get("short_term_rating", "") for x in issuers if x.get("short_term_rating") and x.get("short_term_rating") != "무등급"}),
@@ -1300,21 +1556,28 @@ def build_snapshot() -> Dict[str, Any]:
             "definitions": [
                 {"field": "업종", "meaning": "수기값을 우선 사용하고, 없으면 회사명 키워드와 DART 업종코드로 사용자용 범주에 자동 매핑합니다."},
                 {"field": "우선순위", "meaning": "공시·뉴스·재무 신호를 종합해 영업 검토 순서를 나눈 값입니다. 산식은 화면에 노출하지 않습니다."},
+                {"field": "재무 근거", "meaning": "재무제표를 받은 기업은 부채비율·유동비율·당좌비율·차입금의존도·이자보상배율·현금흐름 8개 항목으로 룰 점수를 계산합니다(재무제표). 아직 받지 못한 기업은 업종 위험도와 공시 이벤트만으로 임시 점수를 씁니다(대체지표)."},
                 {"field": "Trigger", "meaning": "최근 자금조달 공시, 투자/차입 이벤트, 뉴스 신호, 기초 모니터링 중 어떤 신호가 우선 감지됐는지 표시합니다."},
                 {"field": "Risk", "meaning": "Low/Watch/Moderate/Elevated/High/Critical로 세분화한 위험 수준입니다. 점수와 별도로 구조 검토에 사용합니다."},
                 {"field": "자금수요 유형", "meaning": "차환, CAPEX, 메자닌, 자본확충, PF 등 예상되는 자금 목적입니다."},
                 {"field": "추천 금융구조", "meaning": "공시·뉴스·업종 신호를 토대로 우선 검토할 수 있는 금융상품/구조입니다."},
-                {"field": "신용등급", "meaning": "한국신용평가, NICE신용평가, 한국기업평가 기준 장기·단기 등급을 매칭합니다. 매칭값이 없으면 무등급으로 표시합니다."}
+                {"field": "신용등급", "meaning": "한국신용평가, NICE신용평가, 한국기업평가 기준 장기·단기 등급을 매칭합니다. 매칭값이 없으면 무등급으로 표시합니다."},
+                {"field": "상장 구분", "meaning": "코스피·코스닥은 상장, 코넥스·기타법인은 비상장으로 분류합니다. OpenDART 회사개요의 법인구분(corp_cls)을 근거로 하며, 조회되지 않으면 미확인으로 표시합니다."},
+                {"field": "일간 변화", "meaning": "직전 스냅샷 대비 점수 변동입니다. 직전 스냅샷에 없던 기업은 신규 진입으로 표시합니다."}
             ]
         },
-        "issuers": issuers,
+        "issuers": [slim_issuer(x, page_detail_limit) for x in issuers],
     }
 
 
 def main() -> None:
     snapshot = build_snapshot()
-    OUTPUT_PATH.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Wrote {OUTPUT_PATH} with {len(snapshot['issuers'])} issuers")
+    # indent를 빼면 그것만으로 20%가 줄어든다. 사람이 읽을 파일이 아니라 브라우저가 받는 파일이다.
+    OUTPUT_PATH.write_text(
+        json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
+    )
+    size_mb = OUTPUT_PATH.stat().st_size / (1024 * 1024)
+    print(f"Wrote {OUTPUT_PATH} with {len(snapshot['issuers'])} issuers ({size_mb:.1f} MB)")
 
 
 if __name__ == "__main__":
