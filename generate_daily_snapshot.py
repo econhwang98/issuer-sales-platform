@@ -1237,6 +1237,35 @@ def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> 
     return stats
 
 
+def slim_issuer(issuer: Dict[str, Any], page_detail_limit: int) -> Dict[str, Any]:
+    """화면이 쓰지 않거나 스스로 되만들 수 있는 값을 빼고 내보낸다.
+
+    스냅샷은 방문할 때마다 통째로 내려받아 파싱해야 하므로 용량이 곧 체감 속도다.
+    여기서 빼는 값은 모두 화면 쪽에 되만드는 경로가 있는 것들이다.
+    """
+    out = dict(issuer)
+
+    # issuer마다 같은 값이 반복된다. pipeline_status.source_status에 이미 있고 화면은 쓰지 않는다.
+    out.pop("source_status", None)
+
+    # 3사 모두 무등급이면 화면이 기본값으로 되만든다(creditRatingAgencies 폴백).
+    agencies = out.get("credit_rating_agencies") or []
+    if agencies and all(
+        str(a.get("long_term_rating") or "무등급") == "무등급"
+        and str(a.get("short_term_rating") or "무등급") == "무등급"
+        for a in agencies
+    ):
+        out.pop("credit_rating_agencies", None)
+
+    # 요약 구간의 rationale은 회사명만 끼운 정형문이라 화면이 그대로 되만든다
+    # (isSummaryScreeningItem → summaryScreeningComment).
+    if page_detail_limit > 0 and int(out.get("rank") or 0) > page_detail_limit:
+        out.pop("rationale", None)
+
+    # 빈 문자열·빈 배열·None은 화면에서 모두 기본값으로 처리된다.
+    return {key: value for key, value in out.items() if value not in ("", [], None)}
+
+
 def build_snapshot() -> Dict[str, Any]:
     t = now_kst()
     # daily_snapshot.json을 덮어쓰기 전에 직전 점수를 먼저 읽어둔다.
@@ -1537,14 +1566,18 @@ def build_snapshot() -> Dict[str, Any]:
                 {"field": "일간 변화", "meaning": "직전 스냅샷 대비 점수 변동입니다. 직전 스냅샷에 없던 기업은 신규 진입으로 표시합니다."}
             ]
         },
-        "issuers": issuers,
+        "issuers": [slim_issuer(x, page_detail_limit) for x in issuers],
     }
 
 
 def main() -> None:
     snapshot = build_snapshot()
-    OUTPUT_PATH.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Wrote {OUTPUT_PATH} with {len(snapshot['issuers'])} issuers")
+    # indent를 빼면 그것만으로 20%가 줄어든다. 사람이 읽을 파일이 아니라 브라우저가 받는 파일이다.
+    OUTPUT_PATH.write_text(
+        json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
+    )
+    size_mb = OUTPUT_PATH.stat().st_size / (1024 * 1024)
+    print(f"Wrote {OUTPUT_PATH} with {len(snapshot['issuers'])} issuers ({size_mb:.1f} MB)")
 
 
 if __name__ == "__main__":
