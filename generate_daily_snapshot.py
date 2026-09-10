@@ -18,6 +18,7 @@ import csv
 import json
 import os
 import re
+import sys
 import time
 import zipfile
 import hashlib
@@ -34,12 +35,18 @@ try:
 except ImportError:
     requests = None
 
+# 같은 디렉터리의 모듈. Actions는 저장소 루트에서 실행하지만 경로를 명시해 둔다.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import financial_engine  # noqa: E402
+import scoring_engine  # noqa: E402
+
 KST = timezone(timedelta(hours=9))
 ROOT = Path(__file__).resolve().parents[1] if Path(__file__).resolve().parent.name == "scripts" else Path(__file__).resolve().parent
 UNIVERSE_PATH = ROOT / "universe.csv"
 OUTPUT_PATH = ROOT / "daily_snapshot.json"
 RAW_DIR = ROOT / "raw_cache"
 RAW_DIR.mkdir(exist_ok=True)
+FINANCIAL_DIR = ROOT / "financials"
 
 NEGATIVE_TERMS = [
     "적자", "부진", "하락", "둔화", "차입", "리파이낸싱", "유동성", "채무", "부도", "자본잠식",
@@ -1124,13 +1131,110 @@ def filter_items_for_company(items: List[Dict[str, Any]], corp_name: str) -> Lis
     return [x for x in items if corp_name in f"{x.get('title','')} {x.get('description','')}"][:10]
 
 
-def mock_rule_score(idx: int, event_severity: int, industry: str = "기타/미분류", issuer_seed: str = "") -> float:
-    # Fast-mode proxy: sector risk + event signal + deterministic dispersion.
-    # This is not a replacement for detailed financial statements; it is a first-pass screening score.
+def screening_proxy_score(idx: int, event_severity: int, industry: str = "기타/미분류", issuer_seed: str = "") -> float:
+    """재무제표를 아직 받지 못한 기업의 임시 대체 점수.
+
+    업종 위험도와 공시 이벤트 강도만 쓴다. stable_int로 얻는 분산은 동점을 흩기 위한
+    것이지 재무 분석이 아니다. 이 값은 재무 신호가 아니므로 issuer의 financial_basis에
+    "대체지표"로 표시되며, 재무제표를 받는 즉시 scoring_engine의 실제 룰 점수로 대체된다.
+    """
     sector = SECTOR_BASE_RISK.get(industry, 40)
     variation = stable_int(issuer_seed or str(idx), 21) - 10
     event_bonus = 18 if event_severity >= 90 else 12 if event_severity >= 75 else 6 if event_severity >= 60 else 0
     return round(clip(28 + sector * 0.45 + variation + event_bonus), 1)
+
+
+def write_financial_shard(shard: Dict[str, Any]) -> None:
+    FINANCIAL_DIR.mkdir(exist_ok=True)
+    path = FINANCIAL_DIR / f"{shard['corp_code']}.json"
+    path.write_text(json.dumps(shard, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def apply_financial_rule_score(issuer: Dict[str, Any], shard: Dict[str, Any]) -> bool:
+    """대체 점수를 실제 재무 룰 점수로 갈아끼우고 최종 점수를 다시 계산한다."""
+    metrics = scoring_engine.FinancialMetrics(**(shard.get("metrics") or {}))
+    result = scoring_engine.compute_pure_financial_rule_score(metrics)
+    if result.available_max_points <= 0:
+        return False
+    news_score = float(issuer.get("news_trigger_score", 0) or 0)
+    ai_score = float(issuer.get("ai_base_score", 0) or 0)
+    final_score = compute_final_funding_score(result.score, ai_score, news_score)
+    issuer.update({
+        "pure_financial_rule_score": result.score,
+        "financial_basis": "재무제표",
+        "financial_period": shard.get("latest_period", ""),
+        "financial_shard": f"financials/{issuer.get('corp_code', '')}.json",
+        "rule_breakdown": result.breakdown,
+        "final_score": final_score,
+        "score_band": score_band(final_score),
+        "missing_fields": [f"{name} 미확인" for name in result.missing_fields],
+        "source_status": {**issuer.get("source_status", {}), "dart_financial": "live_ok"},
+    })
+    return True
+
+
+def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> Dict[str, Any]:
+    """우선순위 상위부터 재무제표를 받아 샤드로 저장하고 점수를 다시 매긴다.
+
+    전 종목을 한 번에 긁지 않는다. FINANCIAL_SHARD_LIMIT만큼만 채우고, 나머지는
+    다음 실행에서 이어 받는다. 이미 같은 분기 기준으로 받아둔 샤드는 건너뛴다.
+    """
+    limit = int(os.getenv("FINANCIAL_SHARD_LIMIT", "0"))
+    stats = {"limit": limit, "attempted": 0, "written": 0, "reused": 0, "failed": 0, "status": "disabled"}
+    if limit <= 0:
+        return stats
+    if requests is None or not os.getenv("OPENDART_API_KEY", "").strip():
+        stats["status"] = "api_key_missing"
+        return stats
+
+    # 사업보고서는 3월경 제출된다. 1~3월에는 직전연도 보고서가 아직 없을 수 있다.
+    latest_year = as_of.year - 1 if as_of.month >= 4 else as_of.year - 2
+    refresh_days = int(os.getenv("FINANCIAL_REFRESH_DAYS", "7"))
+    fetched_at = as_of.strftime("%Y-%m-%d %H:%M")
+    stats["status"] = "live_ok"
+
+    def api_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
+        return opendart_get(path, params, timeout=20)
+
+    for issuer in issuers[:limit]:
+        corp_code = str(issuer.get("corp_code") or "").strip()
+        if not corp_code:
+            continue
+        stats["attempted"] += 1
+        existing = FINANCIAL_DIR / f"{corp_code}.json"
+        if existing.exists():
+            try:
+                cached = json.loads(existing.read_text(encoding="utf-8"))
+                fetched = str(cached.get("fetched_at") or "")[:10]
+                age = (as_of.date() - datetime.strptime(fetched, "%Y-%m-%d").date()).days if fetched else 999
+                if age < refresh_days and apply_financial_rule_score(issuer, cached):
+                    stats["reused"] += 1
+                    continue
+            except Exception:
+                pass
+        try:
+            shard = financial_engine.build_financial_shard(
+                corp_code, issuer.get("corp_name", ""), latest_year, api_get, fetched_at,
+                as_of_month=as_of.month,
+            )
+        except Exception as exc:
+            stats["failed"] += 1
+            print(f"financial fetch error {issuer.get('corp_name')}: {type(exc).__name__}: {exc}")
+            continue
+        if not shard:
+            stats["failed"] += 1
+            continue
+        write_financial_shard(shard)
+        if apply_financial_rule_score(issuer, shard):
+            stats["written"] += 1
+        else:
+            stats["failed"] += 1
+        if stats["attempted"] % 50 == 0:
+            print(f"financial shards: {stats['written']} written, {stats['reused']} reused, {stats['failed']} failed")
+        time.sleep(float(os.getenv("API_SLEEP_SECONDS", "0.02")))
+
+    print(f"financial shards done: {stats}")
+    return stats
 
 
 def build_snapshot() -> Dict[str, Any]:
@@ -1200,7 +1304,7 @@ def build_snapshot() -> Dict[str, Any]:
         news_cards = []
         news_cards.extend(dart_events.get("key_events", []))
         news_cards.extend(kind_events.get("key_events", []))
-        rule_score = mock_rule_score(i, event_severity, industry, corp_code or corp_name)
+        rule_score = screening_proxy_score(i, event_severity, industry, corp_code or corp_name)
         news_score = float(max(38 + stable_int(corp_code or corp_name, 20), event_severity)) if event_severity == 0 else float(event_severity)
         missing_fields = ["상세 재무제표 보강 필요"]
         classification = enhanced_finance_classification(corp_code or corp_name, industry, rule_score, news_score, event_severity, news_cards, missing_fields)
@@ -1248,6 +1352,8 @@ def build_snapshot() -> Dict[str, Any]:
             "analysis_confidence": classification["analysis_confidence"],
             "final_score": final_score,
             "pure_financial_rule_score": round(rule_score, 1),
+            "financial_basis": "대체지표",
+            "financial_period": "",
             "ai_base_score": ai_score,
             "news_trigger_score": round(news_score, 1),
             "recommended_structure": classification["recommended_structure"],
@@ -1317,6 +1423,14 @@ def build_snapshot() -> Dict[str, Any]:
                 print(f"Naver enrich error for {issuer.get('corp_name')}: {type(exc).__name__}: {exc}")
                 break
 
+    # Stage 3: 우선순위 상위부터 재무제표를 받아 대체 점수를 실제 룰 점수로 교체한다.
+    issuers = sorted(issuers, key=lambda x: x["final_score"], reverse=True)
+    financial_stats = collect_financial_shards(issuers, t)
+    source_status_global["dart_financial"] = (
+        f"live_ok:{financial_stats['written']}written/{financial_stats['reused']}reused"
+        if financial_stats["status"] == "live_ok" else financial_stats["status"]
+    )
+
     issuers = sorted(issuers, key=lambda x: x["final_score"], reverse=True)
     page_detail_limit = int(os.getenv("PAGE_DETAIL_LIMIT", "300"))
     for rank, issuer in enumerate(issuers, 1):
@@ -1373,6 +1487,8 @@ def build_snapshot() -> Dict[str, Any]:
             "page_detail_limit": page_detail_limit,
             "credit_rating_record_count": len(credit_rating_records),
             "previous_as_of_date": previous_as_of,
+            "financial_shard_stats": financial_stats,
+            "financial_covered_count": sum(1 for x in issuers if x.get("financial_basis") == "재무제표"),
             "listing_type_counts": dict(listing_counts),
             "ir_phone_mapped_count": sum(1 for x in issuers if x.get("ir_phone")),
             "industry_mapped_count": sum(1 for x in issuers if x.get("industry") != "기타/미분류"),
@@ -1411,6 +1527,7 @@ def build_snapshot() -> Dict[str, Any]:
             "definitions": [
                 {"field": "업종", "meaning": "수기값을 우선 사용하고, 없으면 회사명 키워드와 DART 업종코드로 사용자용 범주에 자동 매핑합니다."},
                 {"field": "우선순위", "meaning": "공시·뉴스·재무 신호를 종합해 영업 검토 순서를 나눈 값입니다. 산식은 화면에 노출하지 않습니다."},
+                {"field": "재무 근거", "meaning": "재무제표를 받은 기업은 부채비율·유동비율·당좌비율·차입금의존도·이자보상배율·현금흐름 8개 항목으로 룰 점수를 계산합니다(재무제표). 아직 받지 못한 기업은 업종 위험도와 공시 이벤트만으로 임시 점수를 씁니다(대체지표)."},
                 {"field": "Trigger", "meaning": "최근 자금조달 공시, 투자/차입 이벤트, 뉴스 신호, 기초 모니터링 중 어떤 신호가 우선 감지됐는지 표시합니다."},
                 {"field": "Risk", "meaning": "Low/Watch/Moderate/Elevated/High/Critical로 세분화한 위험 수준입니다. 점수와 별도로 구조 검토에 사용합니다."},
                 {"field": "자금수요 유형", "meaning": "차환, CAPEX, 메자닌, 자본확충, PF 등 예상되는 자금 목적입니다."},

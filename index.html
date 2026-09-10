@@ -530,6 +530,14 @@
               <select class="control" id="listingTypeFilter" aria-label="상장 구분"></select>
             </div>
             <div class="filter-field">
+              <label for="basisFilter">재무 근거</label>
+              <select class="control" id="basisFilter" aria-label="재무 근거">
+                <option value="전체">전체</option>
+                <option value="재무제표">재무제표 수집됨</option>
+                <option value="대체지표">대체지표 (미수집)</option>
+              </select>
+            </div>
+            <div class="filter-field">
               <label for="changeFilter">일간 변화</label>
               <select class="control" id="changeFilter" aria-label="일간 변화">
                 <option value="전체">전체</option>
@@ -1060,7 +1068,7 @@
 
     function initElements() {
       [
-        "dashboardSection", "listingTypeFilter", "changeFilter", "contactFilter",
+        "dashboardSection", "listingTypeFilter", "basisFilter", "changeFilter", "contactFilter",
         "industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter",
         "fundingNeedFilter", "structureFilter", "actionStageFilter", "ratingStatusFilter", "longRatingFilter",
         "shortRatingFilter", "sourceFilter",
@@ -1175,6 +1183,7 @@
 
     function applyFilters(resetPage = true) {
       const listingChoice = els.listingTypeFilter.value;
+      const basis = els.basisFilter.value;
       const change = els.changeFilter.value;
       const contact = els.contactFilter.value;
       const industry = els.industryFilter.value;
@@ -1197,6 +1206,9 @@
         items = ["상장", "비상장", "미확인"].includes(listingChoice)
           ? items.filter((x) => x.listing_type === listingChoice)
           : items.filter((x) => x.market_label === listingChoice);
+      }
+      if (basis && basis !== "전체") {
+        items = items.filter((x) => (x.financial_basis || "대체지표") === basis);
       }
       if (change && change !== "전체") {
         items = items.filter((x) => {
@@ -1425,6 +1437,7 @@
         <div class="split">
           <div class="mini"><div class="label">상장 구분</div><div class="value">${escapeHtml(item.listing_type || "미확인")}${item.market_label ? `<br>${escapeHtml(item.market_label)}` : ""}</div></div>
           <div class="mini"><div class="label">일간 변화</div><div class="value">${deltaValueHtml(item)}</div></div>
+          <div class="mini"><div class="label">재무 근거</div><div class="value">${escapeHtml(item.financial_basis || "대체지표")}${item.financial_period ? `<br>${escapeHtml(item.financial_period)}` : ""}</div></div>
           <div class="mini"><div class="label">우선순위</div><div class="value">${escapeHtml(item.priority || item.score_band || "-")}</div></div>
           <div class="mini"><div class="label">감지 신호</div><div class="value">${escapeHtml(item.trigger_type || "-")}</div></div>
           <div class="mini"><div class="label">Risk</div><div class="value">${escapeHtml(item.risk_level || "-")}<br>${escapeHtml(item.risk_type || "기초 신용 모니터링")}</div></div>
@@ -1543,6 +1556,7 @@
 
     function resetFilters() {
       els.listingTypeFilter.value = "전체";
+      els.basisFilter.value = "전체";
       els.changeFilter.value = "전체";
       els.contactFilter.value = "전체";
       els.industryFilter.value = "전체";
@@ -1579,7 +1593,7 @@
     }
 
     function exportCsv() {
-      const header = ["rank", "corp_name", "ticker", "corp_code", "listing_type", "market_label", "score_delta", "is_new_entry", "contact_status", "contact_star", "contact_memo", "industry", "industry_source", "score_band", "trigger_type", "risk_level", "risk_type", "funding_need_type", "structure_group", "action_stage", "ir_phone", "ir_phone_source", "ir_url", "company_homepage", "credit_rating_status", "long_term_rating", "long_term_outlook", "long_term_rating_agency", "short_term_rating", "short_term_rating_agency", "credit_rating_last_date", "analysis_confidence", "final_score", "recommended_structure"];
+      const header = ["rank", "corp_name", "ticker", "corp_code", "listing_type", "market_label", "financial_basis", "financial_period", "score_delta", "is_new_entry", "contact_status", "contact_star", "contact_memo", "industry", "industry_source", "score_band", "trigger_type", "risk_level", "risk_type", "funding_need_type", "structure_group", "action_stage", "ir_phone", "ir_phone_source", "ir_url", "company_homepage", "credit_rating_status", "long_term_rating", "long_term_outlook", "long_term_rating_agency", "short_term_rating", "short_term_rating_agency", "credit_rating_last_date", "analysis_confidence", "final_score", "recommended_structure"];
       const rows = state.filtered.map((item) => header.map((key) => {
         const entry = workspaceEntry(item);
         const overrides = {
@@ -1811,6 +1825,8 @@
         contact_status: entry.status || "미접촉",
         financial_period: financial ? (financial.latest_period || "") : "",
         financial: financial || null,
+        financial_basis: item.financial_basis || (financial ? "재무제표" : "대체지표"),
+        rule_breakdown: item.rule_breakdown || [],
         score_breakdown: {
           rule: Number(item.pure_financial_rule_score || 0),
           ai: Number(item.ai_base_score || 0),
@@ -1918,6 +1934,28 @@
         }
       ];
       return sections.map((s) => `<h3>${escapeHtml(s.title)}</h3><p>${escapeHtml(s.body)}</p>`).join("");
+    }
+
+    function ruleBreakdownHtml(breakdown) {
+      const rows = (breakdown || []).filter((b) => b && b.factor);
+      if (!rows.length) return "";
+      const body = rows.map((b) => {
+        const applied = b.status === "applied";
+        const value = b.value === null || b.value === undefined
+          ? "-"
+          : (typeof b.value === "object" ? JSON.stringify(b.value) : String(b.value));
+        return `<tr>
+          <th>${escapeHtml(b.factor)}</th>
+          <td>${escapeHtml(value)}</td>
+          <td>${applied ? fmtNum(b.points, 0) : "미보유"}</td>
+        </tr>`;
+      }).join("");
+      return `<h3>재무 룰 세부</h3>
+        <table>
+          <thead><tr><th>항목</th><th>값</th><th>배점</th></tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+        <p class="src">배점이 높을수록 자금수요 신호가 강함을 뜻합니다. 미보유 항목은 분모에서 제외해 계산합니다.</p>`;
     }
 
     function reportDocumentHtml(record, reused) {
@@ -2055,10 +2093,16 @@
   <h2>점수 산출 근거</h2>
   <table class="kv">
     <tr><th>산식</th><td>${escapeHtml(r.score_breakdown?.formula || "-")}</td></tr>
-    <tr><th>재무 룰 점수</th><td>${fmtNum(r.score_breakdown?.rule, 1)}</td></tr>
+    <tr><th>재무 룰 점수</th><td>${fmtNum(r.score_breakdown?.rule, 1)} <b>(${escapeHtml(r.financial_basis || "대체지표")} 기준)</b></td></tr>
     <tr><th>AI 기반 점수</th><td>${fmtNum(r.score_breakdown?.ai, 1)}</td></tr>
     <tr><th>뉴스 트리거</th><td>${fmtNum(r.score_breakdown?.news, 1)}</td></tr>
   </table>
+  ${r.financial_basis === "재무제표"
+    ? ruleBreakdownHtml(r.rule_breakdown)
+    : `<div class="notice"><b>재무 룰 점수가 대체지표로 계산됐습니다.</b>
+        <p>이 기업은 아직 재무제표를 수집하지 않아, 업종 위험도와 공시 이벤트 강도만으로
+        임시 점수를 냈습니다. 재무제표가 수집되면 부채비율·유동비율·당좌비율·차입금의존도·
+        이자보상배율·현금흐름 8개 항목으로 다시 계산됩니다.</p></div>`}
 
   ${(r.missing_fields || []).length ? `<h2>보완 필요 항목</h2><ul>${r.missing_fields.map((m) => `<li>${escapeHtml(m)}</li>`).join("")}</ul>` : ""}
 
@@ -2099,7 +2143,7 @@
       renderMapping(state.snapshot);
       setupNavigation();
       setupPresets();
-      ["listingTypeFilter", "changeFilter", "contactFilter", "industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter", "fundingNeedFilter", "structureFilter", "actionStageFilter", "ratingStatusFilter", "longRatingFilter", "shortRatingFilter", "sourceFilter", "sortSelect", "pageSizeSelect", "keywordFilter"].forEach((id) => {
+      ["listingTypeFilter", "basisFilter", "changeFilter", "contactFilter", "industryFilter", "scoreBandFilter", "triggerFilter", "riskFilter", "riskTypeFilter", "fundingNeedFilter", "structureFilter", "actionStageFilter", "ratingStatusFilter", "longRatingFilter", "shortRatingFilter", "sourceFilter", "sortSelect", "pageSizeSelect", "keywordFilter"].forEach((id) => {
         els[id].addEventListener("input", () => applyFilters(true));
       });
       els.resetBtn.addEventListener("click", resetFilters);
