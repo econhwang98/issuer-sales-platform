@@ -106,6 +106,24 @@ check("두 번째 실행은 캐시 재사용", stats2["reused"], 2)
 check("추가 API 호출 없음", calls["n"], calls_before)
 check("재사용해도 근거는 재무제표", issuers[0]["financial_basis"], "재무제표")
 
+# 파싱 규칙이 바뀌면(schema_version 상승) 캐시 기간이 남았어도 다시 받아야 한다.
+import financial_engine as fe
+for issuer in issuers:
+    issuer["financial_basis"] = "대체지표"
+for name in os.listdir(TMP):
+    fp = os.path.join(TMP, name)
+    obj = json.loads(io.open(fp, encoding="utf-8").read())
+    obj["schema_version"] = fe.SHARD_SCHEMA_VERSION - 1   # 구버전으로 되돌림
+    io.open(fp, "w", encoding="utf-8").write(json.dumps(obj, ensure_ascii=False))
+calls_before = calls["n"]
+stats3 = gen.collect_financial_shards(issuers, now)
+check("구버전 샤드는 재수집", stats3["written"], 2)
+check("구버전 샤드는 재사용 안 함", stats3["reused"], 0)
+check("API를 다시 호출", calls["n"] > calls_before, True)
+check("새로 쓴 샤드는 최신 버전",
+      json.loads(io.open(os.path.join(TMP, "00100001.json"), encoding="utf-8").read())["schema_version"],
+      fe.SHARD_SCHEMA_VERSION)
+
 os.environ["FINANCIAL_SHARD_LIMIT"] = "0"
 check("한도 0이면 비활성", gen.collect_financial_shards(issuers, now)["status"], "disabled")
 
