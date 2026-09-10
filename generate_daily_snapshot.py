@@ -47,6 +47,7 @@ OUTPUT_PATH = ROOT / "daily_snapshot.json"
 RAW_DIR = ROOT / "raw_cache"
 RAW_DIR.mkdir(exist_ok=True)
 FINANCIAL_DIR = ROOT / "financials"
+PREVIOUS_QUALITY: Dict[str, float] = {}
 
 NEGATIVE_TERMS = [
     "적자", "부진", "하락", "둔화", "차입", "리파이낸싱", "유동성", "채무", "부도", "자본잠식",
@@ -210,6 +211,16 @@ def listing_type_from(market_code: str) -> str:
     return "미확인"
 
 
+def _quality_of(issuers: List[Dict[str, Any]]) -> Dict[str, float]:
+    """스냅샷 품질을 한눈에 비교할 수 있는 최소 지표."""
+    total = len(issuers) or 1
+    return {
+        "issuers": len(issuers),
+        "industry_mapped_ratio": round(sum(1 for x in issuers if x.get("industry") and x.get("industry") != "기타/미분류") / total * 100, 1),
+        "ir_phone_ratio": round(sum(1 for x in issuers if x.get("ir_phone")) / total * 100, 1),
+    }
+
+
 def load_previous_scores() -> Tuple[Dict[str, float], str]:
     """직전 스냅샷의 점수를 읽어 일간 변화(신규 진입/점수 변동) 계산에 쓴다.
 
@@ -231,6 +242,8 @@ def load_previous_scores() -> Tuple[Dict[str, float], str]:
                 scores[key] = float(item.get("final_score") or 0)
             except (TypeError, ValueError):
                 continue
+    global PREVIOUS_QUALITY
+    PREVIOUS_QUALITY = _quality_of(previous.get("issuers") or [])
     return scores, str(previous.get("as_of_date") or "")
 
 
@@ -1268,6 +1281,38 @@ def slim_issuer(issuer: Dict[str, Any], page_detail_limit: int) -> Dict[str, Any
     return {key: value for key, value in out.items() if value not in ("", [], None)}
 
 
+def assert_not_degraded(issuers: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """직전 스냅샷 대비 품질이 급락했으면 덮어쓰지 않고 실패로 끝낸다.
+
+    OpenDART 한도 초과나 일시 장애로 회사개요 조회가 대부분 실패하면
+    업종 미분류와 연락처 누락이 한꺼번에 치솟는다. 그런 스냅샷을 그대로 배포하면
+    화면이 조용히 나빠지고, 무엇이 잘못됐는지 아무도 모른 채 하루가 지나간다.
+    그럴 바에는 직전 스냅샷을 그대로 두고 실패를 드러내는 편이 낫다.
+    """
+    current = _quality_of(issuers)
+    previous = PREVIOUS_QUALITY
+    if not previous or os.getenv("SKIP_SANITY_CHECK", "").strip().lower() in {"1", "true", "yes"}:
+        print(f"snapshot quality: {current} (직전 비교 생략)")
+        return current
+    tolerance = float(os.getenv("QUALITY_DROP_TOLERANCE_PP", "20"))
+    problems = []
+    for key, label in (("industry_mapped_ratio", "업종 매핑률"), ("ir_phone_ratio", "IR 연락처 확보율")):
+        drop = previous.get(key, 0) - current.get(key, 0)
+        if drop > tolerance:
+            problems.append(f"{label} {previous[key]}% → {current[key]}% ({drop:.1f}%p 하락)")
+    if current["issuers"] < previous.get("issuers", 0) * 0.5:
+        problems.append(f"기업 수 {previous.get('issuers')} → {current['issuers']}")
+    if problems:
+        raise RuntimeError(
+            "직전 스냅샷 대비 품질이 크게 떨어져 덮어쓰지 않습니다: "
+            + "; ".join(problems)
+            + ". 외부 API 한도 초과나 장애일 수 있습니다. "
+            + "의도한 변화라면 SKIP_SANITY_CHECK=1로 다시 실행하십시오."
+        )
+    print(f"snapshot quality: {current} (직전 {previous})")
+    return current
+
+
 def build_snapshot() -> Dict[str, Any]:
     t = now_kst()
     # daily_snapshot.json을 덮어쓰기 전에 직전 점수를 먼저 읽어둔다.
@@ -1487,6 +1532,7 @@ def build_snapshot() -> Dict[str, Any]:
             issuer["prev_final_score"] = None
             issuer["is_new_entry"] = bool(previous_scores)
 
+    quality = assert_not_degraded(issuers)
     listing_counts = Counter(x.get("listing_type", "미확인") for x in issuers)
 
     next_run = (t + timedelta(days=1)).replace(hour=8, minute=0, second=0, microsecond=0)
@@ -1518,6 +1564,8 @@ def build_snapshot() -> Dict[str, Any]:
             "page_detail_limit": page_detail_limit,
             "credit_rating_record_count": len(credit_rating_records),
             "previous_as_of_date": previous_as_of,
+            "quality": quality,
+            "previous_quality": PREVIOUS_QUALITY,
             "financial_shard_stats": financial_stats,
             "financial_covered_count": sum(1 for x in issuers if x.get("financial_basis") == "재무제표"),
             "listing_type_counts": dict(listing_counts),

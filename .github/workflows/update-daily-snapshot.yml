@@ -35,6 +35,7 @@ jobs:
         run: |
           python tests/test_financial_engine.py
           python tests/test_financial_stage.py
+          python tests/test_quality_guard.py
 
       - name: Generate daily snapshot
         env:

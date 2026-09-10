@@ -36,6 +36,8 @@
 | `FINANCIAL_REFRESH_DAYS` | 7 | 이 일수 안에 받아둔 샤드는 다시 받지 않음 |
 | `UNLISTED_MAX` | 2000 | 유니버스에 더할 비상장 법인 수 (0이면 비활성) |
 | `NEWS_ENRICH_LIMIT` | 150 | 네이버 뉴스 보강 대상 수 |
+| `QUALITY_DROP_TOLERANCE_PP` | 20 | 직전 대비 이 %p 넘게 품질이 떨어지면 덮어쓰지 않음 |
+| `SKIP_SANITY_CHECK` | (없음) | `1`이면 품질 검사를 건너뜀 (의도한 큰 변화일 때만) |
 
 ## 테스트
 
