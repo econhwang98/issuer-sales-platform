@@ -1,0 +1,53 @@
+{
+ "corp_code": "00135050",
+ "corp_name": "팜젠사이언스",
+ "unit": "억원",
+ "latest_period": "2022(12)",
+ "source": "OpenDART fnlttSinglAcntAll (CFS)",
+ "fetched_at": "2026-09-10 10:13",
+ "annual": [
+  {
+   "period": "2021(12)",
+   "revenue": 1099.0,
+   "ebit": -50.0,
+   "ebitda": -50.0,
+   "net_income": 324.0,
+   "total_assets": 2203.0,
+   "total_debt": 469.0,
+   "net_debt": 133.0,
+   "ebit_margin": -4.6,
+   "ebitda_margin": -4.6,
+   "ebitda_to_interest": null,
+   "net_debt_to_ebitda": null,
+   "debt_ratio": 73.6,
+   "debt_dependency": 21.3
+  },
+  {
+   "period": "2022(12)",
+   "revenue": 1509.0,
+   "ebit": 75.0,
+   "ebitda": 75.0,
+   "net_income": 701.0,
+   "total_assets": 3174.0,
+   "total_debt": 386.0,
+   "net_debt": 192.0,
+   "ebit_margin": 5.0,
+   "ebitda_margin": 5.0,
+   "ebitda_to_interest": 0.7,
+   "net_debt_to_ebitda": 2.6,
+   "debt_ratio": 53.2,
+   "debt_dependency": 12.1
+  }
+ ],
+ "quarter": null,
+ "metrics": {
+  "debt_to_equity_pct": 53.2,
+  "current_ratio_pct": 103.5,
+  "quick_ratio_pct": 72.8,
+  "debt_dependence_pct": 12.1,
+  "interest_coverage": 0.7,
+  "operating_cash_flow": -1286177415.0,
+  "investing_cash_flow": -15284385480.0,
+  "net_cash_change": null
+ }
+}

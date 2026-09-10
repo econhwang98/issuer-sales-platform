@@ -1,0 +1,53 @@
+{
+ "corp_code": "01051472",
+ "corp_name": "젠큐릭스",
+ "unit": "억원",
+ "latest_period": "2022(12)",
+ "source": "OpenDART fnlttSinglAcntAll (CFS)",
+ "fetched_at": "2026-09-10 10:13",
+ "annual": [
+  {
+   "period": "2021(12)",
+   "revenue": 30.0,
+   "ebit": -127.0,
+   "ebitda": -127.0,
+   "net_income": -351.0,
+   "total_assets": 553.0,
+   "total_debt": 6.0,
+   "net_debt": -113.0,
+   "ebit_margin": -418.3,
+   "ebitda_margin": -418.3,
+   "ebitda_to_interest": null,
+   "net_debt_to_ebitda": null,
+   "debt_ratio": 78.1,
+   "debt_dependency": 1.1
+  },
+  {
+   "period": "2022(12)",
+   "revenue": 26.0,
+   "ebit": -110.0,
+   "ebitda": -110.0,
+   "net_income": -255.0,
+   "total_assets": 372.0,
+   "total_debt": 82.0,
+   "net_debt": 24.0,
+   "ebit_margin": -430.1,
+   "ebitda_margin": -430.1,
+   "ebitda_to_interest": null,
+   "net_debt_to_ebitda": null,
+   "debt_ratio": 556.4,
+   "debt_dependency": 22.1
+  }
+ ],
+ "quarter": null,
+ "metrics": {
+  "debt_to_equity_pct": 556.4,
+  "current_ratio_pct": 31.0,
+  "quick_ratio_pct": 27.6,
+  "debt_dependence_pct": 22.1,
+  "interest_coverage": -0.8,
+  "operating_cash_flow": -10452261269.0,
+  "investing_cash_flow": -3174871768.0,
+  "net_cash_change": -6105572438.0
+ }
+}

@@ -1,0 +1,68 @@
+{
+ "corp_code": "00276083",
+ "corp_name": "피노",
+ "unit": "억원",
+ "latest_period": "2026 반기",
+ "source": "OpenDART fnlttSinglAcntAll (CFS)",
+ "fetched_at": "2026-09-10 10:13",
+ "annual": [
+  {
+   "period": "2021(12)",
+   "revenue": 113.0,
+   "ebit": 19.0,
+   "ebitda": 22.0,
+   "net_income": 22.0,
+   "total_assets": 251.0,
+   "total_debt": 14.0,
+   "net_debt": -92.0,
+   "ebit_margin": 17.1,
+   "ebitda_margin": 19.6,
+   "ebitda_to_interest": 9.8,
+   "net_debt_to_ebitda": -4.2,
+   "debt_ratio": 15.8,
+   "debt_dependency": 5.4
+  },
+  {
+   "period": "2022(12)",
+   "revenue": 114.0,
+   "ebit": 15.0,
+   "ebitda": 18.0,
+   "net_income": 17.0,
+   "total_assets": 253.0,
+   "total_debt": 0.0,
+   "net_debt": -105.0,
+   "ebit_margin": 12.8,
+   "ebitda_margin": 15.6,
+   "ebitda_to_interest": 11.7,
+   "net_debt_to_ebitda": -5.9,
+   "debt_ratio": 7.5,
+   "debt_dependency": 0.0
+  }
+ ],
+ "quarter": {
+  "period": "2026 반기",
+  "revenue": 2135.0,
+  "ebit": 118.0,
+  "ebitda": 118.0,
+  "net_income": 71.0,
+  "total_assets": 2350.0,
+  "total_debt": 2.0,
+  "net_debt": -1141.0,
+  "ebit_margin": 5.5,
+  "ebitda_margin": 5.5,
+  "ebitda_to_interest": 1.6,
+  "net_debt_to_ebitda": -9.7,
+  "debt_ratio": 18.3,
+  "debt_dependency": 0.1
+ },
+ "metrics": {
+  "debt_to_equity_pct": 18.3,
+  "current_ratio_pct": 499.6,
+  "quick_ratio_pct": 409.6,
+  "debt_dependence_pct": 0.1,
+  "interest_coverage": 1.6,
+  "operating_cash_flow": 14292570979.0,
+  "investing_cash_flow": -17167042460.0,
+  "net_cash_change": -70757033.0
+ }
+}

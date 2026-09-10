@@ -1,0 +1,68 @@
+{
+ "corp_code": "00307028",
+ "corp_name": "경남제약",
+ "unit": "억원",
+ "latest_period": "2026 반기",
+ "source": "OpenDART fnlttSinglAcntAll (CFS)",
+ "fetched_at": "2026-09-10 10:13",
+ "annual": [
+  {
+   "period": "2021(12)",
+   "revenue": 646.0,
+   "ebit": -77.0,
+   "ebitda": -77.0,
+   "net_income": -34.0,
+   "total_assets": 1253.0,
+   "total_debt": 389.0,
+   "net_debt": 159.0,
+   "ebit_margin": -12.0,
+   "ebitda_margin": -12.0,
+   "ebitda_to_interest": null,
+   "net_debt_to_ebitda": null,
+   "debt_ratio": 72.8,
+   "debt_dependency": 31.0
+  },
+  {
+   "period": "2022(12)",
+   "revenue": 590.0,
+   "ebit": -34.0,
+   "ebitda": -34.0,
+   "net_income": -68.0,
+   "total_assets": 1441.0,
+   "total_debt": 328.0,
+   "net_debt": -102.0,
+   "ebit_margin": -5.7,
+   "ebitda_margin": -5.7,
+   "ebitda_to_interest": null,
+   "net_debt_to_ebitda": null,
+   "debt_ratio": 44.7,
+   "debt_dependency": 22.7
+  }
+ ],
+ "quarter": {
+  "period": "2026 반기",
+  "revenue": 339.0,
+  "ebit": 2.0,
+  "ebitda": 2.0,
+  "net_income": -43.0,
+  "total_assets": 1432.0,
+  "total_debt": 52.0,
+  "net_debt": -132.0,
+  "ebit_margin": 0.5,
+  "ebitda_margin": 0.5,
+  "ebitda_to_interest": 0.0,
+  "net_debt_to_ebitda": -80.1,
+  "debt_ratio": 21.9,
+  "debt_dependency": 3.6
+ },
+ "metrics": {
+  "debt_to_equity_pct": 21.9,
+  "current_ratio_pct": 276.5,
+  "quick_ratio_pct": 201.0,
+  "debt_dependence_pct": 3.6,
+  "interest_coverage": 0.0,
+  "operating_cash_flow": -2760939147.0,
+  "investing_cash_flow": 39753342583.0,
+  "net_cash_change": 12122651549.0
+ }
+}

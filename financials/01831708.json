@@ -1,0 +1,69 @@
+{
+ "corp_code": "01831708",
+ "corp_name": "송우인포텍",
+ "unit": "억원",
+ "latest_period": "2025(12)",
+ "source": "OpenDART fnlttSinglAcntAll (CFS)",
+ "fetched_at": "2026-09-10 10:13",
+ "annual": [
+  {
+   "period": "2023(12)",
+   "revenue": null,
+   "ebit": null,
+   "ebitda": null,
+   "net_income": null,
+   "total_assets": 145.0,
+   "total_debt": 8.0,
+   "net_debt": -39.0,
+   "ebit_margin": null,
+   "ebitda_margin": null,
+   "ebitda_to_interest": null,
+   "net_debt_to_ebitda": null,
+   "debt_ratio": 17.2,
+   "debt_dependency": 5.2
+  },
+  {
+   "period": "2024(12)",
+   "revenue": 101.0,
+   "ebit": 11.0,
+   "ebitda": 11.0,
+   "net_income": 13.0,
+   "total_assets": 149.0,
+   "total_debt": 7.0,
+   "net_debt": -24.0,
+   "ebit_margin": 10.6,
+   "ebitda_margin": 10.6,
+   "ebitda_to_interest": 7.5,
+   "net_debt_to_ebitda": -2.2,
+   "debt_ratio": 16.5,
+   "debt_dependency": 4.9
+  },
+  {
+   "period": "2025(12)",
+   "revenue": 98.0,
+   "ebit": 12.0,
+   "ebitda": 12.0,
+   "net_income": 21.0,
+   "total_assets": 181.0,
+   "total_debt": 2.0,
+   "net_debt": -76.0,
+   "ebit_margin": 12.1,
+   "ebitda_margin": 12.1,
+   "ebitda_to_interest": 8.4,
+   "net_debt_to_ebitda": -6.4,
+   "debt_ratio": 28.8,
+   "debt_dependency": 0.8
+  }
+ ],
+ "quarter": null,
+ "metrics": {
+  "debt_to_equity_pct": 28.8,
+  "current_ratio_pct": 315.2,
+  "quick_ratio_pct": 273.1,
+  "debt_dependence_pct": 0.8,
+  "interest_coverage": 8.4,
+  "operating_cash_flow": 2214483038.0,
+  "investing_cash_flow": 3338102181.0,
+  "net_cash_change": null
+ }
+}

@@ -1,0 +1,53 @@
+{
+ "corp_code": "00415327",
+ "corp_name": "중앙백신",
+ "unit": "억원",
+ "latest_period": "2022(12)",
+ "source": "OpenDART fnlttSinglAcntAll (CFS)",
+ "fetched_at": "2026-09-10 10:13",
+ "annual": [
+  {
+   "period": "2021(12)",
+   "revenue": 409.0,
+   "ebit": 45.0,
+   "ebitda": 45.0,
+   "net_income": 76.0,
+   "total_assets": 1130.0,
+   "total_debt": 119.0,
+   "net_debt": 6.0,
+   "ebit_margin": 11.1,
+   "ebitda_margin": 11.1,
+   "ebitda_to_interest": 29.4,
+   "net_debt_to_ebitda": 0.1,
+   "debt_ratio": 21.5,
+   "debt_dependency": 10.5
+  },
+  {
+   "period": "2022(12)",
+   "revenue": 393.0,
+   "ebit": 43.0,
+   "ebitda": 43.0,
+   "net_income": 40.0,
+   "total_assets": 1149.0,
+   "total_debt": 125.0,
+   "net_debt": 47.0,
+   "ebit_margin": 10.9,
+   "ebitda_margin": 10.9,
+   "ebitda_to_interest": 11.9,
+   "net_debt_to_ebitda": 1.1,
+   "debt_ratio": 20.5,
+   "debt_dependency": 10.9
+  }
+ ],
+ "quarter": null,
+ "metrics": {
+  "debt_to_equity_pct": 20.5,
+  "current_ratio_pct": 297.4,
+  "quick_ratio_pct": 162.8,
+  "debt_dependence_pct": 10.9,
+  "interest_coverage": 11.9,
+  "operating_cash_flow": 7085710335.0,
+  "investing_cash_flow": -9181194055.0,
+  "net_cash_change": -3488856373.0
+ }
+}

@@ -1,0 +1,53 @@
+{
+ "corp_code": "01186963",
+ "corp_name": "메디오젠",
+ "unit": "억원",
+ "latest_period": "2022(12)",
+ "source": "OpenDART fnlttSinglAcntAll (CFS)",
+ "fetched_at": "2026-09-10 10:13",
+ "annual": [
+  {
+   "period": "2021(12)",
+   "revenue": 466.0,
+   "ebit": 111.0,
+   "ebitda": 111.0,
+   "net_income": 39.0,
+   "total_assets": 943.0,
+   "total_debt": null,
+   "net_debt": null,
+   "ebit_margin": 23.9,
+   "ebitda_margin": 23.9,
+   "ebitda_to_interest": 2.1,
+   "net_debt_to_ebitda": null,
+   "debt_ratio": 235.1,
+   "debt_dependency": null
+  },
+  {
+   "period": "2022(12)",
+   "revenue": 313.0,
+   "ebit": -11.0,
+   "ebitda": -11.0,
+   "net_income": 6.0,
+   "total_assets": 894.0,
+   "total_debt": null,
+   "net_debt": null,
+   "ebit_margin": -3.6,
+   "ebitda_margin": -3.6,
+   "ebitda_to_interest": null,
+   "net_debt_to_ebitda": null,
+   "debt_ratio": 212.3,
+   "debt_dependency": null
+  }
+ ],
+ "quarter": null,
+ "metrics": {
+  "debt_to_equity_pct": 212.3,
+  "current_ratio_pct": 47.7,
+  "quick_ratio_pct": 39.5,
+  "debt_dependence_pct": null,
+  "interest_coverage": -0.3,
+  "operating_cash_flow": 3519134843.0,
+  "investing_cash_flow": -2939613840.0,
+  "net_cash_change": -508407527.0
+ }
+}

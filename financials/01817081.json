@@ -1,0 +1,68 @@
+{
+ "corp_code": "01817081",
+ "corp_name": "SK이터닉스",
+ "unit": "억원",
+ "latest_period": "2026 반기",
+ "source": "OpenDART fnlttSinglAcntAll (CFS)",
+ "fetched_at": "2026-09-10 10:13",
+ "annual": [
+  {
+   "period": "2024(12)",
+   "revenue": 3322.0,
+   "ebit": 376.0,
+   "ebitda": 376.0,
+   "net_income": 224.0,
+   "total_assets": 7317.0,
+   "total_debt": 2842.0,
+   "net_debt": 2176.0,
+   "ebit_margin": 11.3,
+   "ebitda_margin": 11.3,
+   "ebitda_to_interest": 2.0,
+   "net_debt_to_ebitda": 5.8,
+   "debt_ratio": 202.4,
+   "debt_dependency": 38.8
+  },
+  {
+   "period": "2025(12)",
+   "revenue": 3856.0,
+   "ebit": 530.0,
+   "ebitda": 530.0,
+   "net_income": 307.0,
+   "total_assets": 13171.0,
+   "total_debt": 4508.0,
+   "net_debt": 3623.0,
+   "ebit_margin": 13.7,
+   "ebitda_margin": 13.7,
+   "ebitda_to_interest": 1.4,
+   "net_debt_to_ebitda": 6.8,
+   "debt_ratio": 382.4,
+   "debt_dependency": 34.2
+  }
+ ],
+ "quarter": {
+  "period": "2026 반기",
+  "revenue": 2684.0,
+  "ebit": 96.0,
+  "ebitda": 96.0,
+  "net_income": -80.0,
+  "total_assets": 12441.0,
+  "total_debt": 5592.0,
+  "net_debt": 4921.0,
+  "ebit_margin": 3.6,
+  "ebitda_margin": 3.6,
+  "ebitda_to_interest": 0.4,
+  "net_debt_to_ebitda": 51.3,
+  "debt_ratio": 363.3,
+  "debt_dependency": 45.0
+ },
+ "metrics": {
+  "debt_to_equity_pct": 363.3,
+  "current_ratio_pct": 97.0,
+  "quick_ratio_pct": 66.9,
+  "debt_dependence_pct": 45.0,
+  "interest_coverage": 0.4,
+  "operating_cash_flow": -90019761651.0,
+  "investing_cash_flow": -47188783050.0,
+  "net_cash_change": -21606363853.0
+ }
+}
