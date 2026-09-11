@@ -1948,10 +1948,29 @@
           다음 배치에서 재무가 채워지면 보고서를 다시 생성해 주십시오.</p>
         </div>`;
       }
-      const annual = financial.annual || [];
-      const quarter = financial.quarter || null;
+      // 값이 하나도 없는 기간은 열째로 뺀다. 공시가 없는 연도까지 "-"로 채우면
+      // 표는 커지는데 읽을 것은 없다.
+      const hasAnyValue = (row) => !!row && REPORT_METRICS.some(([key]) => {
+        const v = row[key];
+        return v !== null && v !== undefined && v !== "" && !Number.isNaN(Number(v));
+      });
+      const annual = (financial.annual || []).filter(hasAnyValue);
+      const quarter = hasAnyValue(financial.quarter) ? financial.quarter : null;
+      if (!annual.length && !quarter) {
+        return `<div class="notice">
+          <b>공시된 재무 수치를 확인하지 못했습니다.</b>
+          <p>재무제표를 받았으나 표준 계정으로 읽을 수 있는 값이 없었습니다.
+          사업보고서 원문을 직접 확인해 주십시오.</p>
+        </div>`;
+      }
       const cols = [...annual.map((a) => a.period || a.year || ""), quarter ? (quarter.period || "최신분기") : ""].filter(Boolean);
+      // 전 기간 값이 없는 지표는 행 자체를 뺀다. "-"만 늘어선 줄은 정보가 아니라 소음이다.
+      // 상각비를 구하지 못한 기업은 EBITDA와 그 파생 지표가 통째로 빠지고,
+      // 매출액·EBIT(영업이익)·당기순이익까지만 남는다.
       const rows = REPORT_METRICS.map(([key, label, digits]) => {
+        const values = [...annual.map((a) => a[key]), ...(quarter ? [quarter[key]] : [])];
+        const hasValue = values.some((v) => v !== null && v !== undefined && v !== "" && !Number.isNaN(Number(v)));
+        if (!hasValue) return "";
         const cells = [
           ...annual.map((a) => `<td>${fmtNum(a[key], digits)}</td>`),
           quarter ? `<td class="q">${fmtNum(quarter[key], digits)}</td>` : ""
@@ -1971,17 +1990,22 @@
     // EBITDA가 영업이익과 같아진다. 그대로 "EBITDA"라고 두면 오해를 부르므로 밝혀 적는다.
     function depreciationMissing(financial) {
       const rows = [...(financial.annual || []), ...(financial.quarter ? [financial.quarter] : [])]
-        .filter((r) => r && r.ebit !== null && r.ebit !== undefined && r.ebitda !== null && r.ebitda !== undefined);
-      return rows.length > 0 && rows.every((r) => r.ebit === r.ebitda);
+        .filter((r) => r && r.ebit !== null && r.ebit !== undefined);
+      if (!rows.length) return false;
+      // 상각비를 구하지 못하면 파이프라인이 ebitda를 비운다.
+      // 예전 샤드는 ebitda에 ebit을 그대로 넣었으므로 그 경우도 함께 잡는다.
+      return rows.every((r) => r.ebitda === null || r.ebitda === undefined || r.ebitda === r.ebit);
     }
 
     function depreciationCaveatHtml(financial) {
       if (!depreciationMissing(financial)) return "";
       return `<div class="notice">
-        <b>이 기업은 EBITDA를 영업이익과 동일하게 표시했습니다.</b>
-        <p>공시 현금흐름표에 감가상각비가 별도 항목으로 제공되지 않아 상각비를 더하지 못했습니다.
-        따라서 EBITDA마진, 순차입금/EBITDA, EBITDA/금융비용은 <b>실제보다 보수적으로(부담이 커 보이게)</b>
-        계산된 값입니다. 정확한 상각비는 사업보고서 원문의 현금흐름표 주석을 확인해 주십시오.</p>
+        <b>이 기업은 EBITDA 관련 지표를 싣지 않았습니다.</b>
+        <p>공시 현금흐름표에 감가상각비가 별도 항목으로 제공되지 않아 상각비를 확인할 수 없었습니다.
+        추정값을 EBITDA로 표기하면 오해를 부르므로, EBITDA와 그 파생 지표(EBITDA마진,
+        순차입금/EBITDA, EBITDA/금융비용)는 <b>표에서 제외</b>했습니다.
+        수익성은 <b>EBIT(영업이익)과 당기순이익</b>으로, 재무안정성은 부채비율과 차입금의존도로 보시면 됩니다.
+        상각비가 필요하면 사업보고서 원문의 현금흐름표 주석을 확인해 주십시오.</p>
       </div>`;
     }
 
