@@ -1881,7 +1881,27 @@
         <thead><tr><th>구분</th>${cols.map((c) => `<th>${escapeHtml(c)}</th>`).join("")}</tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <p class="src">단위: ${escapeHtml(financial.unit || "억원")} · 자료: ${escapeHtml(financial.source || "OpenDART")} · 수집 ${escapeHtml(financial.fetched_at || "-")}</p>`;
+      <p class="src">단위: ${escapeHtml(financial.unit || "억원")} · 자료: ${escapeHtml(financial.source || "OpenDART")} · 수집 ${escapeHtml(financial.fetched_at || "-")}</p>
+      ${depreciationCaveatHtml(financial)}`;
+    }
+
+    // OpenDART fnlttSinglAcntAll은 현금흐름표의 소계(영업·투자·재무활동)만 주고
+    // 감가상각비 같은 조정 세부항목은 대부분 담지 않는다. 그런 기업은 상각비를 더할 수 없어
+    // EBITDA가 영업이익과 같아진다. 그대로 "EBITDA"라고 두면 오해를 부르므로 밝혀 적는다.
+    function depreciationMissing(financial) {
+      const rows = [...(financial.annual || []), ...(financial.quarter ? [financial.quarter] : [])]
+        .filter((r) => r && r.ebit !== null && r.ebit !== undefined && r.ebitda !== null && r.ebitda !== undefined);
+      return rows.length > 0 && rows.every((r) => r.ebit === r.ebitda);
+    }
+
+    function depreciationCaveatHtml(financial) {
+      if (!depreciationMissing(financial)) return "";
+      return `<div class="notice">
+        <b>이 기업은 EBITDA를 영업이익과 동일하게 표시했습니다.</b>
+        <p>공시 현금흐름표에 감가상각비가 별도 항목으로 제공되지 않아 상각비를 더하지 못했습니다.
+        따라서 EBITDA마진, 순차입금/EBITDA, EBITDA/금융비용은 <b>실제보다 보수적으로(부담이 커 보이게)</b>
+        계산된 값입니다. 정확한 상각비는 사업보고서 원문의 현금흐름표 주석을 확인해 주십시오.</p>
+      </div>`;
     }
 
     function maturityTableHtml(financial) {
