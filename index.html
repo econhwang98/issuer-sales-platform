@@ -305,6 +305,9 @@
       position: fixed; inset: 0; z-index: 9000; background: rgba(16, 24, 40, .55);
       display: flex; align-items: stretch; justify-content: center; padding: 24px;
     }
+    /* display를 직접 지정했으므로 UA 스타일시트의 [hidden]{display:none}이 밀린다.
+       이 규칙이 없으면 오버레이가 페이지를 열자마자 계속 떠 있고 닫기도 듣지 않는다. */
+    .report-overlay[hidden] { display: none; }
     .report-overlay-panel {
       background: #fff; border-radius: 14px; overflow: hidden; width: min(900px, 100%);
       display: flex; flex-direction: column; box-shadow: 0 24px 64px rgba(16, 24, 40, .35);
