@@ -1,10 +1,11 @@
 {
  "corp_code": "00148531",
  "corp_name": "제이스코홀딩스",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2023(12)",
@@ -13,14 +14,14 @@
    "ebitda": -84.0,
    "net_income": -244.0,
    "total_assets": 1279.0,
-   "total_debt": 429.0,
-   "net_debt": 393.0,
+   "total_debt": 442.0,
+   "net_debt": 406.0,
    "ebit_margin": -15.1,
    "ebitda_margin": -15.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 103.8,
-   "debt_dependency": 33.5
+   "debt_dependency": 34.6
   },
   {
    "period": "2024(12)",
@@ -45,14 +46,14 @@
    "ebitda": -85.0,
    "net_income": -320.0,
    "total_assets": 1160.0,
-   "total_debt": 367.0,
-   "net_debt": 361.0,
+   "total_debt": 371.0,
+   "net_debt": 365.0,
    "ebit_margin": -20.6,
    "ebitda_margin": -20.6,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 111.6,
-   "debt_dependency": 31.6
+   "debt_dependency": 32.0
   }
  ],
  "quarter": {
@@ -62,20 +63,20 @@
   "ebitda": -26.0,
   "net_income": -45.0,
   "total_assets": 1101.0,
-  "total_debt": 403.0,
-  "net_debt": 401.0,
+  "total_debt": 407.0,
+  "net_debt": 404.0,
   "ebit_margin": -9.7,
   "ebitda_margin": -9.7,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 109.4,
-  "debt_dependency": 36.6
+  "debt_dependency": 36.9
  },
  "metrics": {
   "debt_to_equity_pct": 109.4,
   "current_ratio_pct": 22.6,
   "quick_ratio_pct": 18.9,
-  "debt_dependence_pct": 36.6,
+  "debt_dependence_pct": 36.9,
   "interest_coverage": -0.5,
   "operating_cash_flow": 2099313862.0,
   "investing_cash_flow": -3906398947.0,

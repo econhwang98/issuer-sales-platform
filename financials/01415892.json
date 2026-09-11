@@ -1,10 +1,11 @@
 {
  "corp_code": "01415892",
  "corp_name": "제이알글로벌리츠",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": 516.0,
    "net_income": 413.0,
    "total_assets": 25452.0,
-   "total_debt": 11219.0,
-   "net_debt": 10550.0,
+   "total_debt": 12019.0,
+   "net_debt": 11350.0,
    "ebit_margin": 73.3,
    "ebitda_margin": 73.3,
    "ebitda_to_interest": 4.0,
-   "net_debt_to_ebitda": 20.4,
+   "net_debt_to_ebitda": 22.0,
    "debt_ratio": 111.3,
-   "debt_dependency": 44.1
+   "debt_dependency": 47.2
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": 639.0,
    "net_income": 307.0,
    "total_assets": 26322.0,
-   "total_debt": 11917.0,
-   "net_debt": 11172.0,
+   "total_debt": 12767.0,
+   "net_debt": 12022.0,
    "ebit_margin": 85.4,
    "ebitda_margin": 85.4,
    "ebitda_to_interest": 1.9,
-   "net_debt_to_ebitda": 17.5,
+   "net_debt_to_ebitda": 18.8,
    "debt_ratio": 119.2,
-   "debt_dependency": 45.3
+   "debt_dependency": 48.5
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": 545.0,
    "net_income": 162.0,
    "total_assets": 27507.0,
-   "total_debt": 12701.0,
-   "net_debt": 11707.0,
+   "total_debt": 13731.0,
+   "net_debt": 12737.0,
    "ebit_margin": 75.6,
    "ebitda_margin": 75.6,
    "ebitda_to_interest": 1.4,
-   "net_debt_to_ebitda": 21.5,
+   "net_debt_to_ebitda": 23.4,
    "debt_ratio": 131.4,
-   "debt_dependency": 46.2
+   "debt_dependency": 49.9
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": 344.0,
   "net_income": 123.0,
   "total_assets": 28779.0,
-  "total_debt": 3360.0,
-  "net_debt": 1781.0,
+  "total_debt": 14058.0,
+  "net_debt": 12479.0,
   "ebit_margin": 80.6,
   "ebitda_margin": 80.6,
   "ebitda_to_interest": 1.6,
-  "net_debt_to_ebitda": 5.2,
+  "net_debt_to_ebitda": 36.3,
   "debt_ratio": 143.3,
-  "debt_dependency": 11.7
+  "debt_dependency": 48.8
  },
  "metrics": {
   "debt_to_equity_pct": 143.3,
   "current_ratio_pct": 25.2,
   "quick_ratio_pct": 25.2,
-  "debt_dependence_pct": 11.7,
+  "debt_dependence_pct": 48.8,
   "interest_coverage": 1.6,
   "operating_cash_flow": 56024126093.0,
   "investing_cash_flow": -1623491331.0,

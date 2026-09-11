@@ -1,10 +1,11 @@
 {
  "corp_code": "00259590",
  "corp_name": "바른손이앤에이",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -94,20 +95,20 @@
   "ebitda": -4.0,
   "net_income": 3.0,
   "total_assets": 1015.0,
-  "total_debt": 334.0,
-  "net_debt": 295.0,
+  "total_debt": 354.0,
+  "net_debt": 316.0,
   "ebit_margin": -8.1,
   "ebitda_margin": -8.1,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 77.1,
-  "debt_dependency": 32.9
+  "debt_dependency": 34.9
  },
  "metrics": {
   "debt_to_equity_pct": 77.1,
   "current_ratio_pct": 25.4,
   "quick_ratio_pct": 25.4,
-  "debt_dependence_pct": 32.9,
+  "debt_dependence_pct": 34.9,
   "interest_coverage": -0.4,
   "operating_cash_flow": 663846864.0,
   "investing_cash_flow": 340682166.0,

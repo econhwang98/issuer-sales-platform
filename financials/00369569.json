@@ -1,10 +1,11 @@
 {
  "corp_code": "00369569",
  "corp_name": "비케이홀딩스",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": -7.0,
    "net_income": -44.0,
    "total_assets": 218.0,
-   "total_debt": 2.0,
-   "net_debt": -18.0,
+   "total_debt": 5.0,
+   "net_debt": -15.0,
    "ebit_margin": -6.0,
    "ebitda_margin": -6.0,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 26.8,
-   "debt_dependency": 0.9
+   "debt_dependency": 2.1
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -20.0,
    "net_income": -20.0,
    "total_assets": 189.0,
-   "total_debt": 1.0,
-   "net_debt": -59.0,
+   "total_debt": 3.0,
+   "net_debt": -57.0,
    "ebit_margin": -16.0,
    "ebitda_margin": -16.0,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 25.6,
-   "debt_dependency": 0.4
+   "debt_dependency": 1.7
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -36.0,
    "net_income": -38.0,
    "total_assets": 145.0,
-   "total_debt": 2.0,
-   "net_debt": -54.0,
+   "total_debt": 5.0,
+   "net_debt": -51.0,
    "ebit_margin": -48.0,
    "ebitda_margin": -48.0,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 29.9,
-   "debt_dependency": 1.5
+   "debt_dependency": 3.8
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -18.0,
   "net_income": -21.0,
   "total_assets": 152.0,
-  "total_debt": 1.0,
-  "net_debt": -74.0,
+  "total_debt": 4.0,
+  "net_debt": -70.0,
   "ebit_margin": -72.3,
   "ebitda_margin": -72.3,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 26.1,
-  "debt_dependency": 0.4
+  "debt_dependency": 2.5
  },
  "metrics": {
   "debt_to_equity_pct": 26.1,
   "current_ratio_pct": 441.3,
   "quick_ratio_pct": 441.3,
-  "debt_dependence_pct": 0.4,
+  "debt_dependence_pct": 2.5,
   "interest_coverage": -77.6,
   "operating_cash_flow": -2069700677.0,
   "investing_cash_flow": 992508000.0,

@@ -1,10 +1,11 @@
 {
  "corp_code": "00141404",
  "corp_name": "블루산업개발",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": 81.0,
    "net_income": 63.0,
    "total_assets": 2096.0,
-   "total_debt": 85.0,
-   "net_debt": -29.0,
+   "total_debt": 584.0,
+   "net_debt": 470.0,
    "ebit_margin": 6.7,
    "ebitda_margin": 6.7,
    "ebitda_to_interest": 5.8,
-   "net_debt_to_ebitda": -0.4,
+   "net_debt_to_ebitda": 5.8,
    "debt_ratio": 58.7,
-   "debt_dependency": 4.1
+   "debt_dependency": 27.9
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": 78.0,
    "net_income": 79.0,
    "total_assets": 2037.0,
-   "total_debt": 11.0,
-   "net_debt": -71.0,
+   "total_debt": 491.0,
+   "net_debt": 409.0,
    "ebit_margin": 7.4,
    "ebitda_margin": 7.4,
    "ebitda_to_interest": 6.1,
-   "net_debt_to_ebitda": -0.9,
+   "net_debt_to_ebitda": 5.2,
    "debt_ratio": 49.2,
-   "debt_dependency": 0.6
+   "debt_dependency": 24.1
   },
   {
    "period": "2023(12)",

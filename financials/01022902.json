@@ -1,10 +1,11 @@
 {
  "corp_code": "01022902",
  "corp_name": "애드바이오텍",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": -16.0,
    "net_income": -27.0,
    "total_assets": 210.0,
-   "total_debt": 132.0,
-   "net_debt": 120.0,
+   "total_debt": 124.0,
+   "net_debt": 112.0,
    "ebit_margin": -13.1,
    "ebitda_margin": -13.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 310.5,
-   "debt_dependency": 62.8
+   "debt_dependency": 59.1
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": -49.0,
    "net_income": 27.0,
    "total_assets": 310.0,
-   "total_debt": 128.0,
-   "net_debt": 116.0,
+   "total_debt": 126.0,
+   "net_debt": 114.0,
    "ebit_margin": -46.4,
    "ebitda_margin": -46.4,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 91.6,
-   "debt_dependency": 41.2
+   "debt_dependency": 40.6
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": -48.0,
    "net_income": -54.0,
    "total_assets": 281.0,
-   "total_debt": 64.0,
-   "net_debt": 34.0,
+   "total_debt": 132.0,
+   "net_debt": 102.0,
    "ebit_margin": -45.5,
    "ebitda_margin": -45.5,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 159.0,
-   "debt_dependency": 22.8
+   "debt_dependency": 47.0
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -41.0,
    "net_income": -90.0,
    "total_assets": 231.0,
-   "total_debt": 33.0,
-   "net_debt": 27.0,
+   "total_debt": 113.0,
+   "net_debt": 107.0,
    "ebit_margin": -37.0,
    "ebitda_margin": -37.0,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 675.6,
-   "debt_dependency": 14.5
+   "debt_dependency": 49.0
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -35.0,
    "net_income": -33.0,
    "total_assets": 484.0,
-   "total_debt": 35.0,
-   "net_debt": -4.0,
+   "total_debt": 160.0,
+   "net_debt": 121.0,
    "ebit_margin": -27.1,
    "ebitda_margin": -27.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 257.5,
-   "debt_dependency": 7.2
+   "debt_dependency": 33.0
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -30.0,
   "net_income": -57.0,
   "total_assets": 539.0,
-  "total_debt": 23.0,
-  "net_debt": -98.0,
+  "total_debt": 141.0,
+  "net_debt": 20.0,
   "ebit_margin": -50.2,
   "ebitda_margin": -50.2,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 103.8,
-  "debt_dependency": 4.3
+  "debt_dependency": 26.1
  },
  "metrics": {
   "debt_to_equity_pct": 103.8,
   "current_ratio_pct": 108.5,
   "quick_ratio_pct": 99.6,
-  "debt_dependence_pct": 4.3,
+  "debt_dependence_pct": 26.1,
   "interest_coverage": -0.6,
   "operating_cash_flow": -1284537046.0,
   "investing_cash_flow": 1168047086.0,

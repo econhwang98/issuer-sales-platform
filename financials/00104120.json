@@ -1,10 +1,11 @@
 {
  "corp_code": "00104120",
  "corp_name": "광진실업",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": -70.0,
    "net_income": -51.0,
    "total_assets": 947.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 163.0,
+   "net_debt": 140.0,
    "ebit_margin": -13.1,
    "ebitda_margin": -13.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 331.2,
-   "debt_dependency": null
+   "debt_dependency": 17.2
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -73.0,
    "net_income": 29.0,
    "total_assets": 943.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 347.0,
+   "net_debt": 322.0,
    "ebit_margin": -12.5,
    "ebitda_margin": -12.5,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 280.4,
-   "debt_dependency": null
+   "debt_dependency": 36.8
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -43.0,
    "net_income": -49.0,
    "total_assets": 929.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 400.0,
+   "net_debt": 381.0,
    "ebit_margin": -7.5,
    "ebitda_margin": -7.5,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 363.1,
-   "debt_dependency": null
+   "debt_dependency": 43.0
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -1.0,
   "net_income": -13.0,
   "total_assets": 1002.0,
-  "total_debt": null,
-  "net_debt": null,
+  "total_debt": 592.0,
+  "net_debt": 529.0,
   "ebit_margin": -0.3,
   "ebitda_margin": -0.3,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 360.9,
-  "debt_dependency": null
+  "debt_dependency": 59.1
  },
  "metrics": {
   "debt_to_equity_pct": 360.9,
   "current_ratio_pct": 62.0,
   "quick_ratio_pct": 33.6,
-  "debt_dependence_pct": null,
+  "debt_dependence_pct": 59.1,
   "interest_coverage": -0.1,
   "operating_cash_flow": 1179652717.0,
   "investing_cash_flow": -280563760.0,

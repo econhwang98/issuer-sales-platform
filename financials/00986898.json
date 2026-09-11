@@ -1,10 +1,11 @@
 {
  "corp_code": "00986898",
  "corp_name": "팜스빌",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": 62.0,
    "net_income": null,
    "total_assets": 743.0,
-   "total_debt": 80.0,
-   "net_debt": -60.0,
+   "total_debt": 54.0,
+   "net_debt": -87.0,
    "ebit_margin": 15.8,
    "ebitda_margin": 15.8,
    "ebitda_to_interest": 6.5,
-   "net_debt_to_ebitda": -1.0,
+   "net_debt_to_ebitda": -1.4,
    "debt_ratio": 25.3,
-   "debt_dependency": 10.8
+   "debt_dependency": 7.2
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": 41.0,
    "net_income": null,
    "total_assets": 748.0,
-   "total_debt": 73.0,
-   "net_debt": -109.0,
+   "total_debt": 36.0,
+   "net_debt": -146.0,
    "ebit_margin": 15.6,
    "ebitda_margin": 15.6,
    "ebitda_to_interest": 5.0,
-   "net_debt_to_ebitda": -2.7,
+   "net_debt_to_ebitda": -3.6,
    "debt_ratio": 19.4,
-   "debt_dependency": 9.7
+   "debt_dependency": 4.9
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": 16.0,
    "net_income": 33.0,
    "total_assets": 713.0,
-   "total_debt": 22.0,
-   "net_debt": -33.0,
+   "total_debt": 0.0,
+   "net_debt": -55.0,
    "ebit_margin": 7.6,
    "ebitda_margin": 7.6,
    "ebitda_to_interest": 1.9,
-   "net_debt_to_ebitda": -2.0,
+   "net_debt_to_ebitda": -3.3,
    "debt_ratio": 11.3,
-   "debt_dependency": 3.1
+   "debt_dependency": 0.0
   },
   {
    "period": "2024(12)",

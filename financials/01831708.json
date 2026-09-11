@@ -1,10 +1,11 @@
 {
  "corp_code": "01831708",
  "corp_name": "송우인포텍",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2025(12)",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": 12.0,
    "net_income": 21.0,
    "total_assets": 181.0,
-   "total_debt": 2.0,
-   "net_debt": -76.0,
+   "total_debt": 8.0,
+   "net_debt": -70.0,
    "ebit_margin": 12.1,
    "ebitda_margin": 12.1,
    "ebitda_to_interest": 8.4,
-   "net_debt_to_ebitda": -6.4,
+   "net_debt_to_ebitda": -5.9,
    "debt_ratio": 28.8,
-   "debt_dependency": 0.8
+   "debt_dependency": 4.1
   }
  ],
  "quarter": null,
@@ -60,7 +61,7 @@
   "debt_to_equity_pct": 28.8,
   "current_ratio_pct": 315.2,
   "quick_ratio_pct": 273.1,
-  "debt_dependence_pct": 0.8,
+  "debt_dependence_pct": 4.1,
   "interest_coverage": 8.4,
   "operating_cash_flow": 2214483038.0,
   "investing_cash_flow": 3338102181.0,

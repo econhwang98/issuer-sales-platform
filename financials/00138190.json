@@ -1,10 +1,11 @@
 {
  "corp_code": "00138190",
  "corp_name": "GS글로벌",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": 765.0,
    "net_income": 261.0,
    "total_assets": 14011.0,
-   "total_debt": 347.0,
-   "net_debt": -1704.0,
+   "total_debt": 4902.0,
+   "net_debt": 2852.0,
    "ebit_margin": 2.0,
    "ebitda_margin": 2.0,
    "ebitda_to_interest": 2.3,
-   "net_debt_to_ebitda": -2.2,
+   "net_debt_to_ebitda": 3.7,
    "debt_ratio": 212.8,
-   "debt_dependency": 2.5
+   "debt_dependency": 35.0
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": 779.0,
    "net_income": 561.0,
    "total_assets": 14396.0,
-   "total_debt": 80.0,
-   "net_debt": -1067.0,
+   "total_debt": 4312.0,
+   "net_debt": 3165.0,
    "ebit_margin": 1.9,
    "ebitda_margin": 1.9,
    "ebitda_to_interest": 2.3,
-   "net_debt_to_ebitda": -1.4,
+   "net_debt_to_ebitda": 4.1,
    "debt_ratio": 153.9,
-   "debt_dependency": 0.6
+   "debt_dependency": 30.0
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": 523.0,
    "net_income": 139.0,
    "total_assets": 14521.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 5347.0,
+   "net_debt": 3697.0,
    "ebit_margin": 1.3,
    "ebitda_margin": 1.3,
    "ebitda_to_interest": 2.1,
-   "net_debt_to_ebitda": null,
+   "net_debt_to_ebitda": 7.1,
    "debt_ratio": 154.6,
-   "debt_dependency": null
+   "debt_dependency": 36.8
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": 246.0,
   "net_income": 116.0,
   "total_assets": 16821.0,
-  "total_debt": 0.0,
-  "net_debt": -1527.0,
+  "total_debt": 6729.0,
+  "net_debt": 5202.0,
   "ebit_margin": 1.1,
   "ebitda_margin": 1.1,
   "ebitda_to_interest": 2.2,
-  "net_debt_to_ebitda": -6.2,
+  "net_debt_to_ebitda": 21.2,
   "debt_ratio": 187.5,
-  "debt_dependency": 0.0
+  "debt_dependency": 40.0
  },
  "metrics": {
   "debt_to_equity_pct": 187.5,
   "current_ratio_pct": 127.6,
   "quick_ratio_pct": 98.4,
-  "debt_dependence_pct": 0.0,
+  "debt_dependence_pct": 40.0,
   "interest_coverage": 2.2,
   "operating_cash_flow": -86172790000.0,
   "investing_cash_flow": -59475377000.0,

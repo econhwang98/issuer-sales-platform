@@ -1,10 +1,11 @@
 {
  "corp_code": "01053540",
  "corp_name": "퓨쳐켐",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": -79.0,
    "net_income": -35.0,
    "total_assets": 771.0,
-   "total_debt": 74.0,
-   "net_debt": 38.0,
+   "total_debt": 113.0,
+   "net_debt": 78.0,
    "ebit_margin": -66.8,
    "ebitda_margin": -66.8,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 45.8,
-   "debt_dependency": 9.5
+   "debt_dependency": 14.6
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": -129.0,
    "net_income": -140.0,
    "total_assets": 887.0,
-   "total_debt": 101.0,
-   "net_debt": 69.0,
+   "total_debt": 19.0,
+   "net_debt": -13.0,
    "ebit_margin": -102.9,
    "ebitda_margin": -102.9,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 26.2,
-   "debt_dependency": 11.4
+   "debt_dependency": 2.2
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": -84.0,
    "net_income": null,
    "total_assets": 728.0,
-   "total_debt": 11.0,
-   "net_debt": -76.0,
+   "total_debt": 26.0,
+   "net_debt": -60.0,
    "ebit_margin": -60.2,
    "ebitda_margin": -60.2,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 14.0,
-   "debt_dependency": 1.5
+   "debt_dependency": 3.6
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -95.0,
    "net_income": null,
    "total_assets": 744.0,
-   "total_debt": 84.0,
-   "net_debt": 24.0,
+   "total_debt": 18.0,
+   "net_debt": -42.0,
    "ebit_margin": -54.7,
    "ebitda_margin": -54.7,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 36.5,
-   "debt_dependency": 11.2
+   "debt_dependency": 2.4
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -78.0,
    "net_income": null,
    "total_assets": 745.0,
-   "total_debt": 67.0,
-   "net_debt": 23.0,
+   "total_debt": 27.0,
+   "net_debt": -17.0,
    "ebit_margin": -41.5,
    "ebitda_margin": -41.5,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 35.9,
-   "debt_dependency": 9.0
+   "debt_dependency": 3.6
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -54.0,
   "net_income": null,
   "total_assets": 684.0,
-  "total_debt": 43.0,
-  "net_debt": -14.0,
+  "total_debt": 21.0,
+  "net_debt": -37.0,
   "ebit_margin": -51.1,
   "ebitda_margin": -51.1,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 24.1,
-  "debt_dependency": 6.3
+  "debt_dependency": 3.1
  },
  "metrics": {
   "debt_to_equity_pct": 24.1,
   "current_ratio_pct": 334.2,
   "quick_ratio_pct": 315.1,
-  "debt_dependence_pct": 6.3,
+  "debt_dependence_pct": 3.1,
   "interest_coverage": -9.3,
   "operating_cash_flow": -2822305667.0,
   "investing_cash_flow": 6545389705.0,

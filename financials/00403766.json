@@ -1,10 +1,11 @@
 {
  "corp_code": "00403766",
  "corp_name": "한국첨단소재",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": -118.0,
    "net_income": -147.0,
    "total_assets": 216.0,
-   "total_debt": 130.0,
-   "net_debt": 103.0,
+   "total_debt": 117.0,
+   "net_debt": 89.0,
    "ebit_margin": -87.8,
    "ebitda_margin": -87.8,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 506.4,
-   "debt_dependency": 60.3
+   "debt_dependency": 54.0
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": 8.0,
    "net_income": 5.0,
    "total_assets": 229.0,
-   "total_debt": 115.0,
-   "net_debt": 88.0,
+   "total_debt": 100.0,
+   "net_debt": 73.0,
    "ebit_margin": 3.9,
    "ebitda_margin": 3.9,
    "ebitda_to_interest": 1.8,
-   "net_debt_to_ebitda": 10.6,
+   "net_debt_to_ebitda": 8.8,
    "debt_ratio": 379.4,
-   "debt_dependency": 50.2
+   "debt_dependency": 43.7
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": -30.0,
    "net_income": -40.0,
    "total_assets": 244.0,
-   "total_debt": 18.0,
-   "net_debt": 10.0,
+   "total_debt": 81.0,
+   "net_debt": 74.0,
    "ebit_margin": -21.0,
    "ebitda_margin": -21.0,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 234.0,
-   "debt_dependency": 7.2
+   "debt_dependency": 33.2
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -48.0,
    "net_income": -143.0,
    "total_assets": 314.0,
-   "total_debt": 23.0,
-   "net_debt": -119.0,
+   "total_debt": 196.0,
+   "net_debt": 53.0,
    "ebit_margin": -73.7,
    "ebitda_margin": -73.7,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 477.1,
-   "debt_dependency": 7.5
+   "debt_dependency": 62.4
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -34.0,
    "net_income": -128.0,
    "total_assets": 184.0,
-   "total_debt": 3.0,
-   "net_debt": -48.0,
+   "total_debt": 37.0,
+   "net_debt": -14.0,
    "ebit_margin": -95.4,
    "ebitda_margin": -95.4,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 41.5,
-   "debt_dependency": 1.6
+   "debt_dependency": 20.1
   }
  ],
  "quarter": {

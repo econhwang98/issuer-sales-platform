@@ -1,10 +1,11 @@
 {
  "corp_code": "00578538",
  "corp_name": "티피씨글로벌",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": 5.0,
    "net_income": -49.0,
    "total_assets": 1319.0,
-   "total_debt": 289.0,
-   "net_debt": 93.0,
+   "total_debt": 239.0,
+   "net_debt": 43.0,
    "ebit_margin": 0.6,
    "ebitda_margin": 0.6,
    "ebitda_to_interest": 0.1,
-   "net_debt_to_ebitda": 19.6,
+   "net_debt_to_ebitda": 9.1,
    "debt_ratio": 66.5,
-   "debt_dependency": 21.9
+   "debt_dependency": 18.1
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": -16.0,
    "net_income": 22.0,
    "total_assets": 1186.0,
-   "total_debt": 188.0,
-   "net_debt": 89.0,
+   "total_debt": 158.0,
+   "net_debt": 59.0,
    "ebit_margin": -2.0,
    "ebitda_margin": -2.0,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 45.1,
-   "debt_dependency": 15.9
+   "debt_dependency": 13.3
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": -28.0,
    "net_income": -64.0,
    "total_assets": 1174.0,
-   "total_debt": 79.0,
-   "net_debt": -98.0,
+   "total_debt": 189.0,
+   "net_debt": 12.0,
    "ebit_margin": -3.5,
    "ebitda_margin": -3.5,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 48.5,
-   "debt_dependency": 6.7
+   "debt_dependency": 16.1
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -9.0,
    "net_income": -3.0,
    "total_assets": 1128.0,
-   "total_debt": 3.0,
-   "net_debt": -174.0,
+   "total_debt": 88.0,
+   "net_debt": -89.0,
    "ebit_margin": -1.1,
    "ebitda_margin": -1.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 20.6,
-   "debt_dependency": 0.2
+   "debt_dependency": 7.8
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -33.0,
    "net_income": -4.0,
    "total_assets": 1236.0,
-   "total_debt": 2.0,
-   "net_debt": -254.0,
+   "total_debt": 158.0,
+   "net_debt": -99.0,
    "ebit_margin": -4.1,
    "ebitda_margin": -4.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 32.8,
-   "debt_dependency": 0.2
+   "debt_dependency": 12.8
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": 3.0,
   "net_income": 170.0,
   "total_assets": 1095.0,
-  "total_debt": 2.0,
-  "net_debt": -210.0,
+  "total_debt": 137.0,
+  "net_debt": -75.0,
   "ebit_margin": 0.8,
   "ebitda_margin": 0.8,
   "ebitda_to_interest": 0.1,
-  "net_debt_to_ebitda": -78.0,
+  "net_debt_to_ebitda": -27.9,
   "debt_ratio": 34.4,
-  "debt_dependency": 0.2
+  "debt_dependency": 12.5
  },
  "metrics": {
   "debt_to_equity_pct": 34.4,
   "current_ratio_pct": 261.0,
   "quick_ratio_pct": 218.3,
-  "debt_dependence_pct": 0.2,
+  "debt_dependence_pct": 12.5,
   "interest_coverage": 0.1,
   "operating_cash_flow": -846161914.0,
   "investing_cash_flow": -37186789.0,

@@ -1,10 +1,11 @@
 {
  "corp_code": "00125646",
  "corp_name": "삼목에스폼",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -29,14 +30,14 @@
    "ebitda": 681.0,
    "net_income": 585.0,
    "total_assets": 6531.0,
-   "total_debt": 129.0,
-   "net_debt": -640.0,
+   "total_debt": 179.0,
+   "net_debt": -590.0,
    "ebit_margin": 20.2,
    "ebitda_margin": 20.2,
    "ebitda_to_interest": 44.9,
    "net_debt_to_ebitda": -0.9,
    "debt_ratio": 46.0,
-   "debt_dependency": 2.0
+   "debt_dependency": 2.7
   },
   {
    "period": "2023(12)",

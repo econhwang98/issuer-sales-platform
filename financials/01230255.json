@@ -1,10 +1,11 @@
 {
  "corp_code": "01230255",
  "corp_name": "한울앤제주",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": -72.0,
    "net_income": -82.0,
    "total_assets": 928.0,
-   "total_debt": 182.0,
-   "net_debt": 77.0,
+   "total_debt": 176.0,
+   "net_debt": 71.0,
    "ebit_margin": -25.1,
    "ebitda_margin": -25.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 59.9,
-   "debt_dependency": 19.6
+   "debt_dependency": 19.0
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": -116.0,
    "net_income": -248.0,
    "total_assets": 620.0,
-   "total_debt": 174.0,
-   "net_debt": 20.0,
+   "total_debt": 168.0,
+   "net_debt": 14.0,
    "ebit_margin": -48.4,
    "ebitda_margin": -48.4,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 80.4,
-   "debt_dependency": 28.1
+   "debt_dependency": 27.1
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": -104.0,
    "net_income": -124.0,
    "total_assets": 498.0,
-   "total_debt": 59.0,
-   "net_debt": -10.0,
+   "total_debt": 109.0,
+   "net_debt": 40.0,
    "ebit_margin": -48.0,
    "ebitda_margin": -48.0,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 118.2,
-   "debt_dependency": 11.8
+   "debt_dependency": 21.8
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -48.0,
    "net_income": -209.0,
    "total_assets": 331.0,
-   "total_debt": 51.0,
-   "net_debt": -53.0,
+   "total_debt": 102.0,
+   "net_debt": -2.0,
    "ebit_margin": -26.4,
    "ebitda_margin": -26.4,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 298.7,
-   "debt_dependency": 15.4
+   "debt_dependency": 30.9
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -49.0,
    "net_income": -115.0,
    "total_assets": 604.0,
-   "total_debt": 238.0,
-   "net_debt": 89.0,
+   "total_debt": 146.0,
+   "net_debt": -3.0,
    "ebit_margin": -35.3,
    "ebitda_margin": -35.3,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 278.1,
-   "debt_dependency": 39.4
+   "debt_dependency": 24.1
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -37.0,
   "net_income": -63.0,
   "total_assets": 608.0,
-  "total_debt": 346.0,
-  "net_debt": 324.0,
+  "total_debt": 141.0,
+  "net_debt": 119.0,
   "ebit_margin": -52.0,
   "ebitda_margin": -52.0,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 437.0,
-  "debt_dependency": 57.0
+  "debt_dependency": 23.2
  },
  "metrics": {
   "debt_to_equity_pct": 437.0,
   "current_ratio_pct": 78.3,
   "quick_ratio_pct": 69.7,
-  "debt_dependence_pct": 57.0,
+  "debt_dependence_pct": 23.2,
   "interest_coverage": -0.5,
   "operating_cash_flow": -4329532539.0,
   "investing_cash_flow": -7861947002.0,

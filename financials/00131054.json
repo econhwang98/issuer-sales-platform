@@ -1,10 +1,11 @@
 {
  "corp_code": "00131054",
  "corp_name": "유진증권",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2023(12)",
@@ -13,14 +14,14 @@
    "ebitda": 270.0,
    "net_income": 307.0,
    "total_assets": 86993.0,
-   "total_debt": 625.0,
-   "net_debt": -3838.0,
+   "total_debt": 42445.0,
+   "net_debt": 37981.0,
    "ebit_margin": 1.6,
    "ebitda_margin": 1.6,
    "ebitda_to_interest": 0.1,
-   "net_debt_to_ebitda": -14.2,
+   "net_debt_to_ebitda": 140.5,
    "debt_ratio": 759.7,
-   "debt_dependency": 0.7
+   "debt_dependency": 48.8
   },
   {
    "period": "2024(12)",
@@ -29,14 +30,14 @@
    "ebitda": 583.0,
    "net_income": 496.0,
    "total_assets": 96467.0,
-   "total_debt": 501.0,
-   "net_debt": -4189.0,
+   "total_debt": 46335.0,
+   "net_debt": 41645.0,
    "ebit_margin": 3.5,
    "ebitda_margin": 3.5,
    "ebitda_to_interest": 0.3,
-   "net_debt_to_ebitda": -7.2,
+   "net_debt_to_ebitda": 71.4,
    "debt_ratio": 817.5,
-   "debt_dependency": 0.5
+   "debt_dependency": 48.0
   },
   {
    "period": "2025(12)",
@@ -45,14 +46,14 @@
    "ebitda": 844.0,
    "net_income": 645.0,
    "total_assets": 110490.0,
-   "total_debt": 594.0,
-   "net_debt": -4930.0,
+   "total_debt": 47284.0,
+   "net_debt": 41760.0,
    "ebit_margin": 5.0,
    "ebitda_margin": 5.0,
    "ebitda_to_interest": 0.5,
-   "net_debt_to_ebitda": -5.8,
+   "net_debt_to_ebitda": 49.5,
    "debt_ratio": 875.7,
-   "debt_dependency": 0.5
+   "debt_dependency": 42.8
   }
  ],
  "quarter": {
@@ -62,20 +63,20 @@
   "ebitda": 1542.0,
   "net_income": 1202.0,
   "total_assets": 153150.0,
-  "total_debt": 539.0,
-  "net_debt": -6309.0,
+  "total_debt": 54007.0,
+  "net_debt": 47159.0,
   "ebit_margin": 6.0,
   "ebitda_margin": 6.0,
   "ebitda_to_interest": 1.7,
-  "net_debt_to_ebitda": -4.1,
+  "net_debt_to_ebitda": 30.6,
   "debt_ratio": 1137.0,
-  "debt_dependency": 0.4
+  "debt_dependency": 35.3
  },
  "metrics": {
   "debt_to_equity_pct": 1137.0,
   "current_ratio_pct": null,
   "quick_ratio_pct": null,
-  "debt_dependence_pct": 0.4,
+  "debt_dependence_pct": 35.3,
   "interest_coverage": 1.7,
   "operating_cash_flow": -490617188083.0,
   "investing_cash_flow": -26458480069.0,

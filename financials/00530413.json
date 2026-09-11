@@ -1,10 +1,11 @@
 {
  "corp_code": "00530413",
  "corp_name": "더코디",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": -104.0,
    "net_income": -137.0,
    "total_assets": 994.0,
-   "total_debt": 208.0,
-   "net_debt": 92.0,
+   "total_debt": 516.0,
+   "net_debt": 401.0,
    "ebit_margin": -51.5,
    "ebitda_margin": -51.5,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 209.0,
-   "debt_dependency": 20.9
+   "debt_dependency": 51.9
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": 2.0,
    "net_income": -78.0,
    "total_assets": 941.0,
-   "total_debt": 229.0,
-   "net_debt": 148.0,
+   "total_debt": 534.0,
+   "net_debt": 453.0,
    "ebit_margin": 0.9,
    "ebitda_margin": 0.9,
    "ebitda_to_interest": 0.0,
-   "net_debt_to_ebitda": 60.5,
+   "net_debt_to_ebitda": 184.4,
    "debt_ratio": 260.9,
-   "debt_dependency": 24.4
+   "debt_dependency": 56.7
   },
   {
    "period": "2025(12)",
@@ -78,13 +79,13 @@
    "net_income": -157.0,
    "total_assets": 723.0,
    "total_debt": 508.0,
-   "net_debt": 446.0,
+   "net_debt": 447.0,
    "ebit_margin": -3.3,
    "ebitda_margin": -3.3,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 572.5,
-   "debt_dependency": 70.2
+   "debt_dependency": 70.3
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -50.0,
   "net_income": -57.0,
   "total_assets": 744.0,
-  "total_debt": 189.0,
-  "net_debt": 142.0,
+  "total_debt": 584.0,
+  "net_debt": 537.0,
   "ebit_margin": -44.5,
   "ebitda_margin": -44.5,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 1480.3,
-  "debt_dependency": 25.4
+  "debt_dependency": 78.5
  },
  "metrics": {
   "debt_to_equity_pct": 1480.3,
   "current_ratio_pct": 226.5,
   "quick_ratio_pct": 64.1,
-  "debt_dependence_pct": 25.4,
+  "debt_dependence_pct": 78.5,
   "interest_coverage": -1.9,
   "operating_cash_flow": -8718114836.0,
   "investing_cash_flow": -434869589.0,

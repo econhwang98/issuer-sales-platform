@@ -1,10 +1,11 @@
 {
  "corp_code": "00876865",
  "corp_name": "네오오토",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": 104.0,
    "net_income": 119.0,
    "total_assets": 1762.0,
-   "total_debt": 3.0,
-   "net_debt": -254.0,
+   "total_debt": 258.0,
+   "net_debt": 1.0,
    "ebit_margin": 5.2,
    "ebitda_margin": 5.2,
    "ebitda_to_interest": 12.2,
-   "net_debt_to_ebitda": -2.4,
+   "net_debt_to_ebitda": 0.0,
    "debt_ratio": 63.5,
-   "debt_dependency": 0.2
+   "debt_dependency": 14.6
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": 126.0,
    "net_income": 177.0,
    "total_assets": 2170.0,
-   "total_debt": 51.0,
-   "net_debt": -288.0,
+   "total_debt": 310.0,
+   "net_debt": -30.0,
    "ebit_margin": 5.8,
    "ebitda_margin": 5.8,
    "ebitda_to_interest": 5.5,
-   "net_debt_to_ebitda": -2.3,
+   "net_debt_to_ebitda": -0.2,
    "debt_ratio": 74.9,
-   "debt_dependency": 2.4
+   "debt_dependency": 14.3
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": 137.0,
    "net_income": 149.0,
    "total_assets": 2244.0,
-   "total_debt": 60.0,
-   "net_debt": -229.0,
+   "total_debt": 231.0,
+   "net_debt": -58.0,
    "ebit_margin": 5.9,
    "ebitda_margin": 5.9,
    "ebitda_to_interest": 2.3,
-   "net_debt_to_ebitda": -1.7,
+   "net_debt_to_ebitda": -0.4,
    "debt_ratio": 63.1,
-   "debt_dependency": 2.7
+   "debt_dependency": 10.3
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": 78.0,
   "net_income": 67.0,
   "total_assets": 2262.0,
-  "total_debt": 4.0,
-  "net_debt": -212.0,
+  "total_debt": 130.0,
+  "net_debt": -86.0,
   "ebit_margin": 6.3,
   "ebitda_margin": 6.3,
   "ebitda_to_interest": 4.8,
-  "net_debt_to_ebitda": -2.7,
+  "net_debt_to_ebitda": -1.1,
   "debt_ratio": 44.6,
-  "debt_dependency": 0.2
+  "debt_dependency": 5.7
  },
  "metrics": {
   "debt_to_equity_pct": 44.6,
   "current_ratio_pct": 141.4,
   "quick_ratio_pct": 120.4,
-  "debt_dependence_pct": 0.2,
+  "debt_dependence_pct": 5.7,
   "interest_coverage": 4.8,
   "operating_cash_flow": 17177390540.0,
   "investing_cash_flow": -17586239337.0,

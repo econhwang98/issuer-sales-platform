@@ -1,10 +1,11 @@
 {
  "corp_code": "01141599",
  "corp_name": "아리바이오LAB",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": -64.0,
    "net_income": -17.0,
    "total_assets": 451.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 40.0,
+   "net_debt": -19.0,
    "ebit_margin": -2182.5,
    "ebitda_margin": -2182.5,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 27.4,
-   "debt_dependency": null
+   "debt_dependency": 8.8
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -77.0,
    "net_income": -101.0,
    "total_assets": 472.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 96.0,
+   "net_debt": -5.0,
    "ebit_margin": -2076.4,
    "ebitda_margin": -2076.4,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 70.4,
-   "debt_dependency": null
+   "debt_dependency": 20.3
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -143.0,
    "net_income": -160.0,
    "total_assets": 298.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 88.0,
+   "net_debt": -9.0,
    "ebit_margin": -8997.2,
    "ebitda_margin": -8997.2,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 151.1,
-   "debt_dependency": null
+   "debt_dependency": 29.7
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -42.0,
   "net_income": -47.0,
   "total_assets": 211.0,
-  "total_debt": null,
-  "net_debt": null,
+  "total_debt": 62.0,
+  "net_debt": -7.0,
   "ebit_margin": -2404.9,
   "ebitda_margin": -2404.9,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 113.8,
-  "debt_dependency": null
+  "debt_dependency": 29.3
  },
  "metrics": {
   "debt_to_equity_pct": 113.8,
   "current_ratio_pct": 191.7,
   "quick_ratio_pct": 191.7,
-  "debt_dependence_pct": null,
+  "debt_dependence_pct": 29.3,
   "interest_coverage": -3.5,
   "operating_cash_flow": -4389350604.0,
   "investing_cash_flow": 5268671171.0,

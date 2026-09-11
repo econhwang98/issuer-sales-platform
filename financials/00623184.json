@@ -1,10 +1,11 @@
 {
  "corp_code": "00623184",
  "corp_name": "오늘이엔엠",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": 33.0,
    "net_income": null,
    "total_assets": 791.0,
-   "total_debt": 60.0,
-   "net_debt": -37.0,
+   "total_debt": 264.0,
+   "net_debt": 167.0,
    "ebit_margin": 12.5,
    "ebitda_margin": 12.5,
    "ebitda_to_interest": 1.9,
-   "net_debt_to_ebitda": -1.2,
+   "net_debt_to_ebitda": 5.1,
    "debt_ratio": 97.8,
-   "debt_dependency": 7.6
+   "debt_dependency": 33.4
   },
   {
    "period": "2022(12)",
@@ -61,14 +62,14 @@
    "ebitda": -65.0,
    "net_income": -172.0,
    "total_assets": 734.0,
-   "total_debt": 55.0,
-   "net_debt": -66.0,
+   "total_debt": 94.0,
+   "net_debt": -27.0,
    "ebit_margin": -49.9,
    "ebitda_margin": -49.9,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 107.0,
-   "debt_dependency": 7.5
+   "debt_dependency": 12.8
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -18.0,
    "net_income": -783.0,
    "total_assets": 808.0,
-   "total_debt": 70.0,
-   "net_debt": -73.0,
+   "total_debt": 118.0,
+   "net_debt": -25.0,
    "ebit_margin": -11.1,
    "ebitda_margin": -11.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 767.4,
-   "debt_dependency": 8.7
+   "debt_dependency": 14.5
   }
  ],
  "quarter": {

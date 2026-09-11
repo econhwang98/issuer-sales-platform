@@ -1,10 +1,11 @@
 {
  "corp_code": "01099667",
  "corp_name": "에스디생명공학",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": -348.0,
    "net_income": -451.0,
    "total_assets": 1465.0,
-   "total_debt": 127.0,
-   "net_debt": -25.0,
+   "total_debt": 449.0,
+   "net_debt": 298.0,
    "ebit_margin": -27.9,
    "ebitda_margin": -27.9,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 199.1,
-   "debt_dependency": 8.6
+   "debt_dependency": 30.6
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": -410.0,
    "net_income": -750.0,
    "total_assets": 964.0,
-   "total_debt": 130.0,
-   "net_debt": 50.0,
+   "total_debt": 433.0,
+   "net_debt": 353.0,
    "ebit_margin": -44.2,
    "ebitda_margin": -44.2,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 1897.5,
-   "debt_dependency": 13.5
+   "debt_dependency": 44.9
   },
   {
    "period": "2023(12)",

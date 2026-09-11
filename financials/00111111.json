@@ -1,10 +1,11 @@
 {
  "corp_code": "00111111",
  "corp_name": "대양금속",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": -25.0,
    "net_income": -386.0,
    "total_assets": 1511.0,
-   "total_debt": 73.0,
-   "net_debt": -14.0,
+   "total_debt": 320.0,
+   "net_debt": 233.0,
    "ebit_margin": -1.2,
    "ebitda_margin": -1.2,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 54.5,
-   "debt_dependency": 4.9
+   "debt_dependency": 21.2
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": 19.0,
    "net_income": -153.0,
    "total_assets": 1403.0,
-   "total_debt": 36.0,
-   "net_debt": -89.0,
+   "total_debt": 219.0,
+   "net_debt": 94.0,
    "ebit_margin": 0.9,
    "ebitda_margin": 0.9,
    "ebitda_to_interest": 0.5,
-   "net_debt_to_ebitda": -4.7,
+   "net_debt_to_ebitda": 5.0,
    "debt_ratio": 55.2,
-   "debt_dependency": 2.5
+   "debt_dependency": 15.6
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": 56.0,
    "net_income": 94.0,
    "total_assets": 1444.0,
-   "total_debt": 6.0,
-   "net_debt": -104.0,
+   "total_debt": 161.0,
+   "net_debt": 51.0,
    "ebit_margin": 2.5,
    "ebitda_margin": 2.5,
    "ebitda_to_interest": 2.2,
-   "net_debt_to_ebitda": -1.8,
+   "net_debt_to_ebitda": 0.9,
    "debt_ratio": 44.3,
-   "debt_dependency": 0.4
+   "debt_dependency": 11.1
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": 30.0,
   "net_income": -4.0,
   "total_assets": 1599.0,
-  "total_debt": 88.0,
-  "net_debt": -27.0,
+  "total_debt": 273.0,
+  "net_debt": 158.0,
   "ebit_margin": 2.8,
   "ebitda_margin": 2.8,
   "ebitda_to_interest": 0.5,
-  "net_debt_to_ebitda": -0.9,
+  "net_debt_to_ebitda": 5.3,
   "debt_ratio": 57.9,
-  "debt_dependency": 5.5
+  "debt_dependency": 17.1
  },
  "metrics": {
   "debt_to_equity_pct": 57.9,
   "current_ratio_pct": 265.5,
   "quick_ratio_pct": 175.7,
-  "debt_dependence_pct": 5.5,
+  "debt_dependence_pct": 17.1,
   "interest_coverage": 0.5,
   "operating_cash_flow": -2685855092.0,
   "investing_cash_flow": -11369646219.0,

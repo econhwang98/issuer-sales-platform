@@ -1,10 +1,11 @@
 {
  "corp_code": "00808086",
  "corp_name": "HLB펩",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": -3.0,
    "net_income": -17.0,
    "total_assets": 324.0,
-   "total_debt": 25.0,
-   "net_debt": 13.0,
+   "total_debt": 80.0,
+   "net_debt": 68.0,
    "ebit_margin": -3.1,
    "ebitda_margin": -3.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 65.4,
-   "debt_dependency": 7.8
+   "debt_dependency": 24.7
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": -43.0,
    "net_income": -62.0,
    "total_assets": 259.0,
-   "total_debt": 22.0,
-   "net_debt": 17.0,
+   "total_debt": 84.0,
+   "net_debt": 80.0,
    "ebit_margin": -49.9,
    "ebitda_margin": -49.9,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 93.2,
-   "debt_dependency": 8.5
+   "debt_dependency": 32.6
   },
   {
    "period": "2023(12)",
@@ -77,14 +78,14 @@
    "ebitda": -73.0,
    "net_income": -6.0,
    "total_assets": 538.0,
-   "total_debt": 17.0,
-   "net_debt": 2.0,
+   "total_debt": 169.0,
+   "net_debt": 154.0,
    "ebit_margin": -147.5,
    "ebitda_margin": -147.5,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 109.1,
-   "debt_dependency": 3.2
+   "debt_dependency": 31.4
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -32.0,
   "net_income": -37.0,
   "total_assets": 497.0,
-  "total_debt": 5.0,
-  "net_debt": -7.0,
+  "total_debt": 177.0,
+  "net_debt": 165.0,
   "ebit_margin": -110.8,
   "ebitda_margin": -110.8,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 115.9,
-  "debt_dependency": 1.0
+  "debt_dependency": 35.7
  },
  "metrics": {
   "debt_to_equity_pct": 115.9,
   "current_ratio_pct": 121.7,
   "quick_ratio_pct": 104.4,
-  "debt_dependence_pct": 1.0,
+  "debt_dependence_pct": 35.7,
   "interest_coverage": -1.9,
   "operating_cash_flow": -2299255126.0,
   "investing_cash_flow": 3624759280.0,

@@ -1,10 +1,11 @@
 {
  "corp_code": "00350020",
  "corp_name": "파인디앤씨",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -29,14 +30,14 @@
    "ebitda": -40.0,
    "net_income": -253.0,
    "total_assets": 1072.0,
-   "total_debt": 475.0,
-   "net_debt": 431.0,
+   "total_debt": 393.0,
+   "net_debt": 348.0,
    "ebit_margin": -6.8,
    "ebitda_margin": -6.8,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 295.6,
-   "debt_dependency": 44.3
+   "debt_dependency": 36.6
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": -96.0,
    "net_income": -102.0,
    "total_assets": 1082.0,
-   "total_debt": 444.0,
-   "net_debt": 373.0,
+   "total_debt": 400.0,
+   "net_debt": 330.0,
    "ebit_margin": -22.1,
    "ebitda_margin": -22.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 264.2,
-   "debt_dependency": 41.0
+   "debt_dependency": 37.0
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -7.0,
    "net_income": -26.0,
    "total_assets": 1055.0,
-   "total_debt": 374.0,
-   "net_debt": 296.0,
+   "total_debt": 345.0,
+   "net_debt": 267.0,
    "ebit_margin": -1.1,
    "ebitda_margin": -1.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 197.0,
-   "debt_dependency": 35.4
+   "debt_dependency": 32.7
   },
   {
    "period": "2025(12)",

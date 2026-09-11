@@ -1,42 +1,43 @@
 {
  "corp_code": "00139889",
  "corp_name": "SKC",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
    "revenue": 22642.0,
    "ebit": 4015.0,
-   "ebitda": 6097.0,
+   "ebitda": 6107.0,
    "net_income": 3423.0,
    "total_assets": 61801.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 28540.0,
+   "net_debt": 21318.0,
    "ebit_margin": 17.7,
-   "ebitda_margin": 26.9,
+   "ebitda_margin": 27.0,
    "ebitda_to_interest": 7.1,
-   "net_debt_to_ebitda": null,
+   "net_debt_to_ebitda": 3.5,
    "debt_ratio": 170.8,
-   "debt_dependency": null
+   "debt_dependency": 46.2
   },
   {
    "period": "2022(12)",
    "revenue": 31389.0,
    "ebit": 2203.0,
-   "ebitda": 4721.0,
+   "ebitda": 4730.0,
    "net_income": -246.0,
    "total_assets": 63931.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 32480.0,
+   "net_debt": 21495.0,
    "ebit_margin": 7.0,
-   "ebitda_margin": 15.0,
+   "ebitda_margin": 15.1,
    "ebitda_to_interest": 1.9,
-   "net_debt_to_ebitda": null,
+   "net_debt_to_ebitda": 4.5,
    "debt_ratio": 185.2,
-   "debt_dependency": null
+   "debt_dependency": 50.8
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": -2130.0,
    "net_income": -3264.0,
    "total_assets": 70323.0,
-   "total_debt": 34422.0,
-   "net_debt": 29111.0,
+   "total_debt": 34040.0,
+   "net_debt": 28730.0,
    "ebit_margin": -14.3,
    "ebitda_margin": -14.3,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 178.6,
-   "debt_dependency": 48.9
+   "debt_dependency": 48.4
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -2758.0,
    "net_income": -4551.0,
    "total_assets": 67487.0,
-   "total_debt": 35840.0,
-   "net_debt": 31804.0,
+   "total_debt": 35704.0,
+   "net_debt": 31669.0,
    "ebit_margin": -16.1,
    "ebitda_margin": -16.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 194.4,
-   "debt_dependency": 53.1
+   "debt_dependency": 52.9
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -3050.0,
    "net_income": -7194.0,
    "total_assets": 67405.0,
-   "total_debt": 37380.0,
-   "net_debt": 29547.0,
+   "total_debt": 36891.0,
+   "net_debt": 29058.0,
    "ebit_margin": -16.6,
    "ebitda_margin": -16.6,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 232.7,
-   "debt_dependency": 55.5
+   "debt_dependency": 54.7
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -432.0,
   "net_income": -1578.0,
   "total_assets": 82315.0,
-  "total_debt": 42394.0,
-  "net_debt": 30083.0,
+  "total_debt": 42522.0,
+  "net_debt": 30212.0,
   "ebit_margin": -3.8,
   "ebitda_margin": -3.8,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 156.7,
-  "debt_dependency": 51.5
+  "debt_dependency": 51.7
  },
  "metrics": {
   "debt_to_equity_pct": 156.7,
   "current_ratio_pct": 97.3,
   "quick_ratio_pct": 81.2,
-  "debt_dependence_pct": 51.5,
+  "debt_dependence_pct": 51.7,
   "interest_coverage": -0.3,
   "operating_cash_flow": -480200228471.0,
   "investing_cash_flow": -676982683118.0,

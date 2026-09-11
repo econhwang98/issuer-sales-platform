@@ -1,10 +1,11 @@
 {
  "corp_code": "01416642",
  "corp_name": "다보링크",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2023(12)",
@@ -13,14 +14,14 @@
    "ebitda": -9.0,
    "net_income": -18.0,
    "total_assets": 370.0,
-   "total_debt": 144.0,
-   "net_debt": 56.0,
+   "total_debt": 145.0,
+   "net_debt": 57.0,
    "ebit_margin": -1.2,
    "ebitda_margin": -1.2,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 119.9,
-   "debt_dependency": 39.0
+   "debt_dependency": 39.3
   },
   {
    "period": "2024(12)",

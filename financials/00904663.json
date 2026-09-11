@@ -1,10 +1,11 @@
 {
  "corp_code": "00904663",
  "corp_name": "롯데오토리스",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2023(12)",
@@ -13,14 +14,14 @@
    "ebitda": 164.0,
    "net_income": 130.0,
    "total_assets": 7444.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 4654.0,
+   "net_debt": 4654.0,
    "ebit_margin": 12.8,
    "ebitda_margin": 12.8,
    "ebitda_to_interest": 0.9,
-   "net_debt_to_ebitda": null,
+   "net_debt_to_ebitda": 28.5,
    "debt_ratio": 269.6,
-   "debt_dependency": null
+   "debt_dependency": 62.5
   },
   {
    "period": "2024(12)",
@@ -29,14 +30,14 @@
    "ebitda": 174.0,
    "net_income": 141.0,
    "total_assets": 6334.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 3543.0,
+   "net_debt": 3543.0,
    "ebit_margin": 11.6,
    "ebitda_margin": 11.6,
    "ebitda_to_interest": 0.9,
-   "net_debt_to_ebitda": null,
+   "net_debt_to_ebitda": 20.4,
    "debt_ratio": 194.0,
-   "debt_dependency": null
+   "debt_dependency": 55.9
   },
   {
    "period": "2025(12)",
@@ -45,14 +46,14 @@
    "ebitda": 110.0,
    "net_income": 94.0,
    "total_assets": 5667.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 2865.0,
+   "net_debt": 2865.0,
    "ebit_margin": 7.7,
    "ebitda_margin": 7.7,
    "ebitda_to_interest": 0.8,
-   "net_debt_to_ebitda": null,
+   "net_debt_to_ebitda": 26.0,
    "debt_ratio": 151.8,
-   "debt_dependency": null
+   "debt_dependency": 50.6
   }
  ],
  "quarter": {
@@ -62,20 +63,20 @@
   "ebitda": 29.0,
   "net_income": 17.0,
   "total_assets": 7038.0,
-  "total_debt": null,
-  "net_debt": null,
+  "total_debt": 4182.0,
+  "net_debt": 4182.0,
   "ebit_margin": 3.9,
   "ebitda_margin": 3.9,
   "ebitda_to_interest": 0.4,
-  "net_debt_to_ebitda": null,
+  "net_debt_to_ebitda": 144.8,
   "debt_ratio": 209.3,
-  "debt_dependency": null
+  "debt_dependency": 59.4
  },
  "metrics": {
   "debt_to_equity_pct": 209.3,
   "current_ratio_pct": null,
   "quick_ratio_pct": null,
-  "debt_dependence_pct": null,
+  "debt_dependence_pct": 59.4,
   "interest_coverage": 0.4,
   "operating_cash_flow": -94481031818.0,
   "investing_cash_flow": -70680603.0,

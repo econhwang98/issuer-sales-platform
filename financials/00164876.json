@@ -1,10 +1,11 @@
 {
  "corp_code": "00164876",
  "corp_name": "케이비증권",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2023(12)",
@@ -13,14 +14,14 @@
    "ebitda": 6802.0,
    "net_income": 3880.0,
    "total_assets": 612669.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 306402.0,
+   "net_debt": 306402.0,
    "ebit_margin": 5.9,
    "ebitda_margin": 5.9,
    "ebitda_to_interest": 0.6,
-   "net_debt_to_ebitda": null,
+   "net_debt_to_ebitda": 45.0,
    "debt_ratio": 873.1,
-   "debt_dependency": null
+   "debt_dependency": 50.0
   },
   {
    "period": "2024(12)",
@@ -29,14 +30,14 @@
    "ebitda": 7808.0,
    "net_income": 5904.0,
    "total_assets": 633905.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 334546.0,
+   "net_debt": 334546.0,
    "ebit_margin": 7.2,
    "ebitda_margin": 7.2,
    "ebitda_to_interest": 0.7,
-   "net_debt_to_ebitda": null,
+   "net_debt_to_ebitda": 42.8,
    "debt_ratio": 820.3,
-   "debt_dependency": null
+   "debt_dependency": 52.8
   },
   {
    "period": "2025(12)",
@@ -45,14 +46,14 @@
    "ebitda": 9116.0,
    "net_income": 6824.0,
    "total_assets": 764749.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 378234.0,
+   "net_debt": 378234.0,
    "ebit_margin": 6.4,
    "ebitda_margin": 6.4,
    "ebitda_to_interest": 0.8,
-   "net_debt_to_ebitda": null,
+   "net_debt_to_ebitda": 41.5,
    "debt_ratio": 1008.9,
-   "debt_dependency": null
+   "debt_dependency": 49.5
   }
  ],
  "quarter": {
@@ -62,20 +63,20 @@
   "ebitda": 10537.0,
   "net_income": 8010.0,
   "total_assets": 1028061.0,
-  "total_debt": null,
-  "net_debt": null,
+  "total_debt": 444712.0,
+  "net_debt": 444712.0,
   "ebit_margin": 5.1,
   "ebitda_margin": 5.1,
   "ebitda_to_interest": 1.7,
-  "net_debt_to_ebitda": null,
+  "net_debt_to_ebitda": 42.2,
   "debt_ratio": 1150.6,
-  "debt_dependency": null
+  "debt_dependency": 43.3
  },
  "metrics": {
   "debt_to_equity_pct": 1150.6,
   "current_ratio_pct": null,
   "quick_ratio_pct": null,
-  "debt_dependence_pct": null,
+  "debt_dependence_pct": 43.3,
   "interest_coverage": 1.7,
   "operating_cash_flow": -6114603610981.0,
   "investing_cash_flow": 666993601332.0,

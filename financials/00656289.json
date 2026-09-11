@@ -1,10 +1,11 @@
 {
  "corp_code": "00656289",
  "corp_name": "코스맥스엔비티",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": 64.0,
    "net_income": -53.0,
    "total_assets": 3105.0,
-   "total_debt": 2038.0,
-   "net_debt": 1473.0,
+   "total_debt": 2028.0,
+   "net_debt": 1463.0,
    "ebit_margin": 2.2,
    "ebitda_margin": 2.2,
    "ebitda_to_interest": 0.8,
-   "net_debt_to_ebitda": 22.9,
+   "net_debt_to_ebitda": 22.7,
    "debt_ratio": 431.5,
-   "debt_dependency": 65.6
+   "debt_dependency": 65.3
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": 22.0,
    "net_income": -129.0,
    "total_assets": 3040.0,
-   "total_debt": 2078.0,
-   "net_debt": 1439.0,
+   "total_debt": 2071.0,
+   "net_debt": 1432.0,
    "ebit_margin": 0.7,
    "ebitda_margin": 0.7,
    "ebitda_to_interest": 0.2,
-   "net_debt_to_ebitda": 64.2,
+   "net_debt_to_ebitda": 63.9,
    "debt_ratio": 543.3,
-   "debt_dependency": 68.4
+   "debt_dependency": 68.1
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": 120.0,
    "net_income": -58.0,
    "total_assets": 3001.0,
-   "total_debt": 2039.0,
-   "net_debt": 1444.0,
+   "total_debt": 2013.0,
+   "net_debt": 1418.0,
    "ebit_margin": 3.6,
    "ebitda_margin": 3.6,
    "ebitda_to_interest": 0.8,
-   "net_debt_to_ebitda": 12.1,
+   "net_debt_to_ebitda": 11.8,
    "debt_ratio": 639.3,
-   "debt_dependency": 67.9
+   "debt_dependency": 67.1
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": 99.0,
    "net_income": -54.0,
    "total_assets": 3172.0,
-   "total_debt": 1937.0,
-   "net_debt": 1484.0,
+   "total_debt": 1923.0,
+   "net_debt": 1470.0,
    "ebit_margin": 3.1,
    "ebitda_margin": 3.1,
    "ebitda_to_interest": 0.6,
-   "net_debt_to_ebitda": 15.0,
+   "net_debt_to_ebitda": 14.8,
    "debt_ratio": 411.7,
-   "debt_dependency": 61.0
+   "debt_dependency": 60.6
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": 40.0,
    "net_income": -151.0,
    "total_assets": 2830.0,
-   "total_debt": 1675.0,
-   "net_debt": 1192.0,
+   "total_debt": 1668.0,
+   "net_debt": 1185.0,
    "ebit_margin": 1.4,
    "ebitda_margin": 1.4,
    "ebitda_to_interest": 0.3,
-   "net_debt_to_ebitda": 29.8,
+   "net_debt_to_ebitda": 29.6,
    "debt_ratio": 479.3,
-   "debt_dependency": 59.2
+   "debt_dependency": 59.0
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": 187.0,
   "net_income": 395.0,
   "total_assets": 3346.0,
-  "total_debt": 1613.0,
-  "net_debt": 1086.0,
+  "total_debt": 1607.0,
+  "net_debt": 1080.0,
   "ebit_margin": 9.6,
   "ebitda_margin": 9.6,
   "ebitda_to_interest": 3.9,
   "net_debt_to_ebitda": 5.8,
   "debt_ratio": 262.1,
-  "debt_dependency": 48.2
+  "debt_dependency": 48.0
  },
  "metrics": {
   "debt_to_equity_pct": 262.1,
   "current_ratio_pct": 82.1,
   "quick_ratio_pct": 62.5,
-  "debt_dependence_pct": 48.2,
+  "debt_dependence_pct": 48.0,
   "interest_coverage": 3.9,
   "operating_cash_flow": 20559897970.0,
   "investing_cash_flow": -5240501956.0,

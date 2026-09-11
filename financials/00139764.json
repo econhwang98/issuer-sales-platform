@@ -1,10 +1,11 @@
 {
  "corp_code": "00139764",
  "corp_name": "에넥스",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": -70.0,
    "net_income": -197.0,
    "total_assets": 1440.0,
-   "total_debt": 308.0,
-   "net_debt": 197.0,
+   "total_debt": 268.0,
+   "net_debt": 157.0,
    "ebit_margin": -3.0,
    "ebitda_margin": -3.0,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 269.6,
-   "debt_dependency": 21.4
+   "debt_dependency": 18.6
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": 51.0,
    "net_income": 39.0,
    "total_assets": 1425.0,
-   "total_debt": 324.0,
-   "net_debt": 152.0,
+   "total_debt": 204.0,
+   "net_debt": 32.0,
    "ebit_margin": 1.9,
    "ebitda_margin": 1.9,
    "ebitda_to_interest": 2.7,
-   "net_debt_to_ebitda": 3.0,
+   "net_debt_to_ebitda": 0.6,
    "debt_ratio": 233.5,
-   "debt_dependency": 22.8
+   "debt_dependency": 14.3
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": 5.0,
    "net_income": -14.0,
    "total_assets": 1279.0,
-   "total_debt": 307.0,
-   "net_debt": 174.0,
+   "total_debt": 239.0,
+   "net_debt": 106.0,
    "ebit_margin": 0.3,
    "ebitda_margin": 0.3,
    "ebitda_to_interest": 0.4,
-   "net_debt_to_ebitda": 31.8,
+   "net_debt_to_ebitda": 19.4,
    "debt_ratio": 211.3,
-   "debt_dependency": 24.0
+   "debt_dependency": 18.7
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -60.0,
   "net_income": -67.0,
   "total_assets": 1184.0,
-  "total_debt": 345.0,
-  "net_debt": 283.0,
+  "total_debt": 277.0,
+  "net_debt": 215.0,
   "ebit_margin": -6.7,
   "ebitda_margin": -6.7,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 241.7,
-  "debt_dependency": 29.1
+  "debt_dependency": 23.4
  },
  "metrics": {
   "debt_to_equity_pct": 241.7,
   "current_ratio_pct": 55.5,
   "quick_ratio_pct": 48.9,
-  "debt_dependence_pct": 29.1,
+  "debt_dependence_pct": 23.4,
   "interest_coverage": -9.3,
   "operating_cash_flow": -9357392009.0,
   "investing_cash_flow": -1557501470.0,

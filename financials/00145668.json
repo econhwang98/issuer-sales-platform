@@ -1,10 +1,11 @@
 {
  "corp_code": "00145668",
  "corp_name": "이화공영",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -94,20 +95,20 @@
   "ebitda": -20.0,
   "net_income": -14.0,
   "total_assets": 407.0,
-  "total_debt": 1.0,
-  "net_debt": -35.0,
+  "total_debt": 52.0,
+  "net_debt": 17.0,
   "ebit_margin": -8.4,
   "ebitda_margin": -8.4,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 201.4,
-  "debt_dependency": 0.2
+  "debt_dependency": 12.8
  },
  "metrics": {
   "debt_to_equity_pct": 201.4,
   "current_ratio_pct": 103.9,
   "quick_ratio_pct": 103.9,
-  "debt_dependence_pct": 0.2,
+  "debt_dependence_pct": 12.8,
   "interest_coverage": -11.9,
   "operating_cash_flow": -3232435011.0,
   "investing_cash_flow": 28500000.0,

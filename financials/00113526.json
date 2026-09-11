@@ -1,10 +1,11 @@
 {
  "corp_code": "00113526",
  "corp_name": "대한항공",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": 31133.0,
    "net_income": 5788.0,
    "total_assets": 266719.0,
-   "total_debt": 101701.0,
-   "net_debt": 89847.0,
+   "total_debt": 95178.0,
+   "net_debt": 83325.0,
    "ebit_margin": 15.7,
    "ebitda_margin": 34.5,
    "ebitda_to_interest": 7.1,
-   "net_debt_to_ebitda": 2.9,
+   "net_debt_to_ebitda": 2.7,
    "debt_ratio": 288.5,
-   "debt_dependency": 38.1
+   "debt_dependency": 35.7
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": 44803.0,
    "net_income": 17295.0,
    "total_assets": 289977.0,
-   "total_debt": 92939.0,
-   "net_debt": 82370.0,
+   "total_debt": 97202.0,
+   "net_debt": 86633.0,
    "ebit_margin": 20.1,
    "ebitda_margin": 31.8,
    "ebitda_to_interest": 10.3,
-   "net_debt_to_ebitda": 1.8,
+   "net_debt_to_ebitda": 1.9,
    "debt_ratio": 212.1,
-   "debt_dependency": 32.1
+   "debt_dependency": 33.5
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": 35130.0,
    "net_income": 11291.0,
    "total_assets": 303918.0,
-   "total_debt": 96530.0,
-   "net_debt": 90302.0,
+   "total_debt": 94077.0,
+   "net_debt": 87849.0,
    "ebit_margin": 11.1,
    "ebitda_margin": 21.8,
    "ebitda_to_interest": 5.9,
-   "net_debt_to_ebitda": 2.6,
+   "net_debt_to_ebitda": 2.5,
    "debt_ratio": 209.6,
-   "debt_dependency": 31.8
+   "debt_dependency": 31.0
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": 39062.0,
    "net_income": 13819.0,
    "total_assets": 470121.0,
-   "total_debt": 170854.0,
-   "net_debt": 148698.0,
+   "total_debt": 168845.0,
+   "net_debt": 146689.0,
    "ebit_margin": 11.8,
    "ebitda_margin": 21.9,
    "ebitda_to_interest": 6.5,
    "net_debt_to_ebitda": 3.8,
    "debt_ratio": 328.8,
-   "debt_dependency": 36.3
+   "debt_dependency": 35.9
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": 39688.0,
    "net_income": 6473.0,
    "total_assets": 504061.0,
-   "total_debt": 202123.0,
-   "net_debt": 183423.0,
+   "total_debt": 210505.0,
+   "net_debt": 191805.0,
    "ebit_margin": 4.4,
    "ebitda_margin": 15.7,
    "ebitda_to_interest": 4.1,
-   "net_debt_to_ebitda": 4.6,
+   "net_debt_to_ebitda": 4.8,
    "debt_ratio": 339.9,
-   "debt_dependency": 40.1
+   "debt_dependency": 41.8
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": 18204.0,
   "net_income": -5664.0,
   "total_assets": 528244.0,
-  "total_debt": 223747.0,
-  "net_debt": 197736.0,
+  "total_debt": 218008.0,
+  "net_debt": 191996.0,
   "ebit_margin": 2.2,
   "ebitda_margin": 13.1,
   "ebitda_to_interest": 3.9,
-  "net_debt_to_ebitda": 10.9,
+  "net_debt_to_ebitda": 10.5,
   "debt_ratio": 390.7,
-  "debt_dependency": 42.4
+  "debt_dependency": 41.3
  },
  "metrics": {
   "debt_to_equity_pct": 390.7,
   "current_ratio_pct": 58.7,
   "quick_ratio_pct": 49.1,
-  "debt_dependence_pct": 42.4,
+  "debt_dependence_pct": 41.3,
   "interest_coverage": 0.7,
   "operating_cash_flow": 2753479947149.0,
   "investing_cash_flow": -1467451740121.0,

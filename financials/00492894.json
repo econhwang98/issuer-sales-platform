@@ -1,10 +1,11 @@
 {
  "corp_code": "00492894",
  "corp_name": "젬백스",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": -79.0,
    "net_income": -272.0,
    "total_assets": 1352.0,
-   "total_debt": 11.0,
-   "net_debt": -155.0,
+   "total_debt": 145.0,
+   "net_debt": -20.0,
    "ebit_margin": -10.9,
    "ebitda_margin": -10.9,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 25.1,
-   "debt_dependency": 0.8
+   "debt_dependency": 10.8
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -383.0,
    "net_income": -872.0,
    "total_assets": 1507.0,
-   "total_debt": 4.0,
-   "net_debt": -31.0,
+   "total_debt": 711.0,
+   "net_debt": 675.0,
    "ebit_margin": -61.2,
    "ebitda_margin": -61.2,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 419.7,
-   "debt_dependency": 0.3
+   "debt_dependency": 47.1
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": 38.0,
    "net_income": -113.0,
    "total_assets": 1589.0,
-   "total_debt": 5.0,
-   "net_debt": -171.0,
+   "total_debt": 581.0,
+   "net_debt": 405.0,
    "ebit_margin": 4.7,
    "ebitda_margin": 4.7,
    "ebitda_to_interest": 0.4,
-   "net_debt_to_ebitda": -4.5,
+   "net_debt_to_ebitda": 10.7,
    "debt_ratio": 177.6,
-   "debt_dependency": 0.3
+   "debt_dependency": 36.6
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": 2.0,
   "net_income": -114.0,
   "total_assets": 1631.0,
-  "total_debt": 760.0,
-  "net_debt": 574.0,
+  "total_debt": 470.0,
+  "net_debt": 284.0,
   "ebit_margin": 0.6,
   "ebitda_margin": 0.6,
   "ebitda_to_interest": 0.0,
-  "net_debt_to_ebitda": 246.8,
+  "net_debt_to_ebitda": 122.0,
   "debt_ratio": 120.7,
-  "debt_dependency": 46.6
+  "debt_dependency": 28.8
  },
  "metrics": {
   "debt_to_equity_pct": 120.7,
   "current_ratio_pct": 107.9,
   "quick_ratio_pct": 88.2,
-  "debt_dependence_pct": 46.6,
+  "debt_dependence_pct": 28.8,
   "interest_coverage": 0.0,
   "operating_cash_flow": -11307067725.0,
   "investing_cash_flow": -12884593894.0,

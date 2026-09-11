@@ -1,10 +1,11 @@
 {
  "corp_code": "00276083",
  "corp_name": "피노",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -43,15 +44,15 @@
   "period": "2026 반기",
   "revenue": 2135.0,
   "ebit": 118.0,
-  "ebitda": 118.0,
+  "ebitda": 120.0,
   "net_income": 71.0,
   "total_assets": 2350.0,
   "total_debt": 2.0,
   "net_debt": -1141.0,
   "ebit_margin": 5.5,
-  "ebitda_margin": 5.5,
+  "ebitda_margin": 5.6,
   "ebitda_to_interest": 1.6,
-  "net_debt_to_ebitda": -9.7,
+  "net_debt_to_ebitda": -9.5,
   "debt_ratio": 18.3,
   "debt_dependency": 0.1
  },

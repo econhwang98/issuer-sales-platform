@@ -1,10 +1,11 @@
 {
  "corp_code": "01381984",
  "corp_name": "SKAI",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": 12.0,
    "net_income": 12.0,
    "total_assets": 352.0,
-   "total_debt": 1.0,
-   "net_debt": -131.0,
+   "total_debt": 3.0,
+   "net_debt": -129.0,
    "ebit_margin": 7.2,
    "ebitda_margin": 7.2,
    "ebitda_to_interest": 7.4,
-   "net_debt_to_ebitda": -11.1,
+   "net_debt_to_ebitda": -10.9,
    "debt_ratio": 5.5,
-   "debt_dependency": 0.3
+   "debt_dependency": 0.8
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": 16.0,
    "net_income": -5.0,
    "total_assets": 721.0,
-   "total_debt": 190.0,
-   "net_debt": 113.0,
+   "total_debt": 197.0,
+   "net_debt": 120.0,
    "ebit_margin": 8.5,
    "ebitda_margin": 8.5,
    "ebitda_to_interest": 0.5,
-   "net_debt_to_ebitda": 7.0,
+   "net_debt_to_ebitda": 7.4,
    "debt_ratio": 107.3,
-   "debt_dependency": 26.3
+   "debt_dependency": 27.3
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": -124.0,
    "net_income": -171.0,
    "total_assets": 602.0,
-   "total_debt": 12.0,
-   "net_debt": -68.0,
+   "total_debt": 223.0,
+   "net_debt": 143.0,
    "ebit_margin": -51.1,
    "ebitda_margin": -51.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 239.4,
-   "debt_dependency": 2.0
+   "debt_dependency": 37.0
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -121.0,
    "net_income": -248.0,
    "total_assets": 308.0,
-   "total_debt": 5.0,
-   "net_debt": 2.0,
+   "total_debt": 119.0,
+   "net_debt": 115.0,
    "ebit_margin": -60.8,
    "ebitda_margin": -60.8,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 169.6,
-   "debt_dependency": 1.7
+   "debt_dependency": 38.5
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -44.0,
    "net_income": -151.0,
    "total_assets": 385.0,
-   "total_debt": 0.0,
-   "net_debt": -6.0,
+   "total_debt": 117.0,
+   "net_debt": 111.0,
    "ebit_margin": -28.1,
    "ebitda_margin": -28.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 190.5,
-   "debt_dependency": 0.1
+   "debt_dependency": 30.5
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -41.0,
   "net_income": -125.0,
   "total_assets": 385.0,
-  "total_debt": 4.0,
-  "net_debt": 2.0,
+  "total_debt": 87.0,
+  "net_debt": 85.0,
   "ebit_margin": -68.2,
   "ebitda_margin": -68.2,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 90.8,
-  "debt_dependency": 0.9
+  "debt_dependency": 22.5
  },
  "metrics": {
   "debt_to_equity_pct": 90.8,
   "current_ratio_pct": 29.6,
   "quick_ratio_pct": 28.1,
-  "debt_dependence_pct": 0.9,
+  "debt_dependence_pct": 22.5,
   "interest_coverage": -0.6,
   "operating_cash_flow": -3180754250.0,
   "investing_cash_flow": -4616011093.0,

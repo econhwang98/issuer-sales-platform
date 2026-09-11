@@ -1,10 +1,11 @@
 {
  "corp_code": "00131504",
  "corp_name": "서한",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": 251.0,
    "net_income": 499.0,
    "total_assets": 11666.0,
-   "total_debt": 0.0,
-   "net_debt": -1512.0,
+   "total_debt": 4252.0,
+   "net_debt": 2740.0,
    "ebit_margin": 4.0,
    "ebitda_margin": 4.0,
    "ebitda_to_interest": 1.4,
-   "net_debt_to_ebitda": -6.0,
+   "net_debt_to_ebitda": 10.9,
    "debt_ratio": 165.8,
-   "debt_dependency": 0.0
+   "debt_dependency": 36.4
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": 265.0,
    "net_income": 132.0,
    "total_assets": 13646.0,
-   "total_debt": 0.0,
-   "net_debt": -1768.0,
+   "total_debt": 5667.0,
+   "net_debt": 3898.0,
    "ebit_margin": 3.5,
    "ebitda_margin": 3.5,
    "ebitda_to_interest": 1.2,
-   "net_debt_to_ebitda": -6.7,
+   "net_debt_to_ebitda": 14.7,
    "debt_ratio": 168.4,
-   "debt_dependency": 0.0
+   "debt_dependency": 41.5
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": 626.0,
    "net_income": 289.0,
    "total_assets": 12296.0,
-   "total_debt": 0.0,
-   "net_debt": -2001.0,
+   "total_debt": 4833.0,
+   "net_debt": 2833.0,
    "ebit_margin": 9.7,
    "ebitda_margin": 9.7,
    "ebitda_to_interest": 2.9,
-   "net_debt_to_ebitda": -3.2,
+   "net_debt_to_ebitda": 4.5,
    "debt_ratio": 129.1,
-   "debt_dependency": 0.0
+   "debt_dependency": 39.3
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": 285.0,
   "net_income": 186.0,
   "total_assets": 12492.0,
-  "total_debt": null,
-  "net_debt": null,
+  "total_debt": 4835.0,
+  "net_debt": 3199.0,
   "ebit_margin": 11.3,
   "ebitda_margin": 11.3,
   "ebitda_to_interest": 2.9,
-  "net_debt_to_ebitda": null,
+  "net_debt_to_ebitda": 11.2,
   "debt_ratio": 127.1,
-  "debt_dependency": null
+  "debt_dependency": 38.7
  },
  "metrics": {
   "debt_to_equity_pct": 127.1,
   "current_ratio_pct": 264.4,
   "quick_ratio_pct": 138.9,
-  "debt_dependence_pct": 0.0,
+  "debt_dependence_pct": 38.7,
   "interest_coverage": 2.9,
   "operating_cash_flow": -1665955656.0,
   "investing_cash_flow": -29173259454.0,

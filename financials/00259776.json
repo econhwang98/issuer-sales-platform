@@ -1,10 +1,11 @@
 {
  "corp_code": "00259776",
  "corp_name": "미래에셋자산운용",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2023(12)",
@@ -13,14 +14,14 @@
    "ebitda": 3648.0,
    "net_income": 4707.0,
    "total_assets": 56161.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 10855.0,
+   "net_debt": 8901.0,
    "ebit_margin": 31.9,
    "ebitda_margin": 31.9,
    "ebitda_to_interest": null,
-   "net_debt_to_ebitda": null,
+   "net_debt_to_ebitda": 2.4,
    "debt_ratio": 57.2,
-   "debt_dependency": null
+   "debt_dependency": 19.3
   },
   {
    "period": "2024(12)",
@@ -29,14 +30,14 @@
    "ebitda": 4104.0,
    "net_income": 4562.0,
    "total_assets": 63501.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 12053.0,
+   "net_debt": 7621.0,
    "ebit_margin": 32.0,
    "ebitda_margin": 32.0,
    "ebitda_to_interest": null,
-   "net_debt_to_ebitda": null,
+   "net_debt_to_ebitda": 1.9,
    "debt_ratio": 55.7,
-   "debt_dependency": null
+   "debt_dependency": 19.0
   },
   {
    "period": "2025(12)",
@@ -45,14 +46,14 @@
    "ebitda": 7236.0,
    "net_income": 7721.0,
    "total_assets": 74860.0,
-   "total_debt": null,
-   "net_debt": null,
+   "total_debt": 9853.0,
+   "net_debt": 3488.0,
    "ebit_margin": 43.8,
    "ebitda_margin": 43.8,
    "ebitda_to_interest": null,
-   "net_debt_to_ebitda": null,
+   "net_debt_to_ebitda": 0.5,
    "debt_ratio": 49.2,
-   "debt_dependency": null
+   "debt_dependency": 13.2
   }
  ],
  "quarter": {
@@ -62,20 +63,20 @@
   "ebitda": 6081.0,
   "net_income": 9547.0,
   "total_assets": 84945.0,
-  "total_debt": null,
-  "net_debt": null,
+  "total_debt": 6696.0,
+  "net_debt": 2725.0,
   "ebit_margin": 55.8,
   "ebitda_margin": 55.8,
   "ebitda_to_interest": null,
-  "net_debt_to_ebitda": null,
+  "net_debt_to_ebitda": 0.4,
   "debt_ratio": 40.3,
-  "debt_dependency": null
+  "debt_dependency": 7.9
  },
  "metrics": {
   "debt_to_equity_pct": 40.3,
   "current_ratio_pct": null,
   "quick_ratio_pct": null,
-  "debt_dependence_pct": null,
+  "debt_dependence_pct": 7.9,
   "interest_coverage": null,
   "operating_cash_flow": -82621726568.0,
   "investing_cash_flow": -58680726511.0,

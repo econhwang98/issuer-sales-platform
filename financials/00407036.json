@@ -1,10 +1,11 @@
 {
  "corp_code": "00407036",
  "corp_name": "선바이오",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": 52.0,
    "net_income": 46.0,
    "total_assets": 477.0,
-   "total_debt": 3.0,
-   "net_debt": -54.0,
+   "total_debt": 163.0,
+   "net_debt": 106.0,
    "ebit_margin": 42.2,
    "ebitda_margin": 42.2,
    "ebitda_to_interest": 14.4,
-   "net_debt_to_ebitda": -1.0,
+   "net_debt_to_ebitda": 2.0,
    "debt_ratio": 69.6,
-   "debt_dependency": 0.7
+   "debt_dependency": 34.2
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -5.0,
    "net_income": -1.0,
    "total_assets": 610.0,
-   "total_debt": 2.0,
-   "net_debt": -60.0,
+   "total_debt": 142.0,
+   "net_debt": 80.0,
    "ebit_margin": -6.1,
    "ebitda_margin": -6.1,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 125.3,
-   "debt_dependency": 0.3
+   "debt_dependency": 23.3
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": 50.0,
    "net_income": 28.0,
    "total_assets": 607.0,
-   "total_debt": 150.0,
-   "net_debt": 122.0,
+   "total_debt": 34.0,
+   "net_debt": 7.0,
    "ebit_margin": 36.8,
    "ebitda_margin": 36.8,
    "ebitda_to_interest": 1.9,
-   "net_debt_to_ebitda": 2.4,
+   "net_debt_to_ebitda": 0.1,
    "debt_ratio": 110.2,
-   "debt_dependency": 24.7
+   "debt_dependency": 5.6
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": 7.0,
   "net_income": 9.0,
   "total_assets": 642.0,
-  "total_debt": 140.0,
-  "net_debt": 101.0,
+  "total_debt": 153.0,
+  "net_debt": 114.0,
   "ebit_margin": 21.0,
   "ebitda_margin": 21.0,
   "ebitda_to_interest": 0.8,
-  "net_debt_to_ebitda": 13.7,
+  "net_debt_to_ebitda": 15.4,
   "debt_ratio": 114.2,
-  "debt_dependency": 21.8
+  "debt_dependency": 23.9
  },
  "metrics": {
   "debt_to_equity_pct": 114.2,
   "current_ratio_pct": 45.6,
   "quick_ratio_pct": 36.2,
-  "debt_dependence_pct": 21.8,
+  "debt_dependence_pct": 23.9,
   "interest_coverage": 0.8,
   "operating_cash_flow": 566523884.0,
   "investing_cash_flow": -333130000.0,

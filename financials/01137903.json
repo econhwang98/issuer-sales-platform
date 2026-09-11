@@ -1,10 +1,11 @@
 {
  "corp_code": "01137903",
  "corp_name": "디케이티",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -29,14 +30,14 @@
    "ebitda": 212.0,
    "net_income": 196.0,
    "total_assets": 2000.0,
-   "total_debt": 455.0,
-   "net_debt": 164.0,
+   "total_debt": 689.0,
+   "net_debt": 398.0,
    "ebit_margin": 5.8,
    "ebitda_margin": 5.8,
    "ebitda_to_interest": 1.8,
-   "net_debt_to_ebitda": 0.8,
+   "net_debt_to_ebitda": 1.9,
    "debt_ratio": 98.5,
-   "debt_dependency": 22.8
+   "debt_dependency": 34.4
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": 147.0,
    "net_income": 44.0,
    "total_assets": 2394.0,
-   "total_debt": 652.0,
-   "net_debt": 292.0,
+   "total_debt": 352.0,
+   "net_debt": -8.0,
    "ebit_margin": 5.2,
    "ebitda_margin": 5.2,
    "ebitda_to_interest": 1.0,
-   "net_debt_to_ebitda": 2.0,
+   "net_debt_to_ebitda": -0.1,
    "debt_ratio": 80.8,
-   "debt_dependency": 27.2
+   "debt_dependency": 14.7
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": 231.0,
    "net_income": 269.0,
    "total_assets": 2858.0,
-   "total_debt": 575.0,
-   "net_debt": -107.0,
+   "total_debt": 555.0,
+   "net_debt": -127.0,
    "ebit_margin": 5.7,
    "ebitda_margin": 5.7,
    "ebitda_to_interest": 3.0,
-   "net_debt_to_ebitda": -0.5,
+   "net_debt_to_ebitda": -0.6,
    "debt_ratio": 57.2,
-   "debt_dependency": 20.1
+   "debt_dependency": 19.4
   },
   {
    "period": "2025(12)",

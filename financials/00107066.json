@@ -1,10 +1,11 @@
 {
  "corp_code": "00107066",
  "corp_name": "남광토건",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": 208.0,
    "net_income": 217.0,
    "total_assets": 2740.0,
-   "total_debt": 428.0,
-   "net_debt": -203.0,
+   "total_debt": 1128.0,
+   "net_debt": 497.0,
    "ebit_margin": 5.8,
    "ebitda_margin": 5.8,
    "ebitda_to_interest": 24.8,
-   "net_debt_to_ebitda": -1.0,
+   "net_debt_to_ebitda": 2.4,
    "debt_ratio": 212.2,
-   "debt_dependency": 15.6
+   "debt_dependency": 41.2
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": 111.0,
    "net_income": 193.0,
    "total_assets": 3459.0,
-   "total_debt": 413.0,
-   "net_debt": -352.0,
+   "total_debt": 1417.0,
+   "net_debt": 652.0,
    "ebit_margin": 2.5,
    "ebitda_margin": 2.5,
    "ebitda_to_interest": 7.2,
-   "net_debt_to_ebitda": -3.2,
+   "net_debt_to_ebitda": 5.9,
    "debt_ratio": 223.3,
-   "debt_dependency": 11.9
+   "debt_dependency": 41.0
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": 43.0,
    "net_income": 60.0,
    "total_assets": 3773.0,
-   "total_debt": 30.0,
-   "net_debt": -419.0,
+   "total_debt": 1523.0,
+   "net_debt": 1074.0,
    "ebit_margin": 0.8,
    "ebitda_margin": 0.8,
    "ebitda_to_interest": 2.1,
-   "net_debt_to_ebitda": -9.6,
+   "net_debt_to_ebitda": 24.7,
    "debt_ratio": 233.8,
-   "debt_dependency": 0.8
+   "debt_dependency": 40.4
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": 73.0,
    "net_income": 62.0,
    "total_assets": 4170.0,
-   "total_debt": 11.0,
-   "net_debt": -463.0,
+   "total_debt": 1350.0,
+   "net_debt": 876.0,
    "ebit_margin": 1.4,
    "ebitda_margin": 1.4,
    "ebitda_to_interest": 1.8,
-   "net_debt_to_ebitda": -6.3,
+   "net_debt_to_ebitda": 12.0,
    "debt_ratio": 248.4,
-   "debt_dependency": 0.3
+   "debt_dependency": 32.4
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": 114.0,
    "net_income": 53.0,
    "total_assets": 4101.0,
-   "total_debt": 20.0,
-   "net_debt": -738.0,
+   "total_debt": 1086.0,
+   "net_debt": 328.0,
    "ebit_margin": 3.2,
    "ebitda_margin": 3.2,
    "ebitda_to_interest": 6.2,
-   "net_debt_to_ebitda": -6.4,
+   "net_debt_to_ebitda": 2.9,
    "debt_ratio": 228.1,
-   "debt_dependency": 0.5
+   "debt_dependency": 26.5
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": 45.0,
   "net_income": 50.0,
   "total_assets": 4155.0,
-  "total_debt": 17.0,
-  "net_debt": -285.0,
+  "total_debt": 1105.0,
+  "net_debt": 804.0,
   "ebit_margin": 2.8,
   "ebitda_margin": 2.8,
   "ebitda_to_interest": 5.7,
-  "net_debt_to_ebitda": -6.3,
+  "net_debt_to_ebitda": 17.8,
   "debt_ratio": 219.7,
-  "debt_dependency": 0.4
+  "debt_dependency": 26.6
  },
  "metrics": {
   "debt_to_equity_pct": 219.7,
   "current_ratio_pct": 116.1,
   "quick_ratio_pct": 116.1,
-  "debt_dependence_pct": 0.4,
+  "debt_dependence_pct": 26.6,
   "interest_coverage": 5.7,
   "operating_cash_flow": -43999383000.0,
   "investing_cash_flow": -2101375000.0,

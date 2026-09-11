@@ -1,10 +1,11 @@
 {
  "corp_code": "00813389",
  "corp_name": "베셀",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": -75.0,
    "net_income": 56.0,
    "total_assets": 934.0,
-   "total_debt": 326.0,
-   "net_debt": 252.0,
+   "total_debt": 306.0,
+   "net_debt": 232.0,
    "ebit_margin": -30.3,
    "ebitda_margin": -30.3,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 141.4,
-   "debt_dependency": 34.9
+   "debt_dependency": 32.8
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": -66.0,
    "net_income": -141.0,
    "total_assets": 846.0,
-   "total_debt": 316.0,
-   "net_debt": 284.0,
+   "total_debt": 306.0,
+   "net_debt": 274.0,
    "ebit_margin": -14.9,
    "ebitda_margin": -14.9,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 175.6,
-   "debt_dependency": 37.3
+   "debt_dependency": 36.1
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": -131.0,
    "net_income": -242.0,
    "total_assets": 728.0,
-   "total_debt": 254.0,
-   "net_debt": 155.0,
+   "total_debt": 191.0,
+   "net_debt": 93.0,
    "ebit_margin": -50.2,
    "ebitda_margin": -50.2,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 172.5,
-   "debt_dependency": 34.9
+   "debt_dependency": 26.3
   },
   {
    "period": "2024(12)",

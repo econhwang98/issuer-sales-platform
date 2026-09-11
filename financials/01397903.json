@@ -1,10 +1,11 @@
 {
  "corp_code": "01397903",
  "corp_name": "엔젠바이오",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": -134.0,
    "net_income": -125.0,
    "total_assets": 426.0,
-   "total_debt": 111.0,
-   "net_debt": -82.0,
+   "total_debt": 114.0,
+   "net_debt": -78.0,
    "ebit_margin": -308.4,
    "ebitda_margin": -308.4,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 157.1,
-   "debt_dependency": 25.9
+   "debt_dependency": 26.8
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -126.0,
    "net_income": -143.0,
    "total_assets": 329.0,
-   "total_debt": 67.0,
-   "net_debt": 23.0,
+   "total_debt": 90.0,
+   "net_debt": 46.0,
    "ebit_margin": -224.4,
    "ebitda_margin": -224.4,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 86.1,
-   "debt_dependency": 20.5
+   "debt_dependency": 27.4
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -83.0,
    "net_income": -68.0,
    "total_assets": 723.0,
-   "total_debt": 328.0,
-   "net_debt": 308.0,
+   "total_debt": 332.0,
+   "net_debt": 313.0,
    "ebit_margin": -39.0,
    "ebitda_margin": -39.0,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 220.2,
-   "debt_dependency": 45.3
+   "debt_dependency": 46.0
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -28.0,
   "net_income": -76.0,
   "total_assets": 706.0,
-  "total_debt": 206.0,
-  "net_debt": 176.0,
+  "total_debt": 364.0,
+  "net_debt": 334.0,
   "ebit_margin": -11.3,
   "ebitda_margin": -11.3,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 277.9,
-  "debt_dependency": 29.2
+  "debt_dependency": 51.5
  },
  "metrics": {
   "debt_to_equity_pct": 277.9,
   "current_ratio_pct": 44.8,
   "quick_ratio_pct": 41.5,
-  "debt_dependence_pct": 29.2,
+  "debt_dependence_pct": 51.5,
   "interest_coverage": -0.4,
   "operating_cash_flow": -411664698.0,
   "investing_cash_flow": 579299344.0,

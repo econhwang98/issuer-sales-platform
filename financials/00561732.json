@@ -1,10 +1,11 @@
 {
  "corp_code": "00561732",
  "corp_name": "아스플로",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -13,14 +14,14 @@
    "ebitda": 40.0,
    "net_income": 40.0,
    "total_assets": 948.0,
-   "total_debt": 0.0,
-   "net_debt": -64.0,
+   "total_debt": 306.0,
+   "net_debt": 242.0,
    "ebit_margin": 6.7,
    "ebitda_margin": 6.7,
    "ebitda_to_interest": 5.2,
-   "net_debt_to_ebitda": -1.6,
+   "net_debt_to_ebitda": 6.1,
    "debt_ratio": 103.2,
-   "debt_dependency": 0.0
+   "debt_dependency": 32.3
   },
   {
    "period": "2022(12)",
@@ -29,14 +30,14 @@
    "ebitda": 105.0,
    "net_income": 91.0,
    "total_assets": 1114.0,
-   "total_debt": 1.0,
-   "net_debt": -65.0,
+   "total_debt": 358.0,
+   "net_debt": 292.0,
    "ebit_margin": 11.8,
    "ebitda_margin": 11.8,
    "ebitda_to_interest": 8.6,
-   "net_debt_to_ebitda": -0.6,
+   "net_debt_to_ebitda": 2.8,
    "debt_ratio": 106.5,
-   "debt_dependency": 0.1
+   "debt_dependency": 32.1
   },
   {
    "period": "2023(12)",
@@ -45,14 +46,14 @@
    "ebitda": 64.0,
    "net_income": 36.0,
    "total_assets": 1302.0,
-   "total_debt": 72.0,
-   "net_debt": -116.0,
+   "total_debt": 582.0,
+   "net_debt": 394.0,
    "ebit_margin": 7.3,
    "ebitda_margin": 7.3,
    "ebitda_to_interest": 2.7,
-   "net_debt_to_ebitda": -1.8,
+   "net_debt_to_ebitda": 6.2,
    "debt_ratio": 126.5,
-   "debt_dependency": 5.5
+   "debt_dependency": 44.7
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -19.0,
    "net_income": -24.0,
    "total_assets": 1382.0,
-   "total_debt": 159.0,
-   "net_debt": -131.0,
+   "total_debt": 688.0,
+   "net_debt": 397.0,
    "ebit_margin": -2.2,
    "ebitda_margin": -2.2,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 152.9,
-   "debt_dependency": 11.5
+   "debt_dependency": 49.8
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -70.0,
    "net_income": -99.0,
    "total_assets": 1185.0,
-   "total_debt": 23.0,
-   "net_debt": -152.0,
+   "total_debt": 618.0,
+   "net_debt": 444.0,
    "ebit_margin": -10.3,
    "ebitda_margin": -10.3,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 155.4,
-   "debt_dependency": 1.9
+   "debt_dependency": 52.2
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": 58.0,
   "net_income": 101.0,
   "total_assets": 1479.0,
-  "total_debt": 72.0,
-  "net_debt": -57.0,
+  "total_debt": 653.0,
+  "net_debt": 524.0,
   "ebit_margin": 9.7,
   "ebitda_margin": 9.7,
   "ebitda_to_interest": 4.1,
-  "net_debt_to_ebitda": -1.0,
+  "net_debt_to_ebitda": 9.0,
   "debt_ratio": 143.7,
-  "debt_dependency": 4.9
+  "debt_dependency": 44.1
  },
  "metrics": {
   "debt_to_equity_pct": 143.7,
   "current_ratio_pct": 128.6,
   "quick_ratio_pct": 84.9,
-  "debt_dependence_pct": 4.9,
+  "debt_dependence_pct": 44.1,
   "interest_coverage": 4.1,
   "operating_cash_flow": 474857947.0,
   "investing_cash_flow": -10251937674.0,

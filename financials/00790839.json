@@ -1,10 +1,11 @@
 {
  "corp_code": "00790839",
  "corp_name": "이노그리드",
+ "schema_version": 2,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-10 10:13",
+ "fetched_at": "2026-09-11 09:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -45,14 +46,14 @@
    "ebitda": -11.0,
    "net_income": -10.0,
    "total_assets": 222.0,
-   "total_debt": 34.0,
-   "net_debt": -55.0,
+   "total_debt": 84.0,
+   "net_debt": -5.0,
    "ebit_margin": -3.2,
    "ebitda_margin": -3.2,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 1390.7,
-   "debt_dependency": 15.2
+   "debt_dependency": 37.8
   },
   {
    "period": "2024(12)",
@@ -61,14 +62,14 @@
    "ebitda": -44.0,
    "net_income": -48.0,
    "total_assets": 267.0,
-   "total_debt": 24.0,
-   "net_debt": -99.0,
+   "total_debt": 94.0,
+   "net_debt": -29.0,
    "ebit_margin": -14.8,
    "ebitda_margin": -14.8,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 206.5,
-   "debt_dependency": 8.9
+   "debt_dependency": 35.2
   },
   {
    "period": "2025(12)",
@@ -77,14 +78,14 @@
    "ebitda": -36.0,
    "net_income": -53.0,
    "total_assets": 192.0,
-   "total_debt": 13.0,
-   "net_debt": -36.0,
+   "total_debt": 83.0,
+   "net_debt": 34.0,
    "ebit_margin": -12.9,
    "ebitda_margin": -12.9,
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 465.4,
-   "debt_dependency": 6.8
+   "debt_dependency": 43.2
   }
  ],
  "quarter": {
@@ -94,20 +95,20 @@
   "ebitda": -47.0,
   "net_income": -53.0,
   "total_assets": 162.0,
-  "total_debt": 10.0,
-  "net_debt": -19.0,
+  "total_debt": 80.0,
+  "net_debt": 51.0,
   "ebit_margin": -52.4,
   "ebitda_margin": -52.4,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": -1246.7,
-  "debt_dependency": 6.4
+  "debt_dependency": 49.7
  },
  "metrics": {
   "debt_to_equity_pct": -1246.7,
   "current_ratio_pct": 69.4,
   "quick_ratio_pct": 69.4,
-  "debt_dependence_pct": 6.4,
+  "debt_dependence_pct": 49.7,
   "interest_coverage": -21.0,
   "operating_cash_flow": -2214308401.0,
   "investing_cash_flow": 325530115.0,
