@@ -20,7 +20,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 # 샤드 스키마/파싱 규칙 버전.
 # 파싱 규칙을 고치면 올린다. 저장해둔 샤드가 이 버전보다 낮으면 캐시 기간이 남았어도
 # 다시 받는다. 그러지 않으면 잘못 파싱된 값이 갱신 주기 내내 그대로 남는다.
-SHARD_SCHEMA_VERSION = 2
+SHARD_SCHEMA_VERSION = 3
 
 # 억원
 UNIT_DIVISOR = 100_000_000
@@ -232,8 +232,12 @@ def _scaled(value: Optional[float]) -> Optional[float]:
 def derive_shard_row(period_label: str, accounts: Dict[str, Optional[float]]) -> Dict[str, Any]:
     """검토보고서 재무 표에 그대로 들어가는 한 열을 만든다."""
     ebit = accounts.get("operating_income")
-    dep_amort = accounts.get("dep_amort") or 0.0
-    ebitda = None if ebit is None else ebit + dep_amort
+    # 상각비를 못 구하면 EBITDA를 만들지 않는다.
+    # 예전에는 dep_amort를 0으로 두어 EBITDA가 영업이익과 같아졌는데,
+    # 그것은 EBIT을 EBITDA라고 표기하는 것과 같아 읽는 사람을 오해시킨다.
+    # 값이 없으면 None으로 두고 보고서에서 그 행을 통째로 뺀다.
+    dep_amort = accounts.get("dep_amort")
+    ebitda = None if (ebit is None or dep_amort is None) else ebit + dep_amort
     total_debt = accounts.get("total_debt")
     cash = accounts.get("cash")
     net_debt = None if total_debt is None else total_debt - (cash or 0.0)
@@ -342,6 +346,44 @@ def build_financial_shard(
     by_period: Dict[str, Dict[str, Optional[float]]] = {}
     for label, accounts in annual_rows:
         by_period.setdefault(label, accounts)
+    # 어떤 기간에 손익계산서가 통째로 비면 다른 재무제표 구분(CFS/OFS)으로 한 번 더 시도한다.
+    # 회사에 따라 연도별로 연결/별도 제출이 갈려 한쪽만 보면 매출·영업이익·순이익이 빈 채로 남는다.
+    # 재무상태표는 있는데 손익만 없는 구간이 실제로 나온다.
+    gaps = {
+        label for label, acc in by_period.items()
+        if acc.get("revenue") is None and acc.get("operating_income") is None and acc.get("net_income") is None
+    }
+    if gaps:
+        alt_div = "OFS" if fs_used == "CFS" else "CFS"
+        for base_year in (latest_year, latest_year - 3):
+            if not gaps:
+                break
+            covered = {f"{base_year + off}(12)" for off in PERIOD_YEAR_OFFSET.values()}
+            if not (gaps & covered):
+                continue
+            payload = api_get("fnlttSinglAcntAll.json", {
+                "corp_code": corp_code,
+                "bsns_year": str(base_year),
+                "reprt_code": ANNUAL_REPRT,
+                "fs_div": alt_div,
+            })
+            rows = _rows_of(payload)
+            if not rows:
+                continue
+            for period, offset in PERIOD_YEAR_OFFSET.items():
+                label = f"{base_year + offset}(12)"
+                if label not in gaps:
+                    continue
+                filled = parse_period(rows, period)
+                if filled.get("revenue") is None and filled.get("operating_income") is None:
+                    continue
+                merged = dict(by_period[label])
+                for key, value in filled.items():
+                    if merged.get(key) is None and value is not None:
+                        merged[key] = value
+                by_period[label] = merged
+                gaps.discard(label)
+
     ordered = [(label, by_period[label]) for label in sorted(by_period)]
 
     quarter_row = None

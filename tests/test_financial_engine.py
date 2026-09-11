@@ -122,6 +122,37 @@ check("EBITDA != EBIT", vr["ebitda"] != vr["ebit"], True)
 none_dep = fe.parse_period([_row("IS", "dart_OperatingIncomeLoss", "영업이익", "40,000,000,000")], "thstrm")
 check("상각비 없으면 dep_amort None", none_dep["dep_amort"], None)
 
+# --- 손익계산서가 빈 연도는 다른 재무제표 구분으로 채운다 ------------------
+# 연도별로 연결/별도 제출이 갈리면 재무상태표만 있고 손익이 비는 구간이 생긴다.
+BS_ONLY = [
+    _row("BS", "ifrs-full_Assets", "자산총계", "500,000,000,000", "480,000,000,000", "460,000,000,000"),
+    _row("BS", "ifrs-full_Liabilities", "부채총계", "300,000,000,000", "290,000,000,000", "280,000,000,000"),
+    _row("BS", "ifrs-full_Equity", "자본총계", "200,000,000,000", "190,000,000,000", "180,000,000,000"),
+]
+IS_ONLY = [
+    _row("BS", "ifrs-full_Assets", "자산총계", "500,000,000,000", "480,000,000,000", "460,000,000,000"),
+    _row("IS", "ifrs-full_Revenue", "매출액", "90,000,000,000", "85,000,000,000", "80,000,000,000"),
+    _row("IS", "dart_OperatingIncomeLoss", "영업이익", "9,000,000,000", "8,000,000,000", "7,000,000,000"),
+    _row("IS", "ifrs-full_ProfitLoss", "당기순이익", "6,000,000,000", "5,000,000,000", "4,000,000,000"),
+]
+
+def split_api(path, params):
+    # CFS는 재무상태표만, OFS는 손익까지 준다
+    if params["reprt_code"] != fe.ANNUAL_REPRT:
+        return {"status": "013"}
+    return {"status": "000", "list": BS_ONLY if params["fs_div"] == "CFS" else IS_ONLY}
+
+gap = fe.build_financial_shard("00999999", "구멍", 2025, split_api, "2026-09-11", as_of_month=9)
+first = gap["annual"][-1]
+check("빈 손익을 다른 구분으로 채움", first["revenue"], 900.0)
+check("영업이익도 채워짐", first["ebit"], 90.0)
+check("당기순이익도 채워짐", first["net_income"], 60.0)
+check("재무상태표 값은 유지", first["debt_ratio"], 150.0)
+
+# 상각비를 못 구하면 EBITDA를 만들지 않는다
+check("상각비 없으면 EBITDA 없음", first["ebitda"], None)
+check("EBITDA 파생 지표도 없음", first["ebitda_margin"], None)
+
 check("데이터 없으면 None",
       fe.build_financial_shard("x", "y", 2025, lambda p, q: {"status": "013"}, ""), None)
 

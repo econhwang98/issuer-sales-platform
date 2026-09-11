@@ -77,7 +77,8 @@ issuers = [make_issuer("00100001", "가나전자", 82.0),
 
 stats = gen.collect_financial_shards(issuers, now)
 
-check("한도만큼만 시도", stats["attempted"], 2)
+check("한도만큼만 API 호출", stats["fetched"], 2)
+check("전체를 훑는다", stats["scanned"], 3)
 check("샤드 2건 기록", stats["written"], 2)
 check("실패 없음", stats["failed"], 0)
 check("1위 근거가 재무제표로 바뀜", issuers[0]["financial_basis"], "재무제표")
@@ -103,7 +104,8 @@ for issuer in issuers:
     issuer["financial_basis"] = "대체지표"
 stats2 = gen.collect_financial_shards(issuers, now)
 check("두 번째 실행은 캐시 재사용", stats2["reused"], 2)
-check("추가 API 호출 없음", calls["n"], calls_before)
+check("재사용은 한도를 쓰지 않는다", stats2["fetched"], 1)  # 3위 기업이 새 슬롯을 받는다
+check("재사용분은 API를 다시 부르지 않는다", calls["n"] - calls_before <= 3, True)  # 남는 슬롯으로 3위 1건만 신규 수집
 check("재사용해도 근거는 재무제표", issuers[0]["financial_basis"], "재무제표")
 
 # 파싱 규칙이 바뀌면(schema_version 상승) 캐시 기간이 남았어도 다시 받아야 한다.
@@ -123,6 +125,19 @@ check("API를 다시 호출", calls["n"] > calls_before, True)
 check("새로 쓴 샤드는 최신 버전",
       json.loads(io.open(os.path.join(TMP, "00100001.json"), encoding="utf-8").read())["schema_version"],
       fe.SHARD_SCHEMA_VERSION)
+
+# 재사용이 한도를 쓰지 않으므로 실행을 거듭하면 커버리지가 넓어져야 한다.
+os.environ["FINANCIAL_SHARD_LIMIT"] = "1"
+wide = [make_issuer(f"002000{i:02d}", f"회사{i}", 90 - i) for i in range(5)]
+shutil.rmtree(TMP, ignore_errors=True)
+os.makedirs(TMP, exist_ok=True)
+covered = []
+for run in range(5):
+    gen.collect_financial_shards(wide, now)
+    covered.append(sum(1 for x in wide if x["financial_basis"] == "재무제표"))
+    for x in wide:
+        x["financial_basis"] = "대체지표"      # 다음 실행에서 캐시로 다시 붙는지 확인
+check("한도 1로 5회 실행 시 커버리지 누적", covered, [1, 2, 3, 4, 5])
 
 os.environ["FINANCIAL_SHARD_LIMIT"] = "0"
 check("한도 0이면 비활성", gen.collect_financial_shards(issuers, now)["status"], "disabled")

@@ -1193,7 +1193,7 @@ def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> 
     다음 실행에서 이어 받는다. 이미 같은 분기 기준으로 받아둔 샤드는 건너뛴다.
     """
     limit = int(os.getenv("FINANCIAL_SHARD_LIMIT", "0"))
-    stats = {"limit": limit, "attempted": 0, "written": 0, "reused": 0, "failed": 0, "status": "disabled"}
+    stats = {"limit": limit, "scanned": 0, "fetched": 0, "written": 0, "reused": 0, "failed": 0, "status": "disabled"}
     if limit <= 0:
         return stats
     if requests is None or not os.getenv("OPENDART_API_KEY", "").strip():
@@ -1209,11 +1209,14 @@ def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> 
     def api_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
         return opendart_get(path, params, timeout=20)
 
-    for issuer in issuers[:limit]:
+    # 한도는 실제 API 호출에만 건다. 이미 받아둔 샤드를 다시 붙이는 것은 공짜이므로
+    # 한도를 쓰지 않는다. 그래야 실행할 때마다 아직 못 받은 기업으로 커버리지가 넓어진다.
+    # (예전에는 issuers[:limit]만 돌아 상위 N개사에서 커버리지가 멈춰 있었다.)
+    for issuer in issuers:
         corp_code = str(issuer.get("corp_code") or "").strip()
         if not corp_code:
             continue
-        stats["attempted"] += 1
+        stats["scanned"] += 1
         existing = FINANCIAL_DIR / f"{corp_code}.json"
         if existing.exists():
             try:
@@ -1227,6 +1230,9 @@ def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> 
                     continue
             except Exception:
                 pass
+        if stats["fetched"] >= limit:
+            continue
+        stats["fetched"] += 1
         try:
             shard = financial_engine.build_financial_shard(
                 corp_code, issuer.get("corp_name", ""), latest_year, api_get, fetched_at,
@@ -1244,7 +1250,7 @@ def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> 
             stats["written"] += 1
         else:
             stats["failed"] += 1
-        if stats["attempted"] % 50 == 0:
+        if stats["fetched"] % 50 == 0:
             print(f"financial shards: {stats['written']} written, {stats['reused']} reused, {stats['failed']} failed")
         time.sleep(float(os.getenv("API_SLEEP_SECONDS", "0.02")))
 

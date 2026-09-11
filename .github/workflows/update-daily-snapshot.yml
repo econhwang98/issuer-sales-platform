@@ -45,9 +45,12 @@ jobs:
           KRX_KIND_RSS_URL: ${{ secrets.KRX_KIND_RSS_URL }}
           FSC_SERVICE_KEY: ${{ secrets.FSC_SERVICE_KEY }}
 
-          # 재무제표 수집 규모. 우선순위 상위부터 이 수만큼만 채우고 나머지는 다음 실행에서 이어 받는다.
-          # 기업당 3콜이 나가므로 300이면 약 900콜이다. OpenDART 일일 한도는 20,000콜.
-          FINANCIAL_SHARD_LIMIT: ${{ vars.FINANCIAL_SHARD_LIMIT || '300' }}
+          # 한 번 실행에서 새로 받을 재무제표 수. 이미 받아둔 샤드를 다시 붙이는 것은
+          # API 호출이 없으므로 이 한도를 쓰지 않는다. 따라서 실행을 거듭하면
+          # 아직 못 받은 기업으로 커버리지가 계속 넓어진다.
+          # 기업당 3콜이 나가므로 900이면 약 2,700콜이다. 회사개요 약 4,200콜과 합쳐도
+          # OpenDART 일일 한도(20,000콜) 안에 넉넉히 들어간다.
+          FINANCIAL_SHARD_LIMIT: ${{ vars.FINANCIAL_SHARD_LIMIT || '900' }}
           # 이 일수 안에 받아둔 샤드는 다시 받지 않는다.
           FINANCIAL_REFRESH_DAYS: ${{ vars.FINANCIAL_REFRESH_DAYS || '7' }}
           # 최근 공시가 있는 비상장 법인을 이 수만큼 유니버스에 더한다. 0이면 비활성.
