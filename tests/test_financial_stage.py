@@ -139,6 +139,24 @@ for run in range(5):
         x["financial_basis"] = "대체지표"      # 다음 실행에서 캐시로 다시 붙는지 확인
 check("한도 1로 5회 실행 시 커버리지 누적", covered, [1, 2, 3, 4, 5])
 
+# 시간 예산을 넘으면 개수 한도가 남아 있어도 신규 수집을 멈춘다.
+os.environ["FINANCIAL_SHARD_LIMIT"] = "100"
+os.environ["FINANCIAL_TIME_BUDGET_MIN"] = "0"     # 즉시 초과
+shutil.rmtree(TMP, ignore_errors=True); os.makedirs(TMP, exist_ok=True)
+budget = [make_issuer(f"003000{i:02d}", f"예산{i}", 80 - i) for i in range(4)]
+bstats = gen.collect_financial_shards(budget, now)
+check("시간 예산 초과 시 신규 수집 0", bstats["fetched"], 0)
+check("중단 사유 기록", bstats["stopped_by"], "time_budget")
+check("전체는 훑는다", bstats["scanned"], 4)
+
+os.environ["FINANCIAL_TIME_BUDGET_MIN"] = "30"    # 넉넉하게 되돌림
+os.environ["FINANCIAL_SHARD_LIMIT"] = "2"
+shutil.rmtree(TMP, ignore_errors=True); os.makedirs(TMP, exist_ok=True)
+nstats = gen.collect_financial_shards(budget, now)
+check("예산 안이면 한도까지 수집", nstats["fetched"], 2)
+check("중단 사유는 한도", nstats["stopped_by"], "limit")
+check("소요 시간 기록", isinstance(nstats["elapsed_min"], float), True)
+
 os.environ["FINANCIAL_SHARD_LIMIT"] = "0"
 check("한도 0이면 비활성", gen.collect_financial_shards(issuers, now)["status"], "disabled")
 
