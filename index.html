@@ -1871,14 +1871,8 @@
         contact_status: entry.status || "미접촉",
         financial_period: financial ? (financial.latest_period || "") : "",
         financial: financial || null,
-        financial_basis: item.financial_basis || (financial ? "재무제표" : "대체지표"),
-        rule_breakdown: item.rule_breakdown || [],
-        score_breakdown: {
-          rule: Number(item.pure_financial_rule_score || 0),
-          ai: Number(item.ai_base_score || 0),
-          news: Number(item.news_trigger_score || 0),
-          formula: snapshot.formula?.text || ""
-        }
+        // 점수 산출 내역은 보고서에 싣지 않는다. 저장도 하지 않는다.
+        financial_basis: item.financial_basis || (financial ? "재무제표" : "대체지표")
       };
     }
 
@@ -1933,8 +1927,35 @@
       ["ebitda_to_interest", "EBITDA/금융비용(배)", 1],
       ["net_debt_to_ebitda", "순차입금/EBITDA(배)", 1],
       ["debt_ratio", "부채비율(%)", 1],
-      ["debt_dependency", "차입금의존도(%)", 1]
+      ["current_ratio", "유동비율(%)", 1],
+      ["quick_ratio", "당좌비율(%)", 1],
+      ["debt_dependency", "차입금의존도(%)", 1],
+      ["interest_coverage", "이자보상배율(배)", 1],
+      ["operating_cash_flow", "영업활동현금흐름(억원)", 0],
+      ["net_cash_change", "현금 순증(감)(억원)", 0]
     ];
+
+    // 기간별 지표는 파이프라인이 다시 돌아야 채워진다. 그 전까지는 최신 기간만이라도
+    // metrics(직전 계산값)에서 끌어와 보여준다. 현금흐름은 원 단위라 억원으로 환산한다.
+    const METRICS_FALLBACK = {
+      current_ratio: ["current_ratio_pct", 1],
+      quick_ratio: ["quick_ratio_pct", 1],
+      interest_coverage: ["interest_coverage", 1],
+      operating_cash_flow: ["operating_cash_flow", 1e8],
+      net_cash_change: ["net_cash_change", 1e8]
+    };
+
+    function withMetricsFallback(row, metrics) {
+      if (!row || !metrics) return row;
+      const filled = { ...row };
+      Object.entries(METRICS_FALLBACK).forEach(([key, [source, divisor]]) => {
+        if (filled[key] !== null && filled[key] !== undefined) return;
+        const raw = metrics[source];
+        if (raw === null || raw === undefined || raw === "") return;
+        filled[key] = divisor === 1 ? Number(raw) : Math.round(Number(raw) / divisor);
+      });
+      return filled;
+    }
 
     function fmtNum(value, digits) {
       if (value === null || value === undefined || value === "" || Number.isNaN(Number(value))) return "-";
@@ -1958,7 +1979,16 @@
         return v !== null && v !== undefined && v !== "" && !Number.isNaN(Number(v));
       });
       const annual = (financial.annual || []).filter(hasAnyValue);
-      const quarter = hasAnyValue(financial.quarter) ? financial.quarter : null;
+      // 최신 기간에만 metrics 보완을 적용한다. metrics는 최신 기준 값이라
+      // 과거 연도에 갖다 붙이면 틀린 숫자가 된다.
+      const latestRaw = financial.quarter || (financial.annual || []).slice(-1)[0] || null;
+      const latestFilled = withMetricsFallback(latestRaw, financial.metrics);
+      const quarter = financial.quarter
+        ? (hasAnyValue(latestFilled) ? latestFilled : null)
+        : null;
+      if (!financial.quarter && annual.length && latestFilled) {
+        annual[annual.length - 1] = latestFilled;
+      }
       if (!annual.length && !quarter) {
         return `<div class="notice">
           <b>공시된 재무 수치를 확인하지 못했습니다.</b>
@@ -2053,28 +2083,6 @@
       return sections.map((s) => `<h3>${escapeHtml(s.title)}</h3><p>${escapeHtml(s.body)}</p>`).join("");
     }
 
-    function ruleBreakdownHtml(breakdown) {
-      const rows = (breakdown || []).filter((b) => b && b.factor);
-      if (!rows.length) return "";
-      const body = rows.map((b) => {
-        const applied = b.status === "applied";
-        const value = b.value === null || b.value === undefined
-          ? "-"
-          : (typeof b.value === "object" ? JSON.stringify(b.value) : String(b.value));
-        return `<tr>
-          <th>${escapeHtml(b.factor)}</th>
-          <td>${escapeHtml(value)}</td>
-          <td>${applied ? fmtNum(b.points, 0) : "미보유"}</td>
-        </tr>`;
-      }).join("");
-      return `<h3>재무 룰 세부</h3>
-        <table>
-          <thead><tr><th>항목</th><th>값</th><th>배점</th></tr></thead>
-          <tbody>${body}</tbody>
-        </table>
-        <p class="src">배점이 높을수록 자금수요 신호가 강함을 뜻합니다. 미보유 항목은 분모에서 제외해 계산합니다.</p>`;
-    }
-
     function reportBodyHtml(record, reused) {
       const r = record.report || {};
       const triggers = ratingTriggers(r);
@@ -2161,20 +2169,6 @@
     <tr><th>접촉 상태</th><td>${escapeHtml(r.contact_status)}</td></tr>
     <tr><th>메모</th><td>${escapeHtml(r.memo || "-")}</td></tr>
   </table>
-
-  <h2>점수 산출 근거</h2>
-  <table class="kv">
-    <tr><th>산식</th><td>${escapeHtml(r.score_breakdown?.formula || "-")}</td></tr>
-    <tr><th>재무 룰 점수</th><td>${fmtNum(r.score_breakdown?.rule, 1)} <b>(${escapeHtml(r.financial_basis || "대체지표")} 기준)</b></td></tr>
-    <tr><th>AI 기반 점수</th><td>${fmtNum(r.score_breakdown?.ai, 1)}</td></tr>
-    <tr><th>뉴스 트리거</th><td>${fmtNum(r.score_breakdown?.news, 1)}</td></tr>
-  </table>
-  ${r.financial_basis === "재무제표"
-    ? ruleBreakdownHtml(r.rule_breakdown)
-    : `<div class="notice"><b>재무 룰 점수가 대체지표로 계산됐습니다.</b>
-        <p>이 기업은 아직 재무제표를 수집하지 않아, 업종 위험도와 공시 이벤트 강도만으로
-        임시 점수를 냈습니다. 재무제표가 수집되면 부채비율·유동비율·당좌비율·차입금의존도·
-        이자보상배율·현금흐름 8개 항목으로 다시 계산됩니다.</p></div>`}
 
   ${(r.missing_fields || []).length ? `<h2>보완 필요 항목</h2><ul>${r.missing_fields.map((m) => `<li>${escapeHtml(m)}</li>`).join("")}</ul>` : ""}
 

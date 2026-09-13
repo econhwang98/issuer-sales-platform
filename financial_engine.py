@@ -20,7 +20,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 # 샤드 스키마/파싱 규칙 버전.
 # 파싱 규칙을 고치면 올린다. 저장해둔 샤드가 이 버전보다 낮으면 캐시 기간이 남았어도
 # 다시 받는다. 그러지 않으면 잘못 파싱된 값이 갱신 주기 내내 그대로 남는다.
-SHARD_SCHEMA_VERSION = 3
+SHARD_SCHEMA_VERSION = 4
 
 # 억원
 UNIT_DIVISOR = 100_000_000
@@ -253,6 +253,12 @@ def derive_shard_row(period_label: str, accounts: Dict[str, Optional[float]]) ->
         if interest:
             ebitda_to_interest = round(ebitda / abs(interest), 1)
 
+    # 유동성·이자보상·현금흐름도 기간별로 낸다.
+    # 예전에는 metrics(최신 기간 하나)에만 있어 연도별 추이를 볼 수 없었다.
+    current_assets = accounts.get("current_assets")
+    current_liabilities = accounts.get("current_liabilities")
+    quick_assets = None if current_assets is None else current_assets - (accounts.get("inventory") or 0.0)
+
     return {
         "period": period_label,
         "revenue": _scaled(revenue),
@@ -267,7 +273,12 @@ def derive_shard_row(period_label: str, accounts: Dict[str, Optional[float]]) ->
         "ebitda_to_interest": ebitda_to_interest,
         "net_debt_to_ebitda": net_debt_to_ebitda,
         "debt_ratio": _ratio(accounts.get("total_liabilities"), accounts.get("equity"), 100),
+        "current_ratio": _ratio(current_assets, current_liabilities, 100),
+        "quick_ratio": _ratio(quick_assets, current_liabilities, 100),
         "debt_dependency": _ratio(total_debt, accounts.get("total_assets"), 100),
+        "interest_coverage": None if not interest else _ratio(ebit, abs(interest)),
+        "operating_cash_flow": _scaled(accounts.get("operating_cash_flow")),
+        "net_cash_change": _scaled(accounts.get("net_cash_change")),
     }
 
 
