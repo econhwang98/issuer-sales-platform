@@ -1193,7 +1193,16 @@ def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> 
     다음 실행에서 이어 받는다. 이미 같은 분기 기준으로 받아둔 샤드는 건너뛴다.
     """
     limit = int(os.getenv("FINANCIAL_SHARD_LIMIT", "0"))
-    stats = {"limit": limit, "scanned": 0, "fetched": 0, "written": 0, "reused": 0, "failed": 0, "status": "disabled"}
+    # 개수만으로는 실행 시간을 못 잡는다. OpenDART 응답이 느린 날에는 같은 개수도
+    # 몇 배로 걸려 Actions 타임아웃에 걸린다(#84·#85가 1시간 30분에서 죽었다).
+    # 시간 예산을 두고 초과하면 그때까지 받은 것만 쓰고 넘어간다. 나머지는 다음 실행이 잇는다.
+    budget_seconds = float(os.getenv("FINANCIAL_TIME_BUDGET_MIN", "30")) * 60
+    started = time.monotonic()
+    stats = {
+        "limit": limit, "budget_min": round(budget_seconds / 60, 1),
+        "scanned": 0, "fetched": 0, "written": 0, "reused": 0, "failed": 0,
+        "stopped_by": "", "elapsed_min": 0.0, "status": "disabled",
+    }
     if limit <= 0:
         return stats
     if requests is None or not os.getenv("OPENDART_API_KEY", "").strip():
@@ -1231,6 +1240,13 @@ def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> 
             except Exception:
                 pass
         if stats["fetched"] >= limit:
+            if not stats["stopped_by"]:
+                stats["stopped_by"] = "limit"
+            continue
+        if time.monotonic() - started > budget_seconds:
+            if not stats["stopped_by"]:
+                stats["stopped_by"] = "time_budget"
+                print(f"financial shards: 시간 예산 {budget_seconds/60:.0f}분 초과, 신규 수집 중단")
             continue
         stats["fetched"] += 1
         try:
@@ -1254,6 +1270,9 @@ def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> 
             print(f"financial shards: {stats['written']} written, {stats['reused']} reused, {stats['failed']} failed")
         time.sleep(float(os.getenv("API_SLEEP_SECONDS", "0.02")))
 
+    stats["elapsed_min"] = round((time.monotonic() - started) / 60, 1)
+    if not stats["stopped_by"]:
+        stats["stopped_by"] = "completed"
     print(f"financial shards done: {stats}")
     return stats
 
