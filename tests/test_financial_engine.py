@@ -62,6 +62,14 @@ check("유동비율", m["current_ratio_pct"], 85.7)
 check("당좌비율은 재고 제외", m["quick_ratio_pct"], 51.4)
 check("이자보상배율", m["interest_coverage"], 2.0)
 
+# --- 기간별 유동성·이자보상·현금흐름 -----------------------------------------
+# 예전에는 metrics(최신 기간 하나)에만 있어 연도별 추이를 볼 수 없었다.
+check("유동비율(기간별)", r["current_ratio"], 85.7)
+check("당좌비율(기간별)", r["quick_ratio"], 51.4)
+check("이자보상배율(기간별)", r["interest_coverage"], 2.0)
+check("영업활동현금흐름(억원)", r["operating_cash_flow"], 600.0)
+check("현금 순증(감)(억원)", r["net_cash_change"], -100.0)
+
 # --- 샤드 조립 ---------------------------------------------------------------
 counter = {}
 shard = fe.build_financial_shard("00126380", "테스트", 2025, make_fake_api(counter),
