@@ -1918,6 +1918,8 @@
 `;
 
     /* ---- 보고서 렌더링 (화면 오버레이 · 인쇄/PDF 저장) ---- */
+    // 상각비 없이는 의미가 없는 지표들. 상각비를 못 구하면 이 행들을 통째로 뺀다.
+    const EBITDA_METRIC_KEYS = new Set(["ebitda", "ebitda_margin", "ebitda_to_interest", "net_debt_to_ebitda"]);
     const REPORT_METRICS = [
       ["revenue", "매출액", 0],
       ["ebit", "EBIT", 0],
@@ -1951,6 +1953,7 @@
       // 값이 하나도 없는 기간은 열째로 뺀다. 공시가 없는 연도까지 "-"로 채우면
       // 표는 커지는데 읽을 것은 없다.
       const hasAnyValue = (row) => !!row && REPORT_METRICS.some(([key]) => {
+        if (EBITDA_METRIC_KEYS.has(key) && depreciationMissing(financial)) return false;
         const v = row[key];
         return v !== null && v !== undefined && v !== "" && !Number.isNaN(Number(v));
       });
@@ -1964,10 +1967,12 @@
         </div>`;
       }
       const cols = [...annual.map((a) => a.period || a.year || ""), quarter ? (quarter.period || "최신분기") : ""].filter(Boolean);
-      // 전 기간 값이 없는 지표는 행 자체를 뺀다. "-"만 늘어선 줄은 정보가 아니라 소음이다.
-      // 상각비를 구하지 못한 기업은 EBITDA와 그 파생 지표가 통째로 빠지고,
-      // 매출액·EBIT(영업이익)·당기순이익까지만 남는다.
-      const rows = REPORT_METRICS.map(([key, label, digits]) => {
+      // 상각비를 구하지 못한 기업은 EBITDA와 파생 지표를 통째로 뺀다.
+      // 예전 샤드는 ebitda에 ebit을 그대로 담았는데, 그대로 두면 EBIT을 EBITDA라고
+      // 표기하는 셈이라 값이 있어도 지운다. 매출액·EBIT·당기순이익까지만 남는다.
+      const skipKeys = depreciationMissing(financial) ? EBITDA_METRIC_KEYS : new Set();
+      // 전 기간 값이 없는 지표도 행 자체를 뺀다. "-"만 늘어선 줄은 정보가 아니라 소음이다.
+      const rows = REPORT_METRICS.filter(([key]) => !skipKeys.has(key)).map(([key, label, digits]) => {
         const values = [...annual.map((a) => a[key]), ...(quarter ? [quarter[key]] : [])];
         const hasValue = values.some((v) => v !== null && v !== undefined && v !== "" && !Number.isNaN(Number(v)));
         if (!hasValue) return "";
