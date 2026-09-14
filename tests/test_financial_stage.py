@@ -139,6 +139,29 @@ for run in range(5):
         x["financial_basis"] = "대체지표"      # 다음 실행에서 캐시로 다시 붙는지 확인
 check("한도 1로 5회 실행 시 커버리지 누적", covered, [1, 2, 3, 4, 5])
 
+# 예산이 없어도 예전 샤드가 있으면 그것이라도 쓴다.
+# 스키마를 올리면 모든 샤드가 한꺼번에 구버전이 되는데, 폴백이 없으면
+# 예산 밖 기업의 재무 근거가 통째로 사라진다.
+import financial_engine as fe2
+os.environ["FINANCIAL_SHARD_LIMIT"] = "3"
+os.environ["FINANCIAL_TIME_BUDGET_MIN"] = "30"
+shutil.rmtree(TMP, ignore_errors=True); os.makedirs(TMP, exist_ok=True)
+fallback = [make_issuer(f"004000{i:02d}", f"폴백{i}", 90 - i) for i in range(3)]
+gen.collect_financial_shards(fallback, now)          # 3건 모두 수집
+for name in os.listdir(TMP):                          # 전부 구버전으로 되돌림
+    fp = os.path.join(TMP, name)
+    obj = json.loads(io.open(fp, encoding="utf-8").read())
+    obj["schema_version"] = fe2.SHARD_SCHEMA_VERSION - 1
+    io.open(fp, "w", encoding="utf-8").write(json.dumps(obj, ensure_ascii=False))
+for x in fallback:
+    x["financial_basis"] = "대체지표"
+os.environ["FINANCIAL_SHARD_LIMIT"] = "1"             # 1건만 다시 받을 여유
+fstats = gen.collect_financial_shards(fallback, now)
+check("여유분은 새로 받음", fstats["written"], 1)
+check("나머지는 구버전 샤드로 보완", fstats["stale_reused"], 2)
+check("아무도 재무 근거를 잃지 않음",
+      sum(1 for x in fallback if x["financial_basis"] == "재무제표"), 3)
+
 # 시간 예산을 넘으면 개수 한도가 남아 있어도 신규 수집을 멈춘다.
 os.environ["FINANCIAL_SHARD_LIMIT"] = "100"
 os.environ["FINANCIAL_TIME_BUDGET_MIN"] = "0"     # 즉시 초과

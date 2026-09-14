@@ -1200,7 +1200,7 @@ def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> 
     started = time.monotonic()
     stats = {
         "limit": limit, "budget_min": round(budget_seconds / 60, 1),
-        "scanned": 0, "fetched": 0, "written": 0, "reused": 0, "failed": 0,
+        "scanned": 0, "fetched": 0, "written": 0, "reused": 0, "stale_reused": 0, "failed": 0,
         "stopped_by": "", "elapsed_min": 0.0, "status": "disabled",
     }
     if limit <= 0:
@@ -1227,9 +1227,11 @@ def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> 
             continue
         stats["scanned"] += 1
         existing = FINANCIAL_DIR / f"{corp_code}.json"
+        cached_shard: Optional[Dict[str, Any]] = None
         if existing.exists():
             try:
                 cached = json.loads(existing.read_text(encoding="utf-8"))
+                cached_shard = cached
                 fetched = str(cached.get("fetched_at") or "")[:10]
                 age = (as_of.date() - datetime.strptime(fetched, "%Y-%m-%d").date()).days if fetched else 999
                 # 파싱 규칙이 바뀌었으면 캐시 기간이 남았어도 다시 받는다.
@@ -1238,15 +1240,20 @@ def collect_financial_shards(issuers: List[Dict[str, Any]], as_of: datetime) -> 
                     stats["reused"] += 1
                     continue
             except Exception:
-                pass
-        if stats["fetched"] >= limit:
+                cached_shard = None
+
+        out_of_room = stats["fetched"] >= limit
+        out_of_time = time.monotonic() - started > budget_seconds
+        if out_of_room or out_of_time:
             if not stats["stopped_by"]:
-                stats["stopped_by"] = "limit"
-            continue
-        if time.monotonic() - started > budget_seconds:
-            if not stats["stopped_by"]:
-                stats["stopped_by"] = "time_budget"
-                print(f"financial shards: 시간 예산 {budget_seconds/60:.0f}분 초과, 신규 수집 중단")
+                stats["stopped_by"] = "limit" if out_of_room else "time_budget"
+                if out_of_time:
+                    print(f"financial shards: 시간 예산 {budget_seconds/60:.0f}분 초과, 신규 수집 중단")
+            # 새로 받을 여유가 없으면 예전 샤드라도 쓴다. 비우는 것보다 낫다.
+            # 스키마를 올린 직후에는 모든 샤드가 한꺼번에 구버전이 되는데, 그때 이 폴백이
+            # 없으면 예산 밖 기업의 재무 근거가 통째로 사라진다(241개사 -> 147개사).
+            if cached_shard and apply_financial_rule_score(issuer, cached_shard):
+                stats["stale_reused"] += 1
             continue
         stats["fetched"] += 1
         try:
