@@ -54,15 +54,37 @@ NEGATIVE_TERMS = [
     "등급 하향", "신용등급 하향", "PF", "만기", "손상", "감소", "손실", "상환", "위험", "경고",
 ]
 POSITIVE_TERMS = ["수주", "흑자", "증설", "투자", "성장", "개선", "턴어라운드", "계약", "증가", "승인", "호조"]
+# 이벤트 점수는 사건의 크기가 아니라 "선제 영업 기회"로서의 가치다.
+#
+# 유상증자·전환사채·회사채 발행 공시는 그 시점에 이미 주관사와 투자자가 정해져 있다.
+# 딜이 확정된 뒤에 나오는 공시이므로 선제 접촉 대상이 아니라 이미 놓친 건이다.
+# 예전에는 이들을 최고점(유상증자 100, CB 95, 회사채 90)으로 둬서 상위 100개사 중
+# 81건이 "자금조달 직접공시"로 채워졌다. 후속 조달 가능성이라는 잔여 가치만 남기고 낮춘다.
+#
+# 반대로 대규모 투자·인수 결정, 신용등급 하향은 "앞으로 자금이 필요해질" 신호다.
+# 아직 주관사가 정해지지 않았을 가능성이 커서 선제 접촉 가치가 가장 크다.
 EVENT_SEVERITY = {
-    "유상증자": 100, "채무불이행": 100, "자본잠식": 100,
-    "전환사채": 95, "CB": 95, "신주인수권부사채": 95, "BW": 95,
-    "교환사채": 92, "EB": 92,
-    "회사채": 90, "사채": 90, "CP": 90, "단기차입금": 90, "차입금 증가": 90,
-    "리파이낸싱": 90, "대규모 투자": 90, "CAPEX": 90, "공장 증설": 88, "증설": 85,
-    "타법인 주식": 84, "출자증권 취득": 84, "유형자산 취득": 84,
-    "신용등급 하향": 80, "등급전망 부정적": 80, "PF": 80,
+    # 긴급 신용 이벤트 — 즉시 자본확충·구조조정 수요
+    "채무불이행": 100, "자본잠식": 100, "회생절차": 100,
+
+    # 자금 수요 예고 — 아직 조달이 실행되지 않은 구간. 선제 영업의 본령이다.
+    "신용등급 하향": 92, "등급전망 부정적": 90,
+    "대규모 투자": 90, "CAPEX": 90, "신규 시설투자": 90, "시설투자": 88,
+    "타법인 주식": 88, "출자증권 취득": 88, "영업양수": 88,
+    "공장 증설": 86, "증설": 84,
+    "유형자산 취득": 82, "PF": 82,
+
+    # 진행 중일 수 있는 차입 — 아직 여지가 남아 있어 중간값
+    "리파이낸싱": 70, "차입금 증가": 68, "채무보증": 66, "담보제공": 64,
+
+    # 업황 압력
     "업황 둔화": 60, "원가 상승": 60, "스프레드 축소": 60,
+
+    # 이미 실행된 조달 — 주관사·투자자 확정 후라 선제 영업 대상이 아니다
+    "유상증자": 45, "단기차입금": 42,
+    "전환사채": 42, "CB": 42, "신주인수권부사채": 42, "BW": 42,
+    "교환사채": 40, "EB": 40,
+    "회사채": 38, "사채": 38, "CP": 35,
 }
 DART_EVENT_KEYWORDS = [
     "유상증자", "전환사채", "신주인수권부사채", "교환사채", "회사채", "사채", "단기차입금",
@@ -551,19 +573,28 @@ def score_band(score: float) -> str:
 
 
 def trigger_type_from(event_severity: int, news_score: float, event_titles: Optional[List[str]] = None) -> str:
-    text = " ".join(event_titles or [])
+    """감지된 공시 제목으로 신호 유형을 정한다.
+
+    event_titles에는 실제로 감지된 공시·뉴스 제목만 넘겨야 한다.
+    이벤트가 없을 때 붙이는 안내 문구를 넘기면 그 문구의 단어로 오분류된다.
+    """
+    text = " ".join(t for t in (event_titles or []) if t)
     if any(k in text for k in ["채무불이행", "자본잠식", "회생", "감사의견", "상장폐지", "관리종목"]):
         return "신용/계속기업 리스크"
-    if any(k in text for k in ["유상증자", "전환사채", "신주인수권", "교환사채", "회사채", "CP", "사채"]):
-        return "자금조달 직접공시"
-    if any(k in text for k in ["단기차입금", "차입", "채무보증", "담보제공", "리파이낸싱"]):
-        return "차입/담보 이벤트"
+    # 선행 신호(투자·인수·등급)를 먼저 본다. 한 공시에 여러 키워드가 섞여 있을 때
+    # 이미 끝난 조달보다 앞으로의 자금 수요로 분류하는 편이 영업에 쓸모 있다.
+    if any(k in text for k in ["신용등급", "등급전망", "등급 하향", "하향 검토"]):
+        return "신용등급 변동"
     if any(k in text for k in ["유형자산", "시설투자", "공장", "CAPEX", "증설"]):
         return "투자·CAPEX 이벤트"
-    if any(k in text for k in ["타법인", "출자증권", "인수", "합병", "M&A"]):
+    if any(k in text for k in ["타법인", "출자증권", "인수", "합병", "M&A", "영업양수"]):
         return "M&A/지분투자 이벤트"
-    if event_severity >= 90:
+    if any(k in text for k in ["단기차입금", "차입", "채무보증", "담보제공", "리파이낸싱"]):
+        return "차입/담보 이벤트"
+    if any(k in text for k in ["유상증자", "전환사채", "신주인수권", "교환사채", "회사채", "CP", "사채"]):
         return "자금조달 직접공시"
+    if event_severity >= 90:
+        return "자금수요 선행신호"
     if event_severity >= 75:
         return "투자/차입 이벤트"
     if news_score >= 70:
@@ -1420,6 +1451,10 @@ def build_snapshot() -> Dict[str, Any]:
         # Use risk score as a professional overlay so high-risk sectors/events are not all flattened into Low/Monitor.
         ai_score = round(clip(0.72 * ai_score + 0.28 * classification["risk_score_internal"]), 1)
         final_score = compute_final_funding_score(rule_score, ai_score, news_score)
+        # Trigger 분류는 실제로 감지된 공시 제목으로만 해야 한다.
+        # 아래 안내 문구에는 "CAPEX", "PF" 같은 단어가 들어가는데, 그것까지 제목으로
+        # 넘기면 이벤트가 없는 기업이 "투자·CAPEX 이벤트"로 잡힌다(전체 598건이 그랬다).
+        real_event_titles = [n.get("title", "") for n in news_cards]
         if not news_cards:
             news_cards = [{"title": f"최근 45일 직접 자금조달 이벤트 미검출 · {classification['funding_need_type']} 관점 정기 관찰", "source": "full_universe_fast_screen", "sentiment": "mixed", "severity": int(news_score)}]
         score_label = score_band(final_score)
@@ -1449,7 +1484,7 @@ def build_snapshot() -> Dict[str, Any]:
             "ir_url": ir_url,
             "company_homepage": company_homepage,
             "score_band": score_label,
-            "trigger_type": trigger_type_from(event_severity, news_score, [n.get("title", "") for n in news_cards]),
+            "trigger_type": trigger_type_from(event_severity, news_score, real_event_titles),
             "priority": classification["priority"],
             "risk_level": classification["risk_level"],
             "risk_type": classification["risk_type"],
@@ -1510,7 +1545,10 @@ def build_snapshot() -> Dict[str, Any]:
                     "final_score": final_score,
                     "priority": refreshed["priority"],
                     "score_band": score_band(final_score),
-                    "trigger_type": trigger_type_from(event_severity, news_score, [n.get("title", "") for n in merged_news]),
+                    "trigger_type": trigger_type_from(event_severity, news_score, [
+                        n.get("title", "") for n in merged_news
+                        if n.get("source") not in {"full_universe_fast_screen", "summary_screening", "full_universe_summary"}
+                    ]),
                     "risk_level": refreshed["risk_level"],
                     "risk_type": refreshed["risk_type"],
                     "funding_need_type": refreshed["funding_need_type"],
@@ -1624,7 +1662,7 @@ def build_snapshot() -> Dict[str, Any]:
             "risk_levels": ["전체", "Critical", "High", "Elevated", "Moderate", "Watch", "Low"],
             "priority_levels": ["전체", "1. 긴급 확인", "2. 즉시 접촉", "3. 구조 검토", "4. 관심 관찰", "5. 정기 모니터링"],
             "score_bands": ["전체", "S. 긴급 검토", "A. 즉시 접촉", "B. 구조화 검토", "C. 관심 관찰", "D. 정기 모니터링"],
-            "trigger_types": ["전체", "신용/계속기업 리스크", "자금조달 직접공시", "차입/담보 이벤트", "투자·CAPEX 이벤트", "M&A/지분투자 이벤트", "업황/뉴스 압력", "재무구조 점검"],
+            "trigger_types": ["전체", "신용/계속기업 리스크", "신용등급 변동", "자금수요 선행신호", "투자·CAPEX 이벤트", "M&A/지분투자 이벤트", "차입/담보 이벤트", "자금조달 직접공시", "업황/뉴스 압력", "재무구조 점검"],
             "risk_types": ["전체"] + sorted({x.get("risk_type", "") for x in issuers if x.get("risk_type")}),
             "funding_need_types": ["전체"] + sorted({x.get("funding_need_type", "") for x in issuers if x.get("funding_need_type")}),
             "structure_groups": ["전체"] + sorted({x.get("structure_group", "") for x in issuers if x.get("structure_group")}),
@@ -1639,7 +1677,7 @@ def build_snapshot() -> Dict[str, Any]:
                 {"field": "업종", "meaning": "수기값을 우선 사용하고, 없으면 회사명 키워드와 DART 업종코드로 사용자용 범주에 자동 매핑합니다."},
                 {"field": "우선순위", "meaning": "공시·뉴스·재무 신호를 종합해 영업 검토 순서를 나눈 값입니다. 산식은 화면에 노출하지 않습니다."},
                 {"field": "재무 근거", "meaning": "재무제표를 받은 기업은 부채비율·유동비율·당좌비율·차입금의존도·이자보상배율·현금흐름 8개 항목으로 룰 점수를 계산합니다(재무제표). 아직 받지 못한 기업은 업종 위험도와 공시 이벤트만으로 임시 점수를 씁니다(대체지표)."},
-                {"field": "Trigger", "meaning": "최근 자금조달 공시, 투자/차입 이벤트, 뉴스 신호, 기초 모니터링 중 어떤 신호가 우선 감지됐는지 표시합니다."},
+                {"field": "Trigger", "meaning": "어떤 신호가 우선 감지됐는지 표시합니다. 투자·CAPEX, M&A, 신용등급 변동처럼 앞으로 자금이 필요해질 신호를 높게 봅니다. 유상증자·전환사채·회사채 발행 공시는 그 시점에 이미 주관사와 투자자가 정해진 뒤라 선제 접촉 대상이 아니므로 낮게 둡니다."},
                 {"field": "Risk", "meaning": "Low/Watch/Moderate/Elevated/High/Critical로 세분화한 위험 수준입니다. 점수와 별도로 구조 검토에 사용합니다."},
                 {"field": "자금수요 유형", "meaning": "차환, CAPEX, 메자닌, 자본확충, PF 등 예상되는 자금 목적입니다."},
                 {"field": "추천 금융구조", "meaning": "공시·뉴스·업종 신호를 토대로 우선 검토할 수 있는 금융상품/구조입니다."},
