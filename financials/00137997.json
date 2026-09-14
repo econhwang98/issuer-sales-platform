@@ -1,11 +1,11 @@
 {
  "corp_code": "00137997",
  "corp_name": "현대차증권",
- "schema_version": 2,
+ "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-11 09:50",
+ "fetched_at": "2026-09-14 09:45",
  "annual": [
   {
    "period": "2023(12)",
@@ -21,7 +21,12 @@
    "ebitda_to_interest": 0.2,
    "net_debt_to_ebitda": 85.7,
    "debt_ratio": 806.7,
-   "debt_dependency": 60.4
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 60.4,
+   "interest_coverage": 0.2,
+   "operating_cash_flow": -16155.0,
+   "net_cash_change": null
   },
   {
    "period": "2024(12)",
@@ -37,7 +42,12 @@
    "ebitda_to_interest": 0.3,
    "net_debt_to_ebitda": 93.1,
    "debt_ratio": 821.0,
-   "debt_dependency": 57.8
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 57.8,
+   "interest_coverage": 0.2,
+   "operating_cash_flow": 941.0,
+   "net_cash_change": null
   },
   {
    "period": "2025(12)",
@@ -53,7 +63,12 @@
    "ebitda_to_interest": 0.4,
    "net_debt_to_ebitda": 74.5,
    "debt_ratio": 758.9,
-   "debt_dependency": 58.1
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 58.1,
+   "interest_coverage": 0.3,
+   "operating_cash_flow": -1536.0,
+   "net_cash_change": null
   }
  ],
  "quarter": {
@@ -70,7 +85,12 @@
   "ebitda_to_interest": 0.6,
   "net_debt_to_ebitda": 124.3,
   "debt_ratio": 794.2,
-  "debt_dependency": 60.8
+  "current_ratio": null,
+  "quick_ratio": null,
+  "debt_dependency": 60.8,
+  "interest_coverage": 0.4,
+  "operating_cash_flow": -8536.0,
+  "net_cash_change": 934.0
  },
  "metrics": {
   "debt_to_equity_pct": 794.2,

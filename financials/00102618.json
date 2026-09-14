@@ -1,11 +1,11 @@
 {
  "corp_code": "00102618",
  "corp_name": "계양전기",
- "schema_version": 2,
+ "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-11 09:50",
+ "fetched_at": "2026-09-14 09:45",
  "annual": [
   {
    "period": "2021(12)",
@@ -21,7 +21,12 @@
    "ebitda_to_interest": 42.9,
    "net_debt_to_ebitda": 1.7,
    "debt_ratio": 55.6,
-   "debt_dependency": 10.7
+   "current_ratio": 165.2,
+   "quick_ratio": 102.9,
+   "debt_dependency": 10.7,
+   "interest_coverage": 8.4,
+   "operating_cash_flow": -41.0,
+   "net_cash_change": -95.0
   },
   {
    "period": "2022(12)",
@@ -37,7 +42,12 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 132.6,
-   "debt_dependency": 11.6
+   "current_ratio": 117.2,
+   "quick_ratio": 79.5,
+   "debt_dependency": 11.6,
+   "interest_coverage": -8.5,
+   "operating_cash_flow": -63.0,
+   "net_cash_change": 16.0
   },
   {
    "period": "2023(12)",
@@ -53,7 +63,12 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 92.8,
-   "debt_dependency": 10.2
+   "current_ratio": 142.3,
+   "quick_ratio": 101.3,
+   "debt_dependency": 10.2,
+   "interest_coverage": -2.2,
+   "operating_cash_flow": 102.0,
+   "net_cash_change": 23.0
   },
   {
    "period": "2024(12)",
@@ -69,7 +84,12 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 247.2,
-   "debt_dependency": 31.2
+   "current_ratio": 111.6,
+   "quick_ratio": 73.6,
+   "debt_dependency": 31.2,
+   "interest_coverage": -4.8,
+   "operating_cash_flow": -265.0,
+   "net_cash_change": -59.0
   },
   {
    "period": "2025(12)",
@@ -85,7 +105,12 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 959.5,
-   "debt_dependency": 45.2
+   "current_ratio": 84.6,
+   "quick_ratio": 60.5,
+   "debt_dependency": 45.2,
+   "interest_coverage": -6.7,
+   "operating_cash_flow": -206.0,
+   "net_cash_change": 37.0
   }
  ],
  "quarter": {
@@ -102,7 +127,12 @@
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 1358.8,
-  "debt_dependency": 43.9
+  "current_ratio": 82.0,
+  "quick_ratio": 59.5,
+  "debt_dependency": 43.9,
+  "interest_coverage": -2.6,
+  "operating_cash_flow": -106.0,
+  "net_cash_change": -45.0
  },
  "metrics": {
   "debt_to_equity_pct": 1358.8,

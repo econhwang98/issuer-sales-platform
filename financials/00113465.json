@@ -1,11 +1,11 @@
 {
  "corp_code": "00113465",
  "corp_name": "하나증권",
- "schema_version": 2,
+ "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-11 09:50",
+ "fetched_at": "2026-09-14 09:45",
  "annual": [
   {
    "period": "2023(12)",
@@ -21,7 +21,12 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 740.6,
-   "debt_dependency": 45.4
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 45.4,
+   "interest_coverage": -0.4,
+   "operating_cash_flow": -44350.0,
+   "net_cash_change": -3510.0
   },
   {
    "period": "2024(12)",
@@ -37,7 +42,12 @@
    "ebitda_to_interest": 0.2,
    "net_debt_to_ebitda": 115.4,
    "debt_ratio": 865.6,
-   "debt_dependency": 42.0
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 42.0,
+   "interest_coverage": 0.1,
+   "operating_cash_flow": -15648.0,
+   "net_cash_change": 1409.0
   },
   {
    "period": "2025(12)",
@@ -53,7 +63,12 @@
    "ebitda_to_interest": 0.2,
    "net_debt_to_ebitda": 103.2,
    "debt_ratio": 1004.3,
-   "debt_dependency": 37.5
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 37.5,
+   "interest_coverage": 0.2,
+   "operating_cash_flow": 11460.0,
+   "net_cash_change": -2149.0
   }
  ],
  "quarter": {
@@ -70,7 +85,12 @@
   "ebitda_to_interest": 0.7,
   "net_debt_to_ebitda": 76.3,
   "debt_ratio": 1010.4,
-  "debt_dependency": 39.2
+  "current_ratio": null,
+  "quick_ratio": null,
+  "debt_dependency": 39.2,
+  "interest_coverage": 0.6,
+  "operating_cash_flow": -34244.0,
+  "net_cash_change": null
  },
  "metrics": {
   "debt_to_equity_pct": 1010.4,

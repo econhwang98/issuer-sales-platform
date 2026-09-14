@@ -1,11 +1,11 @@
 {
  "corp_code": "00296290",
  "corp_name": "키움증권",
- "schema_version": 2,
+ "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-11 09:50",
+ "fetched_at": "2026-09-14 09:45",
  "annual": [
   {
    "period": "2023(12)",
@@ -21,7 +21,12 @@
    "ebitda_to_interest": 0.6,
    "net_debt_to_ebitda": 33.1,
    "debt_ratio": 961.3,
-   "debt_dependency": 38.5
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 38.5,
+   "interest_coverage": 0.5,
+   "operating_cash_flow": -21475.0,
+   "net_cash_change": null
   },
   {
    "period": "2024(12)",
@@ -37,7 +42,12 @@
    "ebitda_to_interest": 1.1,
    "net_debt_to_ebitda": 21.8,
    "debt_ratio": 888.8,
-   "debt_dependency": 45.0
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 45.0,
+   "interest_coverage": 1.0,
+   "operating_cash_flow": -49713.0,
+   "net_cash_change": null
   },
   {
    "period": "2025(12)",
@@ -53,7 +63,12 @@
    "ebitda_to_interest": 1.4,
    "net_debt_to_ebitda": 22.8,
    "debt_ratio": 1107.5,
-   "debt_dependency": 43.5
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 43.5,
+   "interest_coverage": 1.3,
+   "operating_cash_flow": -63999.0,
+   "net_cash_change": null
   }
  ],
  "quarter": {
@@ -70,7 +85,12 @@
   "ebitda_to_interest": 1.9,
   "net_debt_to_ebitda": 30.8,
   "debt_ratio": 1329.2,
-  "debt_dependency": 41.2
+  "current_ratio": null,
+  "quick_ratio": null,
+  "debt_dependency": 41.2,
+  "interest_coverage": 1.9,
+  "operating_cash_flow": -71433.0,
+  "net_cash_change": null
  },
  "metrics": {
   "debt_to_equity_pct": 1329.2,

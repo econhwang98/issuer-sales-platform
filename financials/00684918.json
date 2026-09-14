@@ -1,11 +1,11 @@
 {
  "corp_code": "00684918",
  "corp_name": "아이비케이투자증권",
- "schema_version": 2,
+ "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-11 09:50",
+ "fetched_at": "2026-09-14 09:45",
  "annual": [
   {
    "period": "2023(12)",
@@ -21,7 +21,12 @@
    "ebitda_to_interest": 0.5,
    "net_debt_to_ebitda": 40.7,
    "debt_ratio": 667.3,
-   "debt_dependency": 47.0
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 47.0,
+   "interest_coverage": 0.5,
+   "operating_cash_flow": null,
+   "net_cash_change": 618.0
   },
   {
    "period": "2024(12)",
@@ -37,7 +42,12 @@
    "ebitda_to_interest": 0.5,
    "net_debt_to_ebitda": 49.9,
    "debt_ratio": 753.6,
-   "debt_dependency": 52.6
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 52.6,
+   "interest_coverage": 0.5,
+   "operating_cash_flow": null,
+   "net_cash_change": -465.0
   },
   {
    "period": "2025(12)",
@@ -53,7 +63,12 @@
    "ebitda_to_interest": 0.5,
    "net_debt_to_ebitda": 63.7,
    "debt_ratio": 683.5,
-   "debt_dependency": 47.5
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 47.5,
+   "interest_coverage": 0.4,
+   "operating_cash_flow": null,
+   "net_cash_change": -343.0
   }
  ],
  "quarter": {
@@ -70,7 +85,12 @@
   "ebitda_to_interest": 0.6,
   "net_debt_to_ebitda": 122.9,
   "debt_ratio": 848.4,
-  "debt_dependency": 45.1
+  "current_ratio": null,
+  "quick_ratio": null,
+  "debt_dependency": 45.1,
+  "interest_coverage": 0.5,
+  "operating_cash_flow": null,
+  "net_cash_change": null
  },
  "metrics": {
   "debt_to_equity_pct": 848.4,

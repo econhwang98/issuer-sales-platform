@@ -1,11 +1,11 @@
 {
  "corp_code": "00138321",
  "corp_name": "신한투자증권",
- "schema_version": 2,
+ "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-11 09:50",
+ "fetched_at": "2026-09-14 09:45",
  "annual": [
   {
    "period": "2023(12)",
@@ -21,7 +21,12 @@
    "ebitda_to_interest": 0.3,
    "net_debt_to_ebitda": 78.1,
    "debt_ratio": 878.3,
-   "debt_dependency": 47.6
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 47.6,
+   "interest_coverage": 0.3,
+   "operating_cash_flow": -56989.0,
+   "net_cash_change": null
   },
   {
    "period": "2024(12)",
@@ -37,7 +42,12 @@
    "ebitda_to_interest": 0.4,
    "net_debt_to_ebitda": 62.6,
    "debt_ratio": 792.3,
-   "debt_dependency": 46.6
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 46.6,
+   "interest_coverage": 0.3,
+   "operating_cash_flow": 17983.0,
+   "net_cash_change": null
   },
   {
    "period": "2025(12)",
@@ -53,7 +63,12 @@
    "ebitda_to_interest": 0.7,
    "net_debt_to_ebitda": 42.0,
    "debt_ratio": 832.8,
-   "debt_dependency": 43.9
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 43.9,
+   "interest_coverage": 0.6,
+   "operating_cash_flow": 19666.0,
+   "net_cash_change": null
   }
  ],
  "quarter": {
@@ -70,7 +85,12 @@
   "ebitda_to_interest": 1.9,
   "net_debt_to_ebitda": 34.5,
   "debt_ratio": 1094.0,
-  "debt_dependency": 37.7
+  "current_ratio": null,
+  "quick_ratio": null,
+  "debt_dependency": 37.7,
+  "interest_coverage": 1.8,
+  "operating_cash_flow": -18987.0,
+  "net_cash_change": null
  },
  "metrics": {
   "debt_to_equity_pct": 1094.0,

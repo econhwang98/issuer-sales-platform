@@ -1,43 +1,53 @@
 {
  "corp_code": "01110058",
  "corp_name": "바이오인프라",
- "schema_version": 2,
+ "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-11 09:50",
+ "fetched_at": "2026-09-14 09:45",
  "annual": [
   {
    "period": "2021(12)",
    "revenue": 306.0,
    "ebit": 75.0,
-   "ebitda": 75.0,
+   "ebitda": null,
    "net_income": 62.0,
    "total_assets": 337.0,
    "total_debt": 29.0,
    "net_debt": -29.0,
    "ebit_margin": 24.4,
-   "ebitda_margin": 24.4,
-   "ebitda_to_interest": 33.4,
-   "net_debt_to_ebitda": -0.4,
+   "ebitda_margin": null,
+   "ebitda_to_interest": null,
+   "net_debt_to_ebitda": null,
    "debt_ratio": 210.6,
-   "debt_dependency": 8.6
+   "current_ratio": 206.2,
+   "quick_ratio": 206.2,
+   "debt_dependency": 8.6,
+   "interest_coverage": 33.4,
+   "operating_cash_flow": null,
+   "net_cash_change": null
   },
   {
    "period": "2022(12)",
    "revenue": 354.0,
    "ebit": 64.0,
-   "ebitda": 64.0,
+   "ebitda": null,
    "net_income": 62.0,
    "total_assets": 326.0,
    "total_debt": 1.0,
    "net_debt": -73.0,
    "ebit_margin": 18.0,
-   "ebitda_margin": 18.0,
-   "ebitda_to_interest": 17.2,
-   "net_debt_to_ebitda": -1.1,
+   "ebitda_margin": null,
+   "ebitda_to_interest": null,
+   "net_debt_to_ebitda": null,
    "debt_ratio": 82.0,
-   "debt_dependency": 0.2
+   "current_ratio": 201.8,
+   "quick_ratio": 201.8,
+   "debt_dependency": 0.2,
+   "interest_coverage": 17.2,
+   "operating_cash_flow": null,
+   "net_cash_change": null
   },
   {
    "period": "2023(12)",
@@ -53,7 +63,12 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 38.4,
-   "debt_dependency": 8.8
+   "current_ratio": 252.3,
+   "quick_ratio": 252.3,
+   "debt_dependency": 8.8,
+   "interest_coverage": null,
+   "operating_cash_flow": null,
+   "net_cash_change": null
   },
   {
    "period": "2024(12)",
@@ -69,7 +84,12 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 49.2,
-   "debt_dependency": 9.7
+   "current_ratio": 160.2,
+   "quick_ratio": 160.2,
+   "debt_dependency": 9.7,
+   "interest_coverage": null,
+   "operating_cash_flow": null,
+   "net_cash_change": null
   },
   {
    "period": "2025(12)",
@@ -85,24 +105,34 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 112.0,
-   "debt_dependency": 30.6
+   "current_ratio": 68.6,
+   "quick_ratio": 68.6,
+   "debt_dependency": 30.6,
+   "interest_coverage": null,
+   "operating_cash_flow": null,
+   "net_cash_change": null
   }
  ],
  "quarter": {
   "period": "2026 반기",
   "revenue": 140.0,
   "ebit": -23.0,
-  "ebitda": -23.0,
+  "ebitda": null,
   "net_income": -25.0,
   "total_assets": 342.0,
   "total_debt": 127.0,
   "net_debt": 99.0,
   "ebit_margin": -16.7,
-  "ebitda_margin": -16.7,
+  "ebitda_margin": null,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 171.4,
-  "debt_dependency": 37.2
+  "current_ratio": 58.1,
+  "quick_ratio": 58.1,
+  "debt_dependency": 37.2,
+  "interest_coverage": -10.5,
+  "operating_cash_flow": null,
+  "net_cash_change": null
  },
  "metrics": {
   "debt_to_equity_pct": 171.4,
