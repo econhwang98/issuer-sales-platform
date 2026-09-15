@@ -1,11 +1,11 @@
 {
  "corp_code": "00453929",
  "corp_name": "메디포스트",
- "schema_version": 2,
+ "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-11 09:50",
+ "fetched_at": "2026-09-15 10:11",
  "annual": [
   {
    "period": "2021(12)",
@@ -21,7 +21,12 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 56.7,
-   "debt_dependency": 11.1
+   "current_ratio": 195.9,
+   "quick_ratio": 172.0,
+   "debt_dependency": 11.1,
+   "interest_coverage": -0.7,
+   "operating_cash_flow": 41.0,
+   "net_cash_change": 15.0
   },
   {
    "period": "2022(12)",
@@ -37,7 +42,12 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 117.9,
-   "debt_dependency": 12.0
+   "current_ratio": 98.2,
+   "quick_ratio": 91.9,
+   "debt_dependency": 12.0,
+   "interest_coverage": -1.7,
+   "operating_cash_flow": -62.0,
+   "net_cash_change": 41.0
   },
   {
    "period": "2023(12)",
@@ -53,7 +63,12 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 43.3,
-   "debt_dependency": 2.2
+   "current_ratio": 305.6,
+   "quick_ratio": 282.7,
+   "debt_dependency": 2.2,
+   "interest_coverage": -2.0,
+   "operating_cash_flow": -191.0,
+   "net_cash_change": null
   },
   {
    "period": "2024(12)",
@@ -69,7 +84,12 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 64.0,
-   "debt_dependency": 2.4
+   "current_ratio": 166.0,
+   "quick_ratio": 146.1,
+   "debt_dependency": 2.4,
+   "interest_coverage": -2.5,
+   "operating_cash_flow": -373.0,
+   "net_cash_change": null
   },
   {
    "period": "2025(12)",
@@ -85,7 +105,12 @@
    "ebitda_to_interest": null,
    "net_debt_to_ebitda": null,
    "debt_ratio": 72.7,
-   "debt_dependency": 10.7
+   "current_ratio": 132.5,
+   "quick_ratio": 111.1,
+   "debt_dependency": 10.7,
+   "interest_coverage": -2.8,
+   "operating_cash_flow": -571.0,
+   "net_cash_change": null
   }
  ],
  "quarter": {
@@ -102,7 +127,12 @@
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 104.2,
-  "debt_dependency": 28.4
+  "current_ratio": 127.4,
+  "quick_ratio": 116.8,
+  "debt_dependency": 28.4,
+  "interest_coverage": -2.7,
+  "operating_cash_flow": -298.0,
+  "net_cash_change": null
  },
  "metrics": {
   "debt_to_equity_pct": 104.2,

@@ -1,11 +1,11 @@
 {
  "corp_code": "01288410",
  "corp_name": "셀바이오휴먼텍",
- "schema_version": 2,
+ "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-11 09:50",
+ "fetched_at": "2026-09-15 10:11",
  "annual": [
   {
    "period": "2023(12)",
@@ -21,7 +21,12 @@
    "ebitda_to_interest": 3.9,
    "net_debt_to_ebitda": 0.4,
    "debt_ratio": 19.4,
-   "debt_dependency": 11.1
+   "current_ratio": 314.5,
+   "quick_ratio": 217.8,
+   "debt_dependency": 11.1,
+   "interest_coverage": 2.4,
+   "operating_cash_flow": 18.0,
+   "net_cash_change": -4.0
   },
   {
    "period": "2024(12)",
@@ -37,7 +42,12 @@
    "ebitda_to_interest": 3.7,
    "net_debt_to_ebitda": 0.2,
    "debt_ratio": 14.0,
-   "debt_dependency": 7.7
+   "current_ratio": 381.8,
+   "quick_ratio": 309.4,
+   "debt_dependency": 7.7,
+   "interest_coverage": 2.5,
+   "operating_cash_flow": 93.0,
+   "net_cash_change": -10.0
   },
   {
    "period": "2025(12)",
@@ -53,7 +63,12 @@
    "ebitda_to_interest": 7.0,
    "net_debt_to_ebitda": 0.3,
    "debt_ratio": 49.9,
-   "debt_dependency": 22.5
+   "current_ratio": 229.3,
+   "quick_ratio": 157.1,
+   "debt_dependency": 22.5,
+   "interest_coverage": 5.5,
+   "operating_cash_flow": 15.0,
+   "net_cash_change": 128.0
   }
  ],
  "quarter": {
@@ -70,7 +85,12 @@
   "ebitda_to_interest": 5.9,
   "net_debt_to_ebitda": 1.4,
   "debt_ratio": 44.7,
-  "debt_dependency": 22.0
+  "current_ratio": 286.6,
+  "quick_ratio": 184.6,
+  "debt_dependency": 22.0,
+  "interest_coverage": 4.4,
+  "operating_cash_flow": 33.0,
+  "net_cash_change": null
  },
  "metrics": {
   "debt_to_equity_pct": 44.7,

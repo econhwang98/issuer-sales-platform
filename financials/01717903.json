@@ -1,11 +1,11 @@
 {
  "corp_code": "01717903",
  "corp_name": "우리금융에프앤아이",
- "schema_version": 2,
+ "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-11 09:50",
+ "fetched_at": "2026-09-15 10:11",
  "annual": [
   {
    "period": "2023(12)",
@@ -21,7 +21,12 @@
    "ebitda_to_interest": 0.3,
    "net_debt_to_ebitda": 149.8,
    "debt_ratio": 329.3,
-   "debt_dependency": 75.9
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 75.9,
+   "interest_coverage": 0.3,
+   "operating_cash_flow": -4806.0,
+   "net_cash_change": 50.0
   },
   {
    "period": "2024(12)",
@@ -37,7 +42,12 @@
    "ebitda_to_interest": 0.3,
    "net_debt_to_ebitda": 69.6,
    "debt_ratio": 271.0,
-   "debt_dependency": 72.5
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 72.5,
+   "interest_coverage": 0.3,
+   "operating_cash_flow": -3938.0,
+   "net_cash_change": -59.0
   },
   {
    "period": "2025(12)",
@@ -53,7 +63,12 @@
    "ebitda_to_interest": 0.2,
    "net_debt_to_ebitda": 163.0,
    "debt_ratio": 272.8,
-   "debt_dependency": 72.3
+   "current_ratio": null,
+   "quick_ratio": null,
+   "debt_dependency": 72.3,
+   "interest_coverage": 0.1,
+   "operating_cash_flow": -262.0,
+   "net_cash_change": -38.0
   }
  ],
  "quarter": {
@@ -70,7 +85,12 @@
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
   "debt_ratio": 387.8,
-  "debt_dependency": 79.0
+  "current_ratio": null,
+  "quick_ratio": null,
+  "debt_dependency": 79.0,
+  "interest_coverage": -0.5,
+  "operating_cash_flow": -3419.0,
+  "net_cash_change": 239.0
  },
  "metrics": {
   "debt_to_equity_pct": 387.8,

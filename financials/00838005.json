@@ -1,11 +1,11 @@
 {
  "corp_code": "00838005",
  "corp_name": "서진시스템",
- "schema_version": 2,
+ "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-11 09:50",
+ "fetched_at": "2026-09-15 10:11",
  "annual": [
   {
    "period": "2021(12)",
@@ -21,7 +21,12 @@
    "ebitda_to_interest": 3.8,
    "net_debt_to_ebitda": 3.6,
    "debt_ratio": 191.5,
-   "debt_dependency": 38.4
+   "current_ratio": 121.1,
+   "quick_ratio": 42.7,
+   "debt_dependency": 38.4,
+   "interest_coverage": 2.1,
+   "operating_cash_flow": -53.0,
+   "net_cash_change": 21.0
   },
   {
    "period": "2022(12)",
@@ -37,7 +42,12 @@
    "ebitda_to_interest": 2.0,
    "net_debt_to_ebitda": 3.3,
    "debt_ratio": 156.7,
-   "debt_dependency": 27.6
+   "current_ratio": 109.9,
+   "quick_ratio": 30.5,
+   "debt_dependency": 27.6,
+   "interest_coverage": 0.8,
+   "operating_cash_flow": 242.0,
+   "net_cash_change": -57.0
   },
   {
    "period": "2023(12)",
@@ -53,7 +63,12 @@
    "ebitda_to_interest": 1.4,
    "net_debt_to_ebitda": 5.0,
    "debt_ratio": 205.2,
-   "debt_dependency": 43.3
+   "current_ratio": 84.8,
+   "quick_ratio": 17.5,
+   "debt_dependency": 43.3,
+   "interest_coverage": 0.5,
+   "operating_cash_flow": null,
+   "net_cash_change": -29.0
   },
   {
    "period": "2024(12)",
@@ -69,7 +84,12 @@
    "ebitda_to_interest": 1.5,
    "net_debt_to_ebitda": 3.9,
    "debt_ratio": 140.2,
-   "debt_dependency": 39.4
+   "current_ratio": 129.0,
+   "quick_ratio": 41.7,
+   "debt_dependency": 39.4,
+   "interest_coverage": 0.8,
+   "operating_cash_flow": null,
+   "net_cash_change": 238.0
   },
   {
    "period": "2025(12)",
@@ -85,7 +105,12 @@
    "ebitda_to_interest": 0.6,
    "net_debt_to_ebitda": 10.7,
    "debt_ratio": 212.6,
-   "debt_dependency": 51.3
+   "current_ratio": 86.5,
+   "quick_ratio": 24.8,
+   "debt_dependency": 51.3,
+   "interest_coverage": 0.0,
+   "operating_cash_flow": null,
+   "net_cash_change": -115.0
   }
  ],
  "quarter": {
@@ -102,7 +127,12 @@
   "ebitda_to_interest": 0.1,
   "net_debt_to_ebitda": 137.2,
   "debt_ratio": 206.2,
-  "debt_dependency": 44.0
+  "current_ratio": 93.6,
+  "quick_ratio": 33.2,
+  "debt_dependency": 44.0,
+  "interest_coverage": -0.6,
+  "operating_cash_flow": null,
+  "net_cash_change": 129.0
  },
  "metrics": {
   "debt_to_equity_pct": 206.2,
