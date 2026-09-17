@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>콜콜 (Cold Call) | 오늘 연락할 발행사를 콕 집어주는 플랫폼</title>
+  <title>시시콜콜 | 시시때때로 Cold Call, 오늘 연락할 발행사를 콕 집어주는 플랫폼</title>
   <style>
     :root {
       --bg: #f4f6f9;
@@ -301,6 +301,7 @@
       font: inherit; font-size: 13px; color: #101828;
     }
     .memo-hint { font-size: 12px; color: #667085; margin-top: 6px; }
+    .brand-sub { font-size: .45em; font-weight: 700; color: #667085; margin-left: 8px; letter-spacing: 0; vertical-align: middle; }
     .disclaimer-bar {
       margin-top: 18px; padding: 18px 20px; border-radius: 14px;
       background: #f2f4f7; border: 1px solid var(--line); color: #475467;
@@ -504,8 +505,8 @@
           </svg>
         </div>
         <div>
-          <strong>콜콜 (Cold Call)</strong>
-          <span>오늘 연락할 발행사를<br />콕 집어주는 플랫폼</span>
+          <strong>시시콜콜</strong>
+          <span>시시때때로 Cold Call<br />오늘 연락할 발행사를 콕</span>
         </div>
       </div>
       <nav class="nav-stack">
@@ -530,13 +531,13 @@
 
     <main class="main">
       <div class="mobile-brief">
-        <strong>콜콜 (Cold Call)</strong>
+        <strong>시시콜콜</strong>
         <p id="mobileSummary">오늘 연락할 발행사를 콕 집어주는 플랫폼</p>
       </div>
 
       <header class="topbar">
         <div class="title">
-          <h1>콜콜 (Cold Call)</h1>
+          <h1>시시콜콜 <small class="brand-sub">시시때때로 Cold Call</small></h1>
           <p id="pageSub">오늘 연락할 발행사를 콕 집어주는 플랫폼</p>
         </div>
         <div class="top-actions">
@@ -810,7 +811,7 @@
       as_of_date: "sample",
       policy_version: "sample-ui",
       service: {
-        name: "콜콜 (Cold Call)",
+        name: "시시콜콜",
         subtitle: "오늘 연락할 발행사를 콕 집어주는 플랫폼",
         description: "스냅샷을 불러오지 못해 예시 데이터를 표시합니다."
       },
@@ -1688,7 +1689,7 @@
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `callcall-issuer-radar-${state.snapshot.as_of_date || "snapshot"}.csv`;
+      anchor.download = `sisicallcall-issuer-radar-${state.snapshot.as_of_date || "snapshot"}.csv`;
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
@@ -2130,7 +2131,7 @@
 
       return `<div class="report-doc"><div class="sheet">
   <div class="cover">
-    <div class="kicker">CALL CALL · 기업 검토보고서</div>
+    <div class="kicker">시시콜콜 · 기업 검토보고서</div>
     <h1>${escapeHtml(r.corp_name)}</h1>
     <div class="meta">
       기준일 ${escapeHtml(r.as_of_date)} · 작성 ${escapeHtml(record.generated_at)} · ${record.revision}판
