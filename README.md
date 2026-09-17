@@ -1,8 +1,8 @@
-# 콜콜 (Cold Call)
+# 시시콜콜 — 시시때때로 Cold Call
 
-**콜콜 (Cold Call)**은 오늘 연락할 발행사를 콕 집어주는 플랫폼입니다. 고정 HTML + `daily_snapshot.json` 자동 갱신 방식으로 운영되는 외부 배포용 발행사 선제 영업 플랫폼입니다.
+**시시콜콜**은 시시때때로 Cold Call 한다는 뜻으로, 오늘 연락할 발행사를 콕 집어주는 플랫폼입니다. 고정 HTML + `daily_snapshot.json` 자동 갱신 방식으로 운영되는 외부 배포용 발행사 선제 영업 플랫폼입니다.
 
-이번 버전은 **콜콜 (Cold Call) v12 전문 금융분류 고도화 패치**입니다. 기존처럼 대부분 기업이 `Risk Low / 기초 모니터링`으로만 떨어지는 현상을 줄이기 위해 위험수준, 위험유형, 자금수요, 추천 금융구조, 검토단계를 세분화했습니다.
+이번 버전은 **시시콜콜 v12 전문 금융분류 고도화 패치**입니다. 기존처럼 대부분 기업이 `Risk Low / 기초 모니터링`으로만 떨어지는 현상을 줄이기 위해 위험수준, 위험유형, 자금수요, 추천 금융구조, 검토단계를 세분화했습니다.
 
 ## 우선순위 설계 원칙
 
@@ -116,7 +116,7 @@ schedule:
 수동 실행도 가능합니다.
 
 ```text
-GitHub repository → Actions → 콜콜 (Cold Call) daily snapshot update → Run workflow
+GitHub repository → Actions → 발행사 선제 영업 플랫폼 일일 스냅샷 업데이트 → Run workflow
 ```
 
 ## 필수 GitHub Secrets
@@ -200,7 +200,7 @@ credit_ratings.csv
 credit_ratings_template.csv
 ```
 
-그 다음 `Commit changes`를 누르고, Actions에서 `콜콜 (Cold Call) daily snapshot update`를 수동 실행합니다.
+그 다음 `Commit changes`를 누르고, Actions에서 `발행사 선제 영업 플랫폼 일일 스냅샷 업데이트`를 수동 실행합니다.
 
 실행 성공 후 `daily_snapshot.json`에서 아래 값을 확인합니다.
 
