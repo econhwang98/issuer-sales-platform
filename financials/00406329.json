@@ -1,11 +1,11 @@
 {
  "corp_code": "00406329",
- "corp_name": "루멘스",
+ "corp_name": "루멘스바이오스",
  "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-14 09:45",
+ "fetched_at": "2026-09-21 09:51",
  "annual": [
   {
    "period": "2021(12)",
