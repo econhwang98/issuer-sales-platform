@@ -1,11 +1,11 @@
 {
  "corp_code": "01323032",
- "corp_name": "케이카",
+ "corp_name": "KG모빌리티플랫폼",
  "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-19 09:59",
+ "fetched_at": "2026-09-26 10:12",
  "annual": [
   {
    "period": "2021(12)",
