@@ -5,7 +5,7 @@
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-09-26 10:12",
+ "fetched_at": "2026-10-03 10:44",
  "annual": [
   {
    "period": "2021(12)",
@@ -115,13 +115,13 @@
  ],
  "quarter": {
   "period": "2026 반기",
-  "revenue": 4423.0,
-  "ebit": 208.0,
+  "revenue": 4422775.0,
+  "ebit": 207842.0,
   "ebitda": null,
-  "net_income": 180.0,
-  "total_assets": 5189.0,
-  "total_debt": 1445.0,
-  "net_debt": 1128.0,
+  "net_income": 180000.0,
+  "total_assets": 5188548.0,
+  "total_debt": 1445079.0,
+  "net_debt": 1128489.0,
   "ebit_margin": 4.7,
   "ebitda_margin": null,
   "ebitda_to_interest": null,
@@ -131,7 +131,7 @@
   "quick_ratio": 55.5,
   "debt_dependency": 27.9,
   "interest_coverage": 3.8,
-  "operating_cash_flow": 176.0,
+  "operating_cash_flow": 175658.0,
   "net_cash_change": null
  },
  "metrics": {
@@ -140,8 +140,8 @@
   "quick_ratio_pct": 55.5,
   "debt_dependence_pct": 27.9,
   "interest_coverage": 3.8,
-  "operating_cash_flow": 17565755426.0,
-  "investing_cash_flow": -6705050951.0,
+  "operating_cash_flow": 17565755426000.0,
+  "investing_cash_flow": -6705050951000.0,
   "net_cash_change": null
  }
 }
