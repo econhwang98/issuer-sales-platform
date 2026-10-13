@@ -1,11 +1,11 @@
 {
  "corp_code": "01798980",
- "corp_name": "유안타제15호스팩",
+ "corp_name": "유안타제15호기업인수목적",
  "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-21 09:51",
+ "fetched_at": "2026-10-13 12:21",
  "annual": [
   {
    "period": "2023(12)",
