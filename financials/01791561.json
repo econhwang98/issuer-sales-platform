@@ -1,11 +1,11 @@
 {
  "corp_code": "01791561",
- "corp_name": "하나31호스팩",
+ "corp_name": "하나31호기업인수목적",
  "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-20 09:41",
+ "fetched_at": "2026-10-14 10:36",
  "annual": [
   {
    "period": "2023(12)",
