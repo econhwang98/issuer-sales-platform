@@ -1,0 +1,43 @@
+{
+ "corp_code": "01696275",
+ "corp_name": "하나26호기업인수목적",
+ "schema_version": 4,
+ "unit": "억원",
+ "latest_period": "2022(12)",
+ "source": "OpenDART fnlttSinglAcntAll (OFS)",
+ "fetched_at": "2026-10-17 10:05",
+ "annual": [
+  {
+   "period": "2022(12)",
+   "revenue": 0.0,
+   "ebit": -0.0,
+   "ebitda": null,
+   "net_income": -0.0,
+   "total_assets": 24.0,
+   "total_debt": 15.0,
+   "net_debt": 8.0,
+   "ebit_margin": null,
+   "ebitda_margin": null,
+   "ebitda_to_interest": null,
+   "net_debt_to_ebitda": null,
+   "debt_ratio": 194.6,
+   "current_ratio": 82925.4,
+   "quick_ratio": 82925.4,
+   "debt_dependency": 62.8,
+   "interest_coverage": -0.8,
+   "operating_cash_flow": -0.0,
+   "net_cash_change": 7.0
+  }
+ ],
+ "quarter": null,
+ "metrics": {
+  "debt_to_equity_pct": 194.6,
+  "current_ratio_pct": 82925.4,
+  "quick_ratio_pct": 82925.4,
+  "debt_dependence_pct": 62.8,
+  "interest_coverage": -0.8,
+  "operating_cash_flow": -11330539.0,
+  "investing_cash_flow": -1700000000.0,
+  "net_cash_change": 685199761.0
+ }
+}
