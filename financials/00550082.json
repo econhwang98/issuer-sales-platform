@@ -1,11 +1,11 @@
 {
  "corp_code": "00550082",
- "corp_name": "캔버스엔",
+ "corp_name": "빅텐츠",
  "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-09-14 09:45",
+ "fetched_at": "2026-10-21 10:19",
  "annual": [
   {
    "period": "2021(12)",
