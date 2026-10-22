@@ -1,11 +1,11 @@
 {
  "corp_code": "00120872",
- "corp_name": "만호제강",
+ "corp_name": "MH머트리얼즈",
  "schema_version": 4,
  "unit": "억원",
  "latest_period": "2025(12)",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-10-15 10:13",
+ "fetched_at": "2026-10-22 10:15",
  "annual": [
   {
    "period": "2021(12)",
