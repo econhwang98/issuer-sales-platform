@@ -5,7 +5,7 @@
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-10-27 10:49",
+ "fetched_at": "2026-11-03 12:50",
  "annual": [
   {
    "period": "2021(12)",
@@ -53,15 +53,15 @@
    "period": "2023(12)",
    "revenue": 177.0,
    "ebit": -1.0,
-   "ebitda": 16.0,
+   "ebitda": 11.0,
    "net_income": 27.0,
    "total_assets": 834.0,
    "total_debt": 6.0,
    "net_debt": -33.0,
    "ebit_margin": -0.5,
-   "ebitda_margin": 9.2,
-   "ebitda_to_interest": 25.5,
-   "net_debt_to_ebitda": -2.0,
+   "ebitda_margin": 6.3,
+   "ebitda_to_interest": 17.4,
+   "net_debt_to_ebitda": -3.0,
    "debt_ratio": 5.2,
    "current_ratio": 2401.8,
    "quick_ratio": 2276.5,
@@ -88,8 +88,8 @@
    "quick_ratio": 2188.3,
    "debt_dependency": 0.7,
    "interest_coverage": -2.2,
-   "operating_cash_flow": 42.0,
-   "net_cash_change": 106.0
+   "operating_cash_flow": 45.0,
+   "net_cash_change": 109.0
   },
   {
    "period": "2025(12)",
@@ -98,8 +98,8 @@
    "ebitda": -34.0,
    "net_income": -27.0,
    "total_assets": 760.0,
-   "total_debt": 4.0,
-   "net_debt": -24.0,
+   "total_debt": null,
+   "net_debt": null,
    "ebit_margin": -30.6,
    "ebitda_margin": -24.3,
    "ebitda_to_interest": null,
@@ -107,10 +107,10 @@
    "debt_ratio": 6.9,
    "current_ratio": 2110.1,
    "quick_ratio": 2019.0,
-   "debt_dependency": 0.6,
+   "debt_dependency": null,
    "interest_coverage": -24.6,
-   "operating_cash_flow": 19.0,
-   "net_cash_change": -95.0
+   "operating_cash_flow": -5.0,
+   "net_cash_change": -120.0
   }
  ],
  "quarter": {
@@ -132,16 +132,16 @@
   "debt_dependency": null,
   "interest_coverage": -56.4,
   "operating_cash_flow": -1.0,
-  "net_cash_change": null
+  "net_cash_change": -20.0
  },
  "metrics": {
   "debt_to_equity_pct": 7.3,
   "current_ratio_pct": 1891.6,
   "quick_ratio_pct": 1796.7,
-  "debt_dependence_pct": 0.6,
+  "debt_dependence_pct": null,
   "interest_coverage": -56.4,
   "operating_cash_flow": -132832424.0,
   "investing_cash_flow": 1238768883.0,
-  "net_cash_change": -9539058591.0
+  "net_cash_change": -2046560619.0
  }
 }
