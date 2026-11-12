@@ -3,9 +3,9 @@
  "corp_name": "MH머트리얼즈",
  "schema_version": 4,
  "unit": "억원",
- "latest_period": "2025(12)",
+ "latest_period": "2026 1분기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-11-05 12:12",
+ "fetched_at": "2026-11-12 12:37",
  "annual": [
   {
    "period": "2021(12)",
@@ -113,15 +113,35 @@
    "net_cash_change": 75.0
   }
  ],
- "quarter": null,
+ "quarter": {
+  "period": "2026 1분기",
+  "revenue": 360.0,
+  "ebit": 3.0,
+  "ebitda": null,
+  "net_income": -24.0,
+  "total_assets": 4765.0,
+  "total_debt": 702.0,
+  "net_debt": 533.0,
+  "ebit_margin": 0.8,
+  "ebitda_margin": null,
+  "ebitda_to_interest": null,
+  "net_debt_to_ebitda": null,
+  "debt_ratio": 34.2,
+  "current_ratio": 131.5,
+  "quick_ratio": 96.0,
+  "debt_dependency": 14.7,
+  "interest_coverage": 0.1,
+  "operating_cash_flow": -61.0,
+  "net_cash_change": null
+ },
  "metrics": {
-  "debt_to_equity_pct": 12.0,
-  "current_ratio_pct": 686.8,
-  "quick_ratio_pct": 512.9,
-  "debt_dependence_pct": 0.0,
-  "interest_coverage": -9.7,
-  "operating_cash_flow": 6776433713.0,
-  "investing_cash_flow": -9151625724.0,
+  "debt_to_equity_pct": 34.2,
+  "current_ratio_pct": 131.5,
+  "quick_ratio_pct": 96.0,
+  "debt_dependence_pct": 14.7,
+  "interest_coverage": 0.1,
+  "operating_cash_flow": -6108079044.0,
+  "investing_cash_flow": -19907498930.0,
   "net_cash_change": 7547098400.0
  }
 }
