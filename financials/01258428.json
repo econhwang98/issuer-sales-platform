@@ -3,9 +3,9 @@
  "corp_name": "프레스티지바이오로직스",
  "schema_version": 4,
  "unit": "억원",
- "latest_period": "2025(12)",
+ "latest_period": "2026 1분기",
  "source": "OpenDART fnlttSinglAcntAll (OFS)",
- "fetched_at": "2026-11-12 12:37",
+ "fetched_at": "2026-11-19 12:58",
  "annual": [
   {
    "period": "2021(12)",
@@ -113,15 +113,35 @@
    "net_cash_change": -279.0
   }
  ],
- "quarter": null,
+ "quarter": {
+  "period": "2026 1분기",
+  "revenue": 40.0,
+  "ebit": -44.0,
+  "ebitda": null,
+  "net_income": -58.0,
+  "total_assets": 2632.0,
+  "total_debt": 1005.0,
+  "net_debt": 987.0,
+  "ebit_margin": -109.1,
+  "ebitda_margin": null,
+  "ebitda_to_interest": null,
+  "net_debt_to_ebitda": null,
+  "debt_ratio": 210.8,
+  "current_ratio": 29.4,
+  "quick_ratio": 5.3,
+  "debt_dependency": 38.2,
+  "interest_coverage": -1.2,
+  "operating_cash_flow": -19.0,
+  "net_cash_change": null
+ },
  "metrics": {
-  "debt_to_equity_pct": 99.9,
-  "current_ratio_pct": 39.9,
-  "quick_ratio_pct": 13.6,
-  "debt_dependence_pct": 28.6,
-  "interest_coverage": -3.1,
-  "operating_cash_flow": -18307750680.0,
-  "investing_cash_flow": -5558153104.0,
+  "debt_to_equity_pct": 210.8,
+  "current_ratio_pct": 29.4,
+  "quick_ratio_pct": 5.3,
+  "debt_dependence_pct": 38.2,
+  "interest_coverage": -1.2,
+  "operating_cash_flow": -1869164445.0,
+  "investing_cash_flow": -537187666.0,
   "net_cash_change": -27925507499.0
  }
 }
