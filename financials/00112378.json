@@ -1,11 +1,11 @@
 {
  "corp_code": "00112378",
- "corp_name": "KR모터스",
+ "corp_name": "다이나맥",
  "schema_version": 4,
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-11-07 11:32",
+ "fetched_at": "2026-11-23 12:30",
  "annual": [
   {
    "period": "2021(12)",

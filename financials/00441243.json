@@ -3,9 +3,9 @@
  "corp_name": "형지엘리트",
  "schema_version": 4,
  "unit": "억원",
- "latest_period": "2025(12)",
+ "latest_period": "2026 1분기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-11-15 11:24",
+ "fetched_at": "2026-11-23 12:30",
  "annual": [
   {
    "period": "2021(12)",
@@ -113,15 +113,35 @@
    "net_cash_change": null
   }
  ],
- "quarter": null,
+ "quarter": {
+  "period": "2026 1분기",
+  "revenue": 375.0,
+  "ebit": 44.0,
+  "ebitda": 52.0,
+  "net_income": 42.0,
+  "total_assets": 1940.0,
+  "total_debt": 491.0,
+  "net_debt": 464.0,
+  "ebit_margin": 11.7,
+  "ebitda_margin": 13.8,
+  "ebitda_to_interest": 6.5,
+  "net_debt_to_ebitda": 9.0,
+  "debt_ratio": 59.8,
+  "current_ratio": 224.9,
+  "quick_ratio": 159.0,
+  "debt_dependency": 25.3,
+  "interest_coverage": 5.5,
+  "operating_cash_flow": -57.0,
+  "net_cash_change": null
+ },
  "metrics": {
-  "debt_to_equity_pct": 107.5,
-  "current_ratio_pct": 169.2,
-  "quick_ratio_pct": 130.3,
-  "debt_dependence_pct": 31.0,
-  "interest_coverage": 0.6,
-  "operating_cash_flow": -22869722246.0,
-  "investing_cash_flow": -5040259480.0,
+  "debt_to_equity_pct": 59.8,
+  "current_ratio_pct": 224.9,
+  "quick_ratio_pct": 159.0,
+  "debt_dependence_pct": 25.3,
+  "interest_coverage": 5.5,
+  "operating_cash_flow": -5696051728.0,
+  "investing_cash_flow": -155486103.0,
   "net_cash_change": null
  }
 }
