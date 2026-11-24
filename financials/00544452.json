@@ -5,7 +5,7 @@
  "unit": "억원",
  "latest_period": "2026 반기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-11-09 11:23",
+ "fetched_at": "2026-11-24 15:46",
  "annual": [
   {
    "period": "2021(12)",
@@ -115,33 +115,33 @@
  ],
  "quarter": {
   "period": "2026 반기",
-  "revenue": 117.0,
+  "revenue": 118.0,
   "ebit": 92.0,
   "ebitda": null,
-  "net_income": 34.0,
-  "total_assets": 6618.0,
-  "total_debt": 4278.0,
-  "net_debt": 4119.0,
-  "ebit_margin": 78.5,
+  "net_income": 32.0,
+  "total_assets": 6591.0,
+  "total_debt": 4288.0,
+  "net_debt": 4118.0,
+  "ebit_margin": 78.4,
   "ebitda_margin": null,
   "ebitda_to_interest": null,
   "net_debt_to_ebitda": null,
-  "debt_ratio": 219.5,
-  "current_ratio": 265.3,
-  "quick_ratio": 265.3,
-  "debt_dependency": 64.6,
-  "interest_coverage": 1.6,
-  "operating_cash_flow": 56.0,
-  "net_cash_change": -56.0
+  "debt_ratio": 225.2,
+  "current_ratio": 4.0,
+  "quick_ratio": 4.0,
+  "debt_dependency": 65.1,
+  "interest_coverage": 1.5,
+  "operating_cash_flow": 59.0,
+  "net_cash_change": -51.0
  },
  "metrics": {
-  "debt_to_equity_pct": 219.5,
-  "current_ratio_pct": 265.3,
-  "quick_ratio_pct": 265.3,
-  "debt_dependence_pct": 64.6,
-  "interest_coverage": 1.6,
-  "operating_cash_flow": 5614836672.0,
+  "debt_to_equity_pct": 225.2,
+  "current_ratio_pct": 4.0,
+  "quick_ratio_pct": 4.0,
+  "debt_dependence_pct": 65.1,
+  "interest_coverage": 1.5,
+  "operating_cash_flow": 5865420687.0,
   "investing_cash_flow": 0.0,
-  "net_cash_change": -5591863416.0
+  "net_cash_change": -5140928891.0
  }
 }
