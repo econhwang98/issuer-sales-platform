@@ -3,9 +3,9 @@
  "corp_name": "프레스티지바이오파마",
  "schema_version": 4,
  "unit": "억원",
- "latest_period": "2025(12)",
+ "latest_period": "2026 1분기",
  "source": "OpenDART fnlttSinglAcntAll (CFS)",
- "fetched_at": "2026-11-18 13:01",
+ "fetched_at": "2026-11-26 13:42",
  "annual": [
   {
    "period": "2021(12)",
@@ -113,15 +113,35 @@
    "net_cash_change": -1.0
   }
  ],
- "quarter": null,
+ "quarter": {
+  "period": "2026 1분기",
+  "revenue": 0.0,
+  "ebit": -0.0,
+  "ebitda": null,
+  "net_income": -0.0,
+  "total_assets": 5.0,
+  "total_debt": 1.0,
+  "net_debt": 0.0,
+  "ebit_margin": -519.7,
+  "ebitda_margin": null,
+  "ebitda_to_interest": null,
+  "net_debt_to_ebitda": null,
+  "debt_ratio": 49.9,
+  "current_ratio": 64.8,
+  "quick_ratio": 35.8,
+  "debt_dependency": 15.0,
+  "interest_coverage": -4.1,
+  "operating_cash_flow": -0.0,
+  "net_cash_change": -0.0
+ },
  "metrics": {
-  "debt_to_equity_pct": 46.7,
-  "current_ratio_pct": 127.0,
-  "quick_ratio_pct": 110.7,
-  "debt_dependence_pct": 19.3,
-  "interest_coverage": -5.8,
-  "operating_cash_flow": -37175838.0,
-  "investing_cash_flow": -72594427.0,
-  "net_cash_change": -72894944.0
+  "debt_to_equity_pct": 49.9,
+  "current_ratio_pct": 64.8,
+  "quick_ratio_pct": 35.8,
+  "debt_dependence_pct": 15.0,
+  "interest_coverage": -4.1,
+  "operating_cash_flow": -10443527.0,
+  "investing_cash_flow": -1020723.0,
+  "net_cash_change": -8575494.0
  }
 }
